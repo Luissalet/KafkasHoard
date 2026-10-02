@@ -62,13 +62,16 @@ Annotations: none.
 | Argument | Required | Description |
 |---|---|---|
 | `title` (string) | yes |  |
-| `date` (string) | yes | YYYY-MM-DD |
-| `kind` (string) | no | One of payment, renewal, cancel_by, warranty_end, permanence_end, appeal, fine_discount, expiry, itv, tax, custom. |
+| `date` (string) | no | YYYY-MM-DD |
+| `due` (string) | no | YYYY-MM-DD: the same as date, under the name other family apps use. One of date or due is required. |
+| `kind` (string) | no | One of payment, renewal, cancel_by, warranty_end, permanence_end, appeal, fine_discount, expiry, itv, tax, custom (the agenda kinds followup, maintenance, exam and the like are filed as custom). |
 | `remind` (array/null) | no | Lead days before the date, e.g. [30, 7, 0]. Default depends on the kind. |
 | `doc` (string) | no | Document id it belongs to (optional). |
 | `recurring` (none \| monthly \| yearly) | no |  |
 | `notes` (string) | no |  |
+| `note` (string) | no | The same as notes, under the name other family apps use. |
 | `amount` (number/null) | no |  |
+| `source_ref` (string) | no | hoard://<app>/<kind>/<id> of the record in another app this deadline comes from. With the title it makes adding idempotent: the same pair updates the deadline. |
 | `source` (string) | no | App id that owns this deadline (e.g. homehoard). With external_key: adding again updates it. |
 | `external_key` (string) | no | The owner app's stable key for this deadline; (source, external_key) never duplicates. |
 | `basis` (string) | no | Why this date: the rule or legal basis the owner app applied (shown by deadline_explain). |
@@ -139,6 +142,48 @@ Annotations: destructiveHint.
 |---|---|---|
 | `deadline` (string) | yes |  |
 | `confirm` (boolean) | no |  |
+
+## `deadlines_from_minutes`
+
+Add a deadline per dated action item of meeting minutes. Plazos desde el acta de una reunión.
+
+Reads the minutes from Funes through the family hub; items for someone else or without a date are skipped. Adding the same minutes again changes nothing. Own names go in the minutes.me setting.
+Sinónimos: acta, reunión, tareas de la reunión, compromisos con fecha, acciones acordadas
+
+Annotations: idempotentHint, openWorldHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `minutes_id` (string) | yes | Id of the minutes in Funes (funes.minutes.ready event, minutes_get). |
+
+## `tax_pack`
+
+Build the income-tax folder of a year: documents, index, CSV, Ledger summary. Paquete de la renta.
+
+Copies (never moves) the year's tax office letters, payslips and withholding certificates, bank certificates, donations, rent, mortgage and loan papers and invoices tagged deducible into «Renta <year>» with index.md, documentos.csv and a zip, and lists the usual certificates that are missing. The fiscal year is the calendar year.
+Sinónimos: declaración de la renta, IRPF, Hacienda, certificados, desgravaciones, gastos deducibles, preparar la renta
+
+Annotations: openWorldHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `year` (integer/null) | no | Fiscal year (the calendar year in Spain). Default: the previous year. |
+| `out_dir` (string) | no | Absolute folder to create «Renta <year>» in. Default: the workshop folder. |
+| `zip` (boolean) | no | Also write «Renta <year>.zip» next to the folder. |
+
+## `document_link_tx`
+
+Link an invoice or receipt to its payment in Ledger; candidates when unsure. Enlazar factura con su pago.
+
+Looks the amount and date up in Ledger through the family hub; a single strong match is linked both ways, otherwise the candidates come back and tx_id picks one.
+Sinónimos: a qué pago corresponde esta factura, conciliar factura con movimiento, buscar el cargo, justificante del gasto
+
+Annotations: idempotentHint, openWorldHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc_id` (string) | yes | Document id (d_…) of an invoice or receipt with an amount and a date. |
+| `tx_id` (string) | no | Ledger transaction to link (one of the candidates). Empty: look for it and link only a single strong match. |
 
 ## `docs_list`
 

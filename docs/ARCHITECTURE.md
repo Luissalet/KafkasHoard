@@ -17,7 +17,7 @@
  services.py (wiring,        └──► series + price alerts · recurring roll · Phileas sync · housekeeping
  dashboard, settings)
         ▲
- agent_tools.py: one catalogue (52 tools) ──► api/agent.py (Bearer token, masked) · api/ui.py (local, unmasked) · mcp_server.py (stdio)
+ agent_tools.py: one catalogue (55 tools) ──► api/agent.py (Bearer token, masked) · api/ui.py (local, unmasked) · mcp_server.py (stdio)
  scheduler.py: lane "ingest" (folder and mail scans) · lane "reminders" (reminder run every 10 min, housekeeping hourly)
 ```
 
@@ -41,8 +41,10 @@
 | `kafka_hoard/privacy.py` | Masking of DNI/NIE, IBAN, cards and phones for assistants |
 | `kafka_hoard/guard.py` | Same-origin request guard shared by every Hoard app |
 | `kafka_hoard/scheduler.py` | Two lanes, one worker each; jobs deduplicated; pause and run-now |
-| `kafka_hoard/notify/` | Channels, minimum severity, night window, dedupe keys, test sends |
-| `kafka_hoard/mail/` | `faustus_mail.py` (runs under Faustus's Python), `source.py` (talks to it), `classify.py` (paperwork, maybe, noise) |
+| `kafka_hoard/notify/` | Channels, minimum severity, night window, dedupe keys, test sends; the hub route (`notify.via`) with the own channels as fallback |
+| `kafka_hoard/mail/` | `faustus_mail.py` (runs under Faustus's Python), `source.py` (talks to it), `hub.py` (the hub's mail gateway and `MailRouter`, which picks the source by `mail.source`), `classify.py` (paperwork, maybe, noise) |
+| `kafka_hoard/agenda.py` | The family agenda: open deadlines as agenda items with kind and priority |
+| `kafka_hoard/taxpack.py` | The tax return folder: classification by kind and text, copies, index, CSV, missing certificates, Ledger's year summary |
 | `kafka_hoard/hoard_link/` | Vendored family library (event bus, calls to other apps, local model). Not edited here |
 | `mcp_server.py` | stdio bridge: proxies to the running app, starts it when needed |
 | `client/` | React 19 + Vite 6 + Tailwind 4 UI; built into `kafka_hoard/static` |
@@ -103,3 +105,12 @@ Hash routing (`#/plazos`, `#/documentos`, `#/documentos/<id>?p=2`, `#/revision`,
 ## Data
 
 Everything lives in `data/` (or `KAFKA_DATA_DIR`): `kafka.db`, `files/` (originals), `cache/` (page images, mail attachments awaiting filing), `inbox/` (default watched folder), `workshop/` (`in/<job>` uploads, `out/<job>` results, purged after 7 days), `mcp-token`, `url`, `logs/`. Back up the folder to back up the app.
+
+## The family hub
+
+- **Notifications.** `notify.send` sends through the hub (`fam_notify`) when `notify.via` is `auto` and the hub is up, or `hub`; any failure in `auto` falls back to the own channels and leaves a failed `hub_notify` marker. `own` never calls the hub.
+- **Mail.** `MailRouter` reads from the hub's mail gateway (`mail/hub.py`: interest registered with the paperwork words and attachments, watermark `mail.hub_since_id`, attachments copied into Kafka's own mail cache) or from the Faustus helper. Each filed mail is claimed with the document reference.
+- **Agenda.** `agenda.items` feeds `GET /api/family/agenda` (installed in `main.py`); the manifest announces it with `x-family.agenda`.
+- **Events.** Emitted by the engine: `kafka.document.archived`, `kafka.warranty.created`, `kafka.deadline.created`, `kafka.deadline.soon` and `kafka.deadline.overdue`. The last two go once per deadline, date and state (markers in the settings table). History is quiet, so none are emitted for old documents.
+- **Ledger link.** `engine.link_ledger` asks Ledger's `tx_find`, links one strong match (score of 0.8 or more, and only one) with `tx_attach_doc` and a reference, and keeps the movement in the document's facts (`ledger_tx`). `retry_ledger_links` runs from housekeeping once a day for documents of the last 45 days.
+- **Cross-app tools.** `deadline_add` (idempotent by `source_ref` and title), `deadlines_from_minutes` (Funes `minutes_get`), `tax_pack`, `document_link_tx`. Calls to other apps go through `Engine._fcall`, which never raises.

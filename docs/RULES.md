@@ -92,3 +92,10 @@ Once the day of a notice has come, one notification is sent for the deadline (th
 ## Price changes
 
 Insurance, subscriptions and (with `prices.bills`) utility bills of the same issuer and reference form a series. When the amount of a new document differs from the previous one by `prices.alert_pct` (5 % by default) or more, a `price_change` notification is sent with the old and new amount.
+
+## Family links
+
+- Ledger link: an invoice or receipt with an amount and a date is linked to a Ledger movement only when exactly one candidate (amount equal, date within 5 days) scores 0.8 or more; otherwise the candidates are listed and the user picks. A manual choice always links.
+- Agenda priority: overdue or last-day deadlines are urgent when missing them costs money (appeal, fine discount, cancellation window, tax, payment), high otherwise; up to 3 days left: high for those kinds, normal for the rest; up to 14 days: normal and low; later: low.
+- Meeting minutes: only action items with a date, owned by the user (`minutes.me`, or «yo») or by nobody, become deadlines; items of others and undated ones are reported, not created.
+- Tax return folder: fiscal year is the calendar year; the folder is new each time («Renta 2025 (2)»), originals are copied, never moved. Kafka lists the usual certificates that are missing; it does not decide what is deductible.
