@@ -141,8 +141,9 @@ def test_the_text_of_the_file_is_not_masked_because_another_app_indexes_it(ocr_s
     assert "<DNI>" not in r["text"]
 
 
-@pytest.mark.parametrize("arguments,code", [({"path": "relative/x.pdf"}, "invalid"), ({"path": "/nope/missing.pdf"}, "not_found")])
-def test_doc_extract_refuses_bad_paths(ocr_svc, arguments, code):
+@pytest.mark.parametrize("code", ["invalid", "not_found"])
+def test_doc_extract_refuses_bad_paths(ocr_svc, tmp_path, code):
+    arguments = {"path": "relative/x.pdf" if code == "invalid" else str(tmp_path / "missing.pdf")}
     with pytest.raises(KafkaError) as e:
         tool(ocr_svc, "doc_extract", **arguments)
     assert e.value.code == code
