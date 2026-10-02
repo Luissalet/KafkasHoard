@@ -36,3 +36,9 @@ def test_mask_obj_walks_lists_and_dicts_but_keeps_keys_and_numbers():
     out = mask_obj(data)
     assert "DNI 12345678Z" in out and out["DNI 12345678Z"][0] == "DNI [oculto: DNI]"
     assert out["DNI 12345678Z"][1] == {"x": "ok", "n": 3} and out["t"] == ("[oculto: DNI]",) and out["f"] == 1.5 and out["none"] is None
+
+
+def test_an_id_with_a_wrong_check_letter_is_left_alone_and_a_dotted_one_is_masked():
+    assert mask_text("Expediente 12345678A") == "Expediente 12345678A"        # Z is the check letter of 12345678
+    assert mask_text("NIF 12.345.678-Z") == "NIF [oculto: DNI]"
+    assert mask_text("Referencia X1234567A") == "Referencia X1234567A"
