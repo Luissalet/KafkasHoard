@@ -21,7 +21,9 @@ from typing import Any, Optional
 
 from . import model as M
 from .errors import KafkaError
-from .util import fold, money_text, parse_iso
+from .hoard_link.money import format_money
+from .hoard_link.text import fold
+from .hoard_link.dates import parse_iso
 from .workshop import names
 
 CATEGORIES = ("hacienda", "payroll", "donation", "mortgage", "rent", "bank", "deductible")
@@ -232,7 +234,7 @@ def build(svc: Any, year: int, out_dir: str = "", make_zip: bool = True) -> dict
         for e in items:
             d = e["doc"]
             lines.append(f"| {d.get('issue_date') or ''} | {d.get('issuer') or ''} | {d.get('title') or ''} ({d['id']}) | "
-                         f"{money_text(d.get('amount'), d.get('currency') or 'EUR', es) if d.get('amount') is not None else ''} | {e['file'] or ('sin fichero' if es else 'no file')} |")
+                         f"{format_money(d.get('amount'), d.get('currency') or 'EUR', 'es' if es else 'en') if d.get('amount') is not None else ''} | {e['file'] or ('sin fichero' if es else 'no file')} |")
         lines.append("")
     lines += [("## Que falta" if es else "## Missing"), ""]
     lines += [f"- {m['label']} — {m['reason']}" for m in missing] or [("Nada de lo habitual falta." if es else "None of the usual certificates is missing.")]

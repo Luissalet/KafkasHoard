@@ -8,7 +8,8 @@ import pytest
 import docs
 from kafka_hoard.db import Database
 from kafka_hoard.errors import KafkaError
-from kafka_hoard.store import HIT_CLOSE, HIT_OPEN, Store, fts_query
+from kafka_hoard.hoard_link.docs.textsearch import fts_query
+from kafka_hoard.store import HIT_CLOSE, HIT_OPEN, Store
 
 
 @pytest.fixture
@@ -72,8 +73,8 @@ def test_unknown_document_is_not_found(store):
 
 
 def test_fts_query_neutralises_operators():
-    assert fts_query('seguro "hogar" OR drop*') == '"seguro"* "hogar"* "or"* "drop"*'
-    assert fts_query("   ") == "" and fts_query("---") == ""
+    assert fts_query('seguro "hogar" OR drop*', mode="prefix") == '"seguro"* AND "hogar"* AND "drop"*'  # "or" is a stopword now
+    assert fts_query("   ", mode="prefix") == "" and fts_query("---", mode="prefix") == ""
 
 
 def test_search_is_accent_insensitive_prefix_and_marks_hits(store):

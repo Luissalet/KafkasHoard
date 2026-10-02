@@ -6,7 +6,8 @@ import pytest
 
 from kafka_hoard.bizdays import Calendar, easter, holidays
 from kafka_hoard.extract import periods, rules
-from kafka_hoard.util import add_months, fold
+from kafka_hoard.hoard_link.text import fold
+from kafka_hoard.hoard_link.dates import add_months
 
 
 def one(text):

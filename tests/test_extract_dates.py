@@ -5,11 +5,16 @@ from datetime import date
 import pytest
 
 from kafka_hoard.extract import dates
-from kafka_hoard.util import fold
+from kafka_hoard.hoard_link.text import fold
 
 
 def found(text):
     return [h.date for h in dates.find_dates(fold(text))]
+
+
+def test_a_date_without_a_year_is_not_a_paperwork_date():
+    assert found("Antes del 15 de octubre") == [] and found("Vence el 15/10") == []
+    assert found("Antes del 15 de octubre de 2026 y el 2 nov 2026") == [date(2026, 10, 15), date(2026, 11, 2)]
 
 
 @pytest.mark.parametrize("text,expected", [

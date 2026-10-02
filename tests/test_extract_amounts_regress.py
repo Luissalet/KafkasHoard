@@ -2,7 +2,7 @@
 
 from kafka_hoard.extract import amounts
 from kafka_hoard.privacy import mask_text as mask
-from kafka_hoard.util import fold
+from kafka_hoard.hoard_link.text import fold
 
 
 def test_reduction_label_belongs_to_the_next_amount_only():

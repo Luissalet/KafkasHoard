@@ -6,6 +6,8 @@ import re
 from dataclasses import dataclass
 from typing import Optional
 
+from ..hoard_link.money import parse_amount
+
 _CUR = r"(?:€|eur(?:os?)?|usd|\$|£|gbp)"
 _NUM = r"\d{1,3}(?:[.,\s]\d{3})+(?:[.,]\d{1,2})?|\d+(?:[.,]\d{1,2})?"
 MONEY = re.compile(rf"(?:(?P<pre>{_CUR})\s*)?(?P<num>{_NUM})(?!\d)(?:\s*(?P<post>{_CUR}\b|€))?")
@@ -14,33 +16,12 @@ CURRENCIES = {"€": "EUR", "eur": "EUR", "euro": "EUR", "euros": "EUR", "usd": 
 
 
 def parse_number(token: str, prefix_currency: bool = False) -> Optional[float]:
-    """Parse «1.234,56», «1,234.56», «1234,56», «12,5», «1.234» (thousands) into a float; None when it is not a number."""
-    tok = token.strip().replace(" ", " ")
-    if not tok or not re.fullmatch(r"[\d.,\s]+", tok):
+    """«1.234,56», «1,234.56», «1234,56», «12,5», «1.234» (thousands) as a float; None when it is not a number or is out of range.
+    The reading rules are the family's (``money.parse_amount``); a currency written before the number means dot-decimal (English) text."""
+    value = parse_amount(token, lang="en" if prefix_currency else "es")
+    if value is None or not (0 <= value < 1_000_000_000):
         return None
-    tok = tok.replace(" ", "")
-    if not tok or not re.search(r"\d", tok):
-        return None
-    has_dot, has_comma = "." in tok, "," in tok
-    if has_dot and has_comma:
-        decimal = "," if tok.rfind(",") > tok.rfind(".") else "."
-        thousands = "." if decimal == "," else ","
-        tok = tok.replace(thousands, "").replace(decimal, ".")
-    elif has_comma:
-        parts = tok.split(",")
-        if len(parts) > 2 or (len(parts[-1]) == 3 and prefix_currency and len(parts[0]) <= 3):
-            tok = tok.replace(",", "")                       # 1,234,567 or €1,234
-        else:
-            tok = tok.replace(",", ".")                      # 12,5 / 1234,56
-    elif has_dot:
-        parts = tok.split(".")
-        if len(parts) > 2 or (len(parts[-1]) == 3 and 1 <= len(parts[0]) <= 3 and not prefix_currency):
-            tok = tok.replace(".", "")                       # 1.234 / 12.345.678 (Spanish thousands)
-    try:
-        value = float(tok)
-    except ValueError:
-        return None
-    return value if 0 <= value < 1e9 else None
+    return float(value)
 
 
 @dataclass

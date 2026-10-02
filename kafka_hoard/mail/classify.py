@@ -11,7 +11,7 @@ from typing import Any
 
 from .. import model as M
 from ..extract import issuers, kinds
-from ..util import fold
+from ..hoard_link.text import fold
 
 DOC_SUBJECT = re.compile(
     r"factura|recibo|poliza|contrato|garantia|notificacion|requerimiento|liquidacion|multa|sancion|renovacion|vencimiento|"

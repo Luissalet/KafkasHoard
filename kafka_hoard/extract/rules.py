@@ -15,7 +15,7 @@ from datetime import date, timedelta
 from typing import Optional
 
 from ..bizdays import Calendar
-from ..util import add_months
+from ..hoard_link.dates import add_months
 
 UNITS = ("day", "month", "year")
 FINE_DISCOUNT_DAYS = 20

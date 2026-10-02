@@ -12,7 +12,8 @@ from datetime import date
 from typing import Any, Optional
 
 from .. import model as M
-from ..util import fold, iso
+from ..hoard_link.text import fold
+from ..hoard_link.dates import iso_day as iso
 from . import amounts, dates, issuers, kinds, periods, refs
 from .deadlines import build_deadlines
 from .types import Ctx, Extraction, Hints, Meta

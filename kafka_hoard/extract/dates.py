@@ -12,22 +12,12 @@ from dataclasses import dataclass, field
 from datetime import date
 from typing import Optional
 
-MONTHS = {
-    "enero": 1, "ene": 1, "febrero": 2, "feb": 2, "marzo": 3, "mar": 3, "abril": 4, "abr": 4, "mayo": 5, "may": 5, "junio": 6, "jun": 6,
-    "julio": 7, "jul": 7, "agosto": 8, "ago": 8, "septiembre": 9, "setiembre": 9, "sept": 9, "sep": 9, "set": 9, "octubre": 10, "oct": 10,
-    "noviembre": 11, "nov": 11, "diciembre": 12, "dic": 12,
-    "january": 1, "jan": 1, "february": 2, "march": 3, "april": 4, "apr": 4, "june": 6, "july": 7, "august": 8, "aug": 8,
-    "september": 9, "october": 10, "november": 11, "december": 12, "dec": 12,
-}
-_MONTH_ALT = "|".join(sorted(MONTHS, key=len, reverse=True))
+from ..hoard_link import dates as shared
 
 MIN_YEAR, MAX_YEAR = 1990, 2100
 
-_ISO = re.compile(r"(?<![\d/.\-])(\d{4})-(\d{2})-(\d{2})(?![\d/\-])")
-_NUMERIC = re.compile(r"(?<![\d/.\-])(\d{1,2})[/\-.](\d{1,2})[/\-.](\d{4}|\d{2})(?![\d/\-]|\.\d)")
-_DMY_TEXT = re.compile(
-    rf"(?<![\w/])(\d{{1,2}})\s*(?:st|nd|rd|th|o|º|°)?\s*(?:de\s+)?({_MONTH_ALT})\b\.?,?\s*(?:de\s+|del\s+|of\s+)?(\d{{4}})(?!\d)")
-_MDY_TEXT = re.compile(rf"(?<![\w])({_MONTH_ALT})\b\.?\s+(\d{{1,2}})\s*(?:st|nd|rd|th)?,?\s+(\d{{4}})(?!\d)")
+# A paperwork date must carry its year: «15 de octubre» alone is not a date here, whereas the shared reader would place it near today.
+_EXPLICIT_YEAR = re.compile(r"\d{4}|\d[/.\-]\d{1,2}[/.\-]\d{2}")
 
 
 @dataclass
@@ -47,42 +37,13 @@ class DateHit:
                 "label": self.label}
 
 
-def _valid(year: int, month: int, day: int) -> Optional[date]:
-    if not (MIN_YEAR <= year <= MAX_YEAR):
-        return None
-    try:
-        return date(year, month, day)
-    except ValueError:
-        return None
-
-
 def find_dates(folded: str) -> list[DateHit]:
-    """Every date in the text, in order of appearance (overlaps resolved in favour of the earlier, longer match)."""
-    hits: list[DateHit] = []
-    for m in _ISO.finditer(folded):
-        d = _valid(int(m.group(1)), int(m.group(2)), int(m.group(3)))
-        if d:
-            hits.append(DateHit(d, m.start(), m.end(), m.group(0)))
-    for m in _NUMERIC.finditer(folded):
-        day, month, year = int(m.group(1)), int(m.group(2)), m.group(3)
-        y = int(year) + 2000 if len(year) == 2 else int(year)
-        d = _valid(y, month, day)
-        if d:
-            hits.append(DateHit(d, m.start(), m.end(), m.group(0)))
-    for m in _DMY_TEXT.finditer(folded):
-        d = _valid(int(m.group(3)), MONTHS[m.group(2)], int(m.group(1)))
-        if d:
-            hits.append(DateHit(d, m.start(), m.end(), m.group(0)))
-    for m in _MDY_TEXT.finditer(folded):
-        d = _valid(int(m.group(3)), MONTHS[m.group(1)], int(m.group(2)))
-        if d:
-            hits.append(DateHit(d, m.start(), m.end(), m.group(0)))
-    hits.sort(key=lambda h: (h.start, -(h.end - h.start)))
+    """Every date with an explicit year in the text, in order of appearance (the shared reader, ``hoard_link.dates``, finds them)."""
     out: list[DateHit] = []
-    for h in hits:
-        if out and h.start < out[-1].end:
+    for h in shared.find_dates(folded, dayfirst=True, loose=False):
+        if not _EXPLICIT_YEAR.search(h.text) or not (MIN_YEAR <= h.date.year <= MAX_YEAR):
             continue
-        out.append(h)
+        out.append(DateHit(h.date, h.start, h.end, h.text))
     return out
 
 

@@ -6,7 +6,8 @@ import docs
 from helpers import run
 from kafka_hoard import model as M
 from kafka_hoard.extract import issuers, kinds, refs
-from kafka_hoard.util import fold, issuer_key
+from kafka_hoard.hoard_link.text import fold
+from kafka_hoard.util import issuer_key
 
 
 @pytest.mark.parametrize("text,kind", [
@@ -74,6 +75,12 @@ def test_company_line_near_a_cif():
     text = "Suministros Demo, S.L.\nCIF B12345674\nFactura 1"
     i = issuers.detect_issuer(text, fold(text))
     assert i.source == "company" and i.name.startswith("Suministros Demo") and i.key == "suministros demo"
+
+
+def test_a_cif_with_a_wrong_control_digit_does_not_add_confidence():
+    good = issuers.detect_issuer("Suministros Demo, S.L.\nB12345674\nFactura 1", "")
+    bad = issuers.detect_issuer("Suministros Demo, S.L.\nB12345679\nFactura 1", "")
+    assert good.confidence == 65 and bad.confidence == 50 and bad.source == "company"
 
 
 def test_sender_name_is_the_fallback_and_generic_senders_are_not_used():

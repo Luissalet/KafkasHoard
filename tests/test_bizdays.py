@@ -12,9 +12,16 @@ def test_easter_dates():
 def test_national_holidays_2026():
     h = holidays(2026, "")
     for d in (date(2026, 1, 1), date(2026, 1, 6), date(2026, 4, 3), date(2026, 5, 1), date(2026, 8, 15), date(2026, 10, 12),
-              date(2026, 11, 1), date(2026, 12, 6), date(2026, 12, 8), date(2026, 12, 25)):
+              date(2026, 11, 1), date(2026, 12, 7), date(2026, 12, 8), date(2026, 12, 25)):
         assert d in h, d
     assert date(2026, 4, 2) not in h
+
+
+def test_a_holiday_on_a_sunday_moves_to_monday():
+    h = holidays(2026, "")
+    assert date(2026, 12, 6) not in h and date(2026, 12, 7) in h               # Constitution Day falls on a Sunday in 2026
+    assert Calendar("ES-MD").next_working_day(date(2026, 12, 7)) == date(2026, 12, 9)   # 8 December is a holiday too
+    assert holidays(2026, "ES-CT") >= {date(2026, 12, 26)} and date(2026, 1, 1) in holidays(2026, "ES-CT")
 
 
 def test_regional_holidays():

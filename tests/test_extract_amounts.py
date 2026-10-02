@@ -3,7 +3,7 @@
 import pytest
 
 from kafka_hoard.extract import amounts
-from kafka_hoard.util import fold
+from kafka_hoard.hoard_link.text import fold
 
 
 @pytest.mark.parametrize("token,value", [

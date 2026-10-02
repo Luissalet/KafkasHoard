@@ -25,7 +25,8 @@ from .notify import CHANNELS
 from .privacy import mask_obj
 from .services import SECRET_NAMES, Services
 from .store import HIT_CLOSE, HIT_OPEN
-from .util import fold, parse_iso
+from .hoard_link.text import fold
+from .hoard_link.dates import parse_iso
 from .workshop import redact
 
 MAX_RESULT_BYTES = 20_000

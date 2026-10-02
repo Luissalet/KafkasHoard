@@ -37,7 +37,10 @@ from .extract.rules import DEFAULT_WARRANTY_YEARS, warranty_end
 from .extract.types import Ctx, Extraction, Hints, Meta
 from .files import FileStore, sha256_of
 from .mail.classify import MailClass, classify_mail
-from .util import add_months, clamp_text, fold, human_day, issuer_key, money_text, parse_iso, ts_date
+from .hoard_link.money import format_money
+from .hoard_link.text import clamp_text, fold
+from .hoard_link.dates import add_months, parse_iso
+from .util import human_day, issuer_key, ts_date
 from .workshop import jobs as workshop_jobs
 
 log = logging.getLogger("kafka.engine")
@@ -671,7 +674,7 @@ class Engine:
         es = self.lang() == "es"
         kind = M.kind_label(doc["kind"], self.lang())
         title = (f"Nuevo documento: {doc['title']}" if es else f"New document: {doc['title']}")
-        body = " · ".join(x for x in (kind, doc.get("issuer"), money_text(doc.get("amount"), doc.get("currency") or "EUR", es)) if x)
+        body = " · ".join(x for x in (kind, doc.get("issuer"), format_money(doc.get("amount"), doc.get("currency") or "EUR", "es" if es else "en")) if x)
         event = {"id": f"doc:{doc['id']}", "type": M.N_DOC, "severity": "low", "title": title, "summary": body, "url": self.link_to(doc["id"]),
                  "bus": "kafka.document.added", "data": {"doc_id": doc["id"], "title": doc["title"], "kind": doc["kind"], "issuer": doc["issuer"]}}
         self._send(event, ["hub"], doc_id=doc["id"], deadline_id=None, dedupe=f"doc:{doc['id']}")
@@ -737,7 +740,7 @@ class Engine:
         noun = texts.tr(self.lang(), "noun_insurance" if doc["kind"] == M.INSURANCE else "noun_subscription" if doc["kind"] == M.SUBSCRIPTION else "noun_other")
         pct_text = f"{pct:.0f}"
         title = texts.tr(self.lang(), "price_change", issuer=doc["issuer"] or "?", noun=noun, pct=pct_text,
-                         old=money_text(old, doc.get("currency") or "EUR", es), new=money_text(doc["amount"], doc.get("currency") or "EUR", es))
+                         old=format_money(old, doc.get("currency") or "EUR", "es" if es else "en"), new=format_money(doc["amount"], doc.get("currency") or "EUR", "es" if es else "en"))
         event = {"id": dedupe, "type": M.N_PRICE, "severity": "medium", "title": title, "summary": doc["title"], "url": self.link_to(doc["id"]),
                  "bus": "kafka.price.change", "data": {"series": doc["series_id"], "issuer": doc["issuer"], "old": old, "new": doc["amount"], "pct": round(pct, 1)}}
         self._send(event, ["toast", "hub", "ntfy", "telegram", "email"], doc_id=doc["id"], deadline_id=None, dedupe=dedupe)
@@ -1467,7 +1470,7 @@ class Engine:
             dedupe = f"soon:{d['id']}:{d['date']}:{days_left}"
         parts = [f"{pretty}", clamp_text(d.get("basis") or "", 220)]
         if d.get("amount") is not None:
-            parts.insert(1, money_text(d["amount"], (doc or {}).get("currency") or "EUR", es))
+            parts.insert(1, format_money(d["amount"], (doc or {}).get("currency") or "EUR", "es" if es else "en"))
         if doc:
             parts.append(f"«{doc['title']}»")
         data = {"deadline_id": d["id"], "title": d["title"], "due": d["date"], "date": d["date"], "days_left": days_left, "kind": d["kind"],

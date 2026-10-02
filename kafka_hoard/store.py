@@ -4,14 +4,15 @@ notifications and runs."""
 from __future__ import annotations
 
 import json
-import re
 import time
 from datetime import date, datetime
 from typing import Any, Callable, Iterable, Optional
 
 from .db import Database
 from .errors import KafkaError
-from .util import fold, new_id
+from .hoard_link.docs.textsearch import fts_query
+from .hoard_link.text import fold
+from .util import new_id
 
 HIT_OPEN, HIT_CLOSE = "⟦", "⟧"
 
@@ -67,12 +68,6 @@ def _mail(row: Any) -> Optional[dict[str, Any]]:
 
 def _enc(value: Any) -> Any:
     return value if isinstance(value, (str, int, float)) or value is None else json.dumps(value, ensure_ascii=False, default=str)
-
-
-def fts_query(text: str) -> str:
-    """User text -> an FTS5 query: every word is a prefix term, all must match. Quotes and operators are neutralised."""
-    words = [w for w in re.findall(r"[\w]+", fold(text or ""), flags=re.UNICODE) if w]
-    return " ".join(f'"{w}"*' for w in words[:12])
 
 
 class Store:
@@ -193,7 +188,7 @@ class Store:
 
     def search(self, text: str, *, kind: str = "", issuer: str = "", state: str = "", year: str = "", doc_ids: Optional[list[str]] = None,
                limit: int = 20) -> list[dict[str, Any]]:
-        query = fts_query(text)
+        query = fts_query(text, mode="prefix")
         if not query or (doc_ids is not None and not doc_ids):
             return []
         sql = ("SELECT f.doc_id AS doc_id, f.page AS page, snippet(pages_fts, 2, ?, ?, '…', 14) AS snippet, bm25(pages_fts, 4.0, 2.0, 1.0) AS rank "

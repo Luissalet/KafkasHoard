@@ -11,7 +11,8 @@ from datetime import date
 from typing import Any, Optional
 
 from . import model as M
-from .util import clamp_text, parse_iso
+from .hoard_link.text import clamp_text
+from .hoard_link.dates import parse_iso
 
 KIND_OF = {
     M.RENEWAL: "renewal", M.CANCEL_BY: "renewal", M.PERMANENCE_END: "renewal", M.EXPIRY: "renewal",

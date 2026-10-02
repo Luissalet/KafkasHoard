@@ -7,7 +7,9 @@ import re
 from dataclasses import dataclass
 from typing import Optional
 
-from ..util import fold, issuer_key
+from ..hoard_link.idcheck import cif_ok
+from ..hoard_link.text import fold
+from ..util import issuer_key
 
 # category: admin | utility | telco | insurer | bank | shop | other
 # (name, category, domains, aliases (folded; matched as whole words), case-sensitive aliases (matched in the original text))
@@ -169,7 +171,7 @@ def _company(original: str) -> Optional[Issuer]:
         if first is None:
             first = (name, "")
         near = "\n".join(lines[max(0, i - 3): i + 4])
-        if CIF.search(near) or re.search(r"\b(?:cif|nif)\b", near, re.I):
+        if any(cif_ok(c.group(0)) for c in CIF.finditer(near)) or re.search(r"\b(?:cif|nif)\b", near, re.I):
             return Issuer(name, issuer_key(name), "other", "company", 65)
     if first:
         return Issuer(first[0], issuer_key(first[0]), "other", "company", 50)

@@ -29,7 +29,7 @@ from .docsvc import DocService
 from .ocr import Ocr
 from .scheduler import Scheduler
 from .store import Store
-from .util import parse_iso
+from .hoard_link.dates import parse_iso
 from .workshop import Workshop
 
 log = logging.getLogger("kafka")
