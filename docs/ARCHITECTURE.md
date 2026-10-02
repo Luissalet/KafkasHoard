@@ -17,8 +17,8 @@
  services.py (wiring,        └──► series + price alerts · recurring roll · Phileas sync · housekeeping
  dashboard, settings)
         ▲
- agent_tools.py: one catalogue (59 tools) ──► api/agent.py (Bearer token, masked) · api/ui.py (local, unmasked) · mcp_server.py (stdio)
- scheduler.py: lane "ingest" (folder and mail scans) · lane "reminders" (reminder run every 10 min, housekeeping hourly)
+ agent_tools.py: one catalogue (59 tools) ──► api/agent.py (shared agent router, Bearer token, masked) · api/ui.py (local, unmasked) · mcp_server.py (stdio)
+ scheduler.py (shared lane scheduler): lane "ingest" (folder and mail scans) · lane "reminders" (reminder run every 10 min, housekeeping hourly)
 ```
 
 ## Layout
@@ -37,17 +37,17 @@
 | `kafka_hoard/engine.py` | Ingestion, reprocessing, deadlines, reminders, series, price alerts, mail, folders, Phileas, housekeeping |
 | `kafka_hoard/services.py` | Wires everything from a `Config`; settings and secrets; dashboard and detail views |
 | `kafka_hoard/agent_tools.py` | The tool catalogue: name, description, pydantic arguments, annotations, handler |
-| `kafka_hoard/api/` | REST: `agent.py` (tools for assistants), `ui.py` (dashboard, UI calls), `documents.py` (upload, file, page image), `workshop.py` (upload, download, status), `health.py`, `pwa.py` |
-| `kafka_hoard/workshop/` | The document workshop: `service.py` (the operations and where results go), `pdfops.py` (pypdf), `imagetools.py` (Pillow ladders), `external.py` (Ghostscript, Word, LibreOffice), `ranges.py`, `names.py` (never-overwrite naming), `jobs.py` (upload jobs, 7-day purge), `proc.py` (injectable `Env`) |
-| `kafka_hoard/privacy.py` | Masking of DNI/NIE, IBAN, cards and phones for assistants |
-| `kafka_hoard/guard.py` | Same-origin request guard shared by every Hoard app |
-| `kafka_hoard/scheduler.py` | Two lanes, one worker each; jobs deduplicated; pause and run-now |
+| `kafka_hoard/api/` | REST: `agent.py` (tools for assistants), `ui.py` (dashboard, UI calls), `documents.py` (upload, file, page image), `workshop.py` (upload, download, status), `health.py` (the shared probe plus Kafka's counts and `/api/status`) |
+| `kafka_hoard/workshop/` | The document workshop: `service.py` (the operations and where results go), `pdfops.py` (pypdf), `imagetools.py`, `ranges.py` and `names.py` (thin layers over the commons' image ladder, page ranges and safe names), `external.py` (Ghostscript, Word, LibreOffice), `jobs.py` (upload jobs, 7-day purge), `proc.py` (injectable `Env` over the commons' process runner: the whole tree is killed on timeout, no console window on Windows) |
+| `kafka_hoard/privacy.py` | Masking of DNI/NIE, IBAN, cards and phones for assistants, over the commons' checksum-aware scanner (a DNI with a wrong letter is left alone) |
+| `kafka_hoard/paths.py`, `util.py`, `errors.py` | Path safety over the commons (Windows-aware), the few id and date helpers that stay, `KafkaError` as a subclass of the commons' `AppError` |
+| `kafka_hoard/scheduler.py` | Kafka's jobs on the commons' `LaneScheduler`: two lanes, one worker each; jobs deduplicated; pause and run-now; last-run times kept in `data/scheduler.json` so a restart does not rescan at once |
 | `kafka_hoard/notify/` | Channels, minimum severity, night window, dedupe keys, test sends; the hub route (`notify.via`) with the own channels as fallback |
 | `kafka_hoard/mail/` | `source.py` (Kafka's paperwork words over the family's `fam_mail.MailRouter`: the hub's mail gateway first, the Faustus helper as the fallback, picked by `mail.source`), `classify.py` (paperwork, maybe, noise) |
 | `kafka_hoard/agenda.py` | The family agenda: open deadlines as agenda items with kind and priority |
 | `kafka_hoard/taxpack.py` | The tax return folder: classification by kind and text, copies, index, CSV, missing certificates, Ledger's year summary |
-| `kafka_hoard/hoard_link/` | Vendored family library (event bus, calls to other apps, local model). Not edited here |
-| `mcp_server.py` | stdio bridge: proxies to the running app, starts it when needed |
+| `kafka_hoard/hoard_link/` | Vendored family library (event bus, calls to other apps, request guard, error handlers, PWA files, page server, launcher, agent kit, MCP bridge, notify channels, mail router, money, dates, text and the rest of the commons). Not edited here |
+| `mcp_server.py` | stdio bridge (the commons' `CatalogBridge`): proxies to the running app, starts it when needed; PDF and image tools wait up to 175 s |
 | `client/` | React 19 + Vite 6 + Tailwind 4 UI; built into `kafka_hoard/static` |
 
 ## Ingestion

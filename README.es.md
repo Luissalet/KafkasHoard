@@ -81,7 +81,7 @@ Con `file_result: true` cada PDF resultante se archiva también en Kafka y se de
 
 ## Cómo está hecha
 
-FastAPI + SQLite (WAL, FTS5) + un planificador de dos carriles; interfaz React 19 + Vite + Tailwind; la extracción en `kafka_hoard/extract/` (funciones puras); los días hábiles en `kafka_hoard/bizdays.py`; el trabajo en `kafka_hoard/engine.py`. Ver [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+FastAPI + SQLite (WAL, FTS5) + un planificador de dos carriles (el `LaneScheduler` de la familia, con las últimas ejecuciones en `data/scheduler.json`); interfaz React 19 + Vite + Tailwind; la extracción en `kafka_hoard/extract/` (funciones puras); los días hábiles en `kafka_hoard/bizdays.py`; el trabajo en `kafka_hoard/engine.py`. Ver [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 Pruebas: `python -m pytest -q` (sin red; los documentos y PDF los generan las propias pruebas con datos inventados).
 
