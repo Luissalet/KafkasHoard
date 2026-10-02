@@ -98,6 +98,49 @@ function Fields({ doc, onSaved }) {
   );
 }
 
+const LINKABLE = new Set(["invoice", "receipt"]);
+
+// The Ledger movement of an invoice or receipt: the chip once linked, otherwise a button that looks for it and lists the candidates.
+function LedgerLink({ doc, onChanged }) {
+  const { t, lang, notify } = useApp();
+  const [busy, run] = useBusy();
+  const [found, setFound] = useState(null);
+  const link = doc.ledger_tx;
+  if (!link && !(LINKABLE.has(doc.kind) && doc.amount !== null && doc.amount !== undefined)) return null;
+  const search = (txId) => run("link", async () => {
+    const r = await api.call("document_link_tx", txId ? { doc_id: doc.id, tx_id: txId } : { doc_id: doc.id });
+    if (r.linked) { notify(t("ledger_linked")); setFound(null); await onChanged(); } else setFound(r);
+  });
+  return (
+    <div className="panel space-y-2" aria-label={t("ledger_tx")}>
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="font-semibold">{t("ledger_tx")}</span>
+        {link ? (
+          <>
+            <Chip className="chip-ok">{t("ledger_linked")}</Chip>
+            <span className="help">{[link.merchant, link.amount !== null && link.amount !== undefined ? money(link.amount, doc.currency, lang) : "", link.date].filter(Boolean).join(" · ")}</span>
+            {link.url && <a className="btn btn-sm ml-auto" href={link.url} target="_blank" rel="noopener noreferrer"><Icon d={ICONS.external} size={13} />{t("ledger_open")}</a>}
+          </>
+        ) : (
+          <Busy className="btn btn-sm" busy={busy.link} onClick={() => search("")}>{t("ledger_link")}</Busy>
+        )}
+      </div>
+      {found && (
+        <div className="space-y-2">
+          <p className="help">{found.candidates?.length ? t("ledger_pick") : `${t("ledger_none")}${found.reason ? ` · ${found.reason}` : ""}`}</p>
+          {(found.candidates || []).map((c) => (
+            <div key={c.tx_id} className="flex flex-wrap items-center gap-2">
+              <span className="num">{c.date}</span><span>{c.merchant}</span><span className="num">{money(c.amount, doc.currency, lang)}</span>
+              <Chip>{Math.round((c.score || 0) * 100)} %</Chip>
+              <Busy className="btn btn-sm ml-auto" busy={busy.link} onClick={() => search(c.tx_id)}>{t("ledger_use")}</Busy>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function SeriesBlock({ series }) {
   const { t, lang } = useApp();
   if (!series || series.history.length < 2) return null;
@@ -159,7 +202,7 @@ export default function Detalle({ id, query }) {
       </div>
       <header>
         <h1 style={{ overflowWrap: "anywhere" }}>{doc.title}</h1>
-        <p className="help">{[doc.issuer, doc.ref, doc.amount !== null ? money(doc.amount, doc.currency, lang) : ""].filter(Boolean).join(" · ")}</p>
+        <p className="help">{[doc.issuer, doc.ref, doc.amount !== null ? money(doc.amount, doc.currency, lang) : "", doc.order_ref ? `${t("order_ref")} ${doc.order_ref}` : ""].filter(Boolean).join(" · ")}</p>
       </header>
       {doc.state === "review" && (
         <div className="banner banner-warn flex flex-wrap items-center gap-3" role="status">
@@ -179,6 +222,7 @@ export default function Detalle({ id, query }) {
               <div className="space-y-2">{data.deadlines.map((d) => <DeadlineCard key={d.id} d={d} showDoc={false} onChanged={reload} />)}</div>
             )}
           </Section>
+          <LedgerLink doc={doc} onChanged={refresh} />
           <Fields doc={doc} onSaved={refresh} />
           <SeriesBlock series={data.series} />
           {data.neighbours?.length > 0 && (

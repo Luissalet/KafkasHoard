@@ -44,6 +44,45 @@ function acceptedExt(op, status) {
   return status?.office_extensions?.length ? status.office_extensions : OFFICE_EXT;
 }
 
+// ------------------------------------------------------------------ tax return folder
+function TaxPack() {
+  const { t, notify } = useApp();
+  const [busy, run] = useBusy();
+  const [year, setYear] = useState(String(new Date().getFullYear() - 1));
+  const [zip, setZip] = useState(false);
+  const [out, setOut] = useState(null);
+  const [error, setError] = useState(null);
+  const go = (e) => {
+    e.preventDefault();
+    setError(null);
+    run("pack", async () => {
+      try {
+        const r = await api.call("tax_pack", { year: Number(year), zip });
+        setOut(r);
+        notify(t("tx_pack_done", { n: (r.files || []).length }));
+      } catch (err) { setError(err); }
+    });
+  };
+  return (
+    <form className="panel space-y-3" onSubmit={go} noValidate aria-label={t("tx_pack_title")}>
+      <p className="help">{t("tx_pack_help")}</p>
+      <div className="flex flex-wrap items-end gap-3">
+        <Field label={t("tx_pack_year")} className="w-32"><input className="field num" type="number" min="2000" max="2100" value={year} onChange={(e) => setYear(e.target.value)} /></Field>
+        <label className="inline-flex items-center gap-2 help"><input type="checkbox" checked={zip} onChange={(e) => setZip(e.target.checked)} />{t("tx_pack_zip")}</label>
+        <Busy type="submit" className="btn btn-primary btn-sm" busy={busy.pack} disabled={!year}>{t("tx_pack_go")}</Busy>
+      </div>
+      <ErrorBox error={error} />
+      {out && (
+        <div className="space-y-1">
+          <div className="mono" style={{ overflowWrap: "anywhere" }}>{out.path}</div>
+          <div className="help">{t("tx_pack_docs", { n: out.documents ?? 0 })}{out.zip ? ` · ${out.zip}` : ""}</div>
+          {out.missing?.length > 0 && <div className="help">{t("tx_pack_missing")}: {out.missing.map((m) => m.label).join(", ")}</div>}
+        </div>
+      )}
+    </form>
+  );
+}
+
 // ------------------------------------------------------------------ the file list
 function FilePicker({ op, files, setFiles, job, setJob, status, doc }) {
   const { t, notify, toastError } = useApp();
@@ -553,6 +592,7 @@ export default function Taller({ query }) {
             ))}
           </div>
         </Section>
+        <Section id="sec-taxpack" title={t("tx_pack_title")}><TaxPack /></Section>
       </div>
     );
   }

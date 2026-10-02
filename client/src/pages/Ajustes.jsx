@@ -241,12 +241,14 @@ function MailBox({ status, settings, reload }) {
     <div className="panel space-y-3">
       <p className="help">{t("set_mail_help")}</p>
       <div className="flex flex-wrap items-center gap-2">
-        <Chip className={m.faustus_dir ? "chip-ok" : "chip-amber"}>{m.faustus_dir ? t("faustus_found") : t("faustus_not_found")}</Chip>
+        <Chip className="chip-accent">{t("mail_reading_from")}: {t(`mail_src_${m.source || "faustus"}`)}</Chip>
+        {m.source !== "hub" && <Chip className={m.faustus_dir ? "chip-ok" : "chip-amber"}>{m.faustus_dir ? t("faustus_found") : t("faustus_not_found")}</Chip>}
         {m.last_scan_ts ? <span className="help">{t("last_scan")}: {shortClock(m.last_scan_ts, lang)}</span> : <span className="help">{t("never_scanned")}</span>}
         {m.last_error && <Chip className="chip-danger" title={m.last_error}>{m.last_error.slice(0, 80)}</Chip>}
       </div>
       <SettingsForm settings={settings} onSaved={reload} fields={[
         { key: "mail.enabled", type: "switch", label: t("mail_enabled"), hint: t("mail_enabled_hint"), wide: true },
+        { key: "mail.source", type: "select", label: t("mail_source"), hint: t("mail_source_hint"), options: ["auto", "hub", "faustus"].map((v) => [v, t(`mail_src_${v}`)]), wide: true },
         { key: "mail.faustus_dir", type: "text", label: t("faustus_folder"), hint: t("faustus_folder_hint"), wide: true },
         { key: "mail.faustus_owner", type: "text", label: t("faustus_owner"), hint: t("faustus_owner_hint") },
         { key: "mail.interval_min", type: "number", label: t("mail_interval"), hint: t("minutes") },
@@ -322,6 +324,15 @@ function Reading({ status, settings, reload }) {
         <SettingsForm settings={settings} onSaved={reload} fields={[{ key: "links.phileas", type: "switch", label: t("phileas_enabled"), wide: true }]} />
         <Busy className="btn btn-sm" busy={busy.sync} onClick={sync}>{t("phileas_sync")}</Busy>
       </div>
+      <hr style={{ borderColor: "var(--line)" }} />
+      <div className="space-y-2">
+        <span className="font-semibold">{t("ledger_tx")}</span>
+        <p className="help">{t("ledger_help")}</p>
+        <SettingsForm settings={settings} onSaved={reload} fields={[
+          { key: "links.ledger", type: "switch", label: t("ledger_enabled"), wide: true },
+          { key: "minutes.me", type: "text", label: t("minutes_me"), hint: t("minutes_me_hint"), wide: true },
+        ]} />
+      </div>
     </div>
   );
 }
@@ -390,6 +401,14 @@ export default function Ajustes() {
 
       <Section id="sec-notify" title={t("set_notify")}>
         <p className="help">{t("set_notify_help")}</p>
+        <div className="panel space-y-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <Chip className={data.notify?.effective === "hub" ? "chip-ok" : ""}>{data.notify?.effective === "hub" ? t("via_now_hub") : t("via_now_own")}</Chip>
+          </div>
+          <SettingsForm settings={settings} onSaved={reload} fields={[
+            { key: "notify.via", type: "select", label: t("notify_via"), hint: t("notify_via_hint"), options: ["auto", "hub", "own"].map((v) => [v, t(`via_${v}`)]), wide: true },
+          ]} />
+        </div>
         <ErrorBox error={notifyStatus.error} />
         <div className="grid gap-3 xl:grid-cols-2">
           {CHANNELS.map((c) => <ChannelCard key={c} channel={c} info={channels[c]} secrets={secrets} settings={settings} onChanged={reload} />)}
