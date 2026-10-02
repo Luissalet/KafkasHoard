@@ -134,3 +134,32 @@ def test_pwa_manifest_and_service_worker(client):
     m = client.get("/manifest.webmanifest").json()
     assert m["name"] == "Kafka's Hoard" and m["theme_color"] == "#1c1c14"
     assert client.get("/sw.js").status_code == 200
+
+
+def test_errors_share_one_envelope(client):
+    # Wrong token: the shared agent router answers 401 with a stable code.
+    r = client.post("/api/agent/call", json={"name": "kafka_overview"}, headers={"Authorization": "Bearer nope"})
+    assert r.status_code == 401 and r.json()["code"] == "unauthorized"
+    # Bad arguments name each field.
+    r = client.post("/api/agent/call", json={"name": "doc_get", "arguments": {}}, headers=client.bearer)
+    assert r.status_code == 400 and r.json()["code"] == "invalid_arguments" and r.json()["issues"][0]["loc"] == "doc"
+    r = client.post("/api/ui/call", json={"name": "deadline_add", "arguments": {"title": "x", "date": "2026-12-01"}})
+    assert r.status_code == 400 and "title" in r.json()["error"]
+    # An unknown tool is a 404 with its own code; an unknown API path never falls through to the page.
+    r = client.post("/api/agent/call", json={"name": "no_such"}, headers=client.bearer)
+    assert r.status_code == 404 and r.json()["code"] == "unknown_tool"
+    r = client.get("/api/no/such/route")
+    assert r.status_code == 404 and r.json()["code"] == "not_found"
+    # Client-side routes get the page (or 503 when the client is not built), never an API error.
+    assert client.get("/some/client/route").status_code in (200, 503)
+
+
+def test_the_mcp_token_survives_a_restart(tmp_path):
+    from conftest import make_config
+    from kafka_hoard.services import write_token
+
+    config = make_config(tmp_path)
+    first = write_token(config)
+    assert len(first) >= 32 and write_token(config) == first
+    config.token_path.write_text("short", encoding="utf-8")
+    assert len(write_token(config)) >= 32  # a stub is replaced

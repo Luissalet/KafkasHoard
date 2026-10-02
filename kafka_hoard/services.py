@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import logging
 import os
-import secrets as _secrets
 import threading
 import time
 from pathlib import Path
@@ -30,6 +29,7 @@ from .ocr import Ocr
 from .scheduler import Scheduler
 from .store import Store
 from .hoard_link.dates import parse_iso
+from .hoard_link.tokens import read_or_create_token
 from .workshop import Workshop
 
 log = logging.getLogger("kafka")
@@ -82,20 +82,7 @@ MONTH_DAYS = 30
 
 def write_token(config: Config) -> str:
     """The MCP token is persistent: created once, reused on every later start."""
-    config.data_dir.mkdir(parents=True, exist_ok=True)
-    try:
-        existing = config.token_path.read_text(encoding="utf-8").strip()
-    except OSError:
-        existing = ""
-    if len(existing) >= 32:
-        return existing
-    token = _secrets.token_hex(32)
-    config.token_path.write_text(token, encoding="utf-8")
-    try:
-        config.token_path.chmod(0o600)
-    except OSError:
-        pass
-    return token
+    return read_or_create_token(config.token_path)
 
 
 def write_url(config: Config) -> None:

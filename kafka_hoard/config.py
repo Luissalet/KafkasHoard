@@ -6,7 +6,7 @@ import os
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from .guard import parse_allowed_hosts
+from .hoard_link.guard import parse_allowed_hosts
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_PORT = 5200

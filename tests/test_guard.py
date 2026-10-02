@@ -1,11 +1,11 @@
-"""Request guard: host allow-list, Origin rule and Fetch Metadata rules."""
+"""Request guard wiring: host allow-list, Origin rule and Fetch Metadata rules as the app applies them (the rules live in the commons)."""
 
 import pytest
 from conftest import make_config
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from kafka_hoard.guard import check_request, host_of, install_guard, is_allowed_host, parse_allowed_hosts
+from kafka_hoard.hoard_link.guard import install_guard, parse_allowed_hosts
 from kafka_hoard.main import create_app
 
 NAV = {"sec-fetch-site": "cross-site", "sec-fetch-mode": "navigate", "sec-fetch-dest": "document"}
@@ -13,40 +13,9 @@ CORS = {"sec-fetch-site": "cross-site", "sec-fetch-mode": "cors", "sec-fetch-des
 IFRAME = {"sec-fetch-site": "cross-site", "sec-fetch-mode": "navigate", "sec-fetch-dest": "iframe"}
 
 
-def test_host_of_strips_scheme_path_port_and_case():
-    assert host_of("LocalHost:5200") == "localhost"
-    assert host_of("https://My-PC.ts.net:8443/x") == "my-pc.ts.net"
-    assert host_of("[::1]:5200") == "[::1]"
-    assert host_of("") == "" and host_of(None) == ""
-
-
-def test_parse_allowed_hosts():
-    assert parse_allowed_hosts(" pc.example , *.TS.net,, pc2.example:8443") == ("pc.example", "*.ts.net", "pc2.example")
-    assert parse_allowed_hosts(None) == () and parse_allowed_hosts("*.") == ()
-
-
-def test_is_allowed_host_exact_wildcard_unknown():
-    allowed = parse_allowed_hosts("pc.example,*.ts.net")
-    for host in ("localhost", "127.0.0.1", "[::1]", "pc.example", "my-pc.ts.net", "a.b.ts.net"):
-        assert is_allowed_host(host, allowed), host
-    for host in ("ts.net", "evil.example", "pc.example.evil", "", None):
-        assert not is_allowed_host(host, allowed), host
-
-
-def test_check_request_fetch_metadata_rules():
-    local = {"host": "localhost:5200"}
-    assert check_request("GET", local) is None
-    assert check_request("POST", {"host": "127.0.0.1:5200"}) is None
-    assert check_request("GET", {**local, **NAV}) is None
-    assert check_request("GET", {**local, **CORS})
-    assert check_request("GET", {**local, **IFRAME})
-    assert check_request("POST", {**local, **NAV})
-    assert check_request("GET", {"host": "evil.example"})
-
-
 def test_middleware_blocks_cross_site_embeds_and_fetches():
     app = FastAPI()
-    install_guard(app, parse_allowed_hosts("*.ts.net"))
+    install_guard(app, port_getter=lambda: 5200, allowed_hosts="*.ts.net")
 
     @app.get("/")
     def home():
