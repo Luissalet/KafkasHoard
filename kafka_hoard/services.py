@@ -22,8 +22,8 @@ from .engine import Engine
 from .errors import KafkaError
 from .extract.llm import LlmPass
 from .files import FileStore
-from .mail.hub import SOURCES as MAIL_SOURCES
-from .mail.hub import MailRouter
+from .mail.source import SOURCES as MAIL_SOURCES
+from .mail.source import MailSource
 from .notify import CHANNELS, EMAIL_BACKENDS, VIA_MODES, Notifier
 from .docsvc import DocService
 from .ocr import Ocr
@@ -148,7 +148,8 @@ class Services:
         self.files = FileStore(config.files_dir)
         self.workshop = Workshop(config, self.store, self.files, self.setting)
         self.notifier = notifier or Notifier(config, self.db.get_setting, transport=http_transport, clock=clock_fn)
-        self.mail = mail_source or MailRouter(self.setting, config.secret, runner=mail_runner, clock=clock_fn, offline=config.offline)
+        self.mail = mail_source or MailSource(self.setting, config.secret, runner=mail_runner, clock=clock_fn, offline=config.offline,
+                                           save=self.db.set_setting)
         self.ocr = ocr or Ocr(config.ocr, backend=config.ocr_backend, lang=config.ocr_lang)
         self.docsvc = DocService(self.ocr, config.data_dir)
         self.llm = llm if llm is not None else LlmPass(config.backend_json_path)

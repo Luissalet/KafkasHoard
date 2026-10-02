@@ -22,7 +22,7 @@ Run Python from the repository root or with absolute paths: running a script fro
 - Anything a user edits (a document field, a deadline's date, title or reminders) wins over the extraction and survives reprocessing. Never replace a deadline flagged `edited` or one the user closed.
 - Notifications are deduplicated by key and sent once. History is quiet: old documents and the first mail scan create no notifications and their past deadlines are done.
 - Identifiers (DNI/NIE, IBAN, cards, phones) are masked for assistants in `privacy.py`; the local UI shows everything. New tool results that can carry text must go through the mask.
-- The mail helper `mail/faustus_mail.py` is stdlib-only and imports nothing from Kafka, because it runs under another interpreter. `hoard_link/` is vendored and byte-identical to upstream: never edit it here.
+- Mail, notifications, text folding, money, dates, working days, identifier checks, page ranges, file names, image shrinking, process launching and the Faustus mail helper (`hoard_link/mail_helper.py`, run under another interpreter) come from `hoard_link/`, which is vendored and byte-identical to upstream: never edit it here; if it is wrong, write it down for the library.
 - User-facing text goes in `client/src/i18n.js` (Spanish first, English second) and in `extract/texts.py` for deadline explanations. Spanish is castellano de España. Keep the UI and the docs plain: no marketing lines.
 - The workshop never overwrites or edits a file in place, never logs, returns or stores a password, and reaches Ghostscript, Word and LibreOffice only through `workshop/proc.py`'s `Env`, so tests fake them.
 - Calls to other apps go through `Engine._fcall` (never raises) and tests fake them; the hub is faked too (`no_hub` fixture in `tests/conftest.py`). `hoard_link/` stays vendored. Tests never touch the network.
@@ -35,7 +35,7 @@ Run Python from the repository root or with absolute paths: running a script fro
 | A date is wrong or missing | `extract/dates.py` (roles), `extract/periods.py` (relative periods), `extract/deadlines.py`, `extract/rules.py` |
 | A document gets the wrong kind or issuer | `extract/kinds.py`, `extract/issuers.py`, `extract/refs.py` |
 | A reminder did not fire | `engine.run_reminders`, the `notify.*` and `remind.*` settings, `notify/__init__.py` |
-| A mail was not filed | `mail/classify.py`, `engine.scan_mail`, `mail/faustus_mail.py`, `mail/hub.py` (the `mail.source` setting) |
+| A mail was not filed | `mail/classify.py`, `engine.scan_mail`, `mail/source.py` (the `mail.source` setting; the Faustus helper itself is `hoard_link/mail_helper.py`) |
 | A notification did not reach the hub, an event or the agenda is wrong | `notify/__init__.py` (`notify.via`), `engine._emit_event`, `agenda.py` |
 | An invoice was not linked to a Ledger movement | `engine.link_ledger`, `engine.ledger_candidates`, the `links.ledger` setting |
 | The tax return folder | `taxpack.py` |

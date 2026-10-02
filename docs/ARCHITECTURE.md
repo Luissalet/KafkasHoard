@@ -5,7 +5,7 @@
  watched folders ───┼──► engine.ingest ──► files.py (content-addressed store, SHA-256, original never modified)
  mail attachments ──┤        │
  pasted text ───────┘        ▼
- mail/faustus_mail.py   readers.py  PDF text layer (pypdfium2) · OCR (ocr/, optional rapidocr, winocr or tesseract) · images · .eml · .docx · HTML · text
+ mail/source.py          readers.py  PDF text layer (pypdfium2) · OCR (ocr/, optional rapidocr, winocr or tesseract) · images · .eml · .docx · HTML · text
  (Faustus's Python,          │ pages
   stdlib only)               ▼
                      extract/pipeline.py ── texts · kinds · issuers · refs · amounts · dates · periods · deadlines · rules
@@ -43,7 +43,7 @@
 | `kafka_hoard/guard.py` | Same-origin request guard shared by every Hoard app |
 | `kafka_hoard/scheduler.py` | Two lanes, one worker each; jobs deduplicated; pause and run-now |
 | `kafka_hoard/notify/` | Channels, minimum severity, night window, dedupe keys, test sends; the hub route (`notify.via`) with the own channels as fallback |
-| `kafka_hoard/mail/` | `faustus_mail.py` (runs under Faustus's Python), `source.py` (talks to it), `hub.py` (the hub's mail gateway and `MailRouter`, which picks the source by `mail.source`), `classify.py` (paperwork, maybe, noise) |
+| `kafka_hoard/mail/` | `source.py` (Kafka's paperwork words over the family's `fam_mail.MailRouter`: the hub's mail gateway first, the Faustus helper as the fallback, picked by `mail.source`), `classify.py` (paperwork, maybe, noise) |
 | `kafka_hoard/agenda.py` | The family agenda: open deadlines as agenda items with kind and priority |
 | `kafka_hoard/taxpack.py` | The tax return folder: classification by kind and text, copies, index, CSV, missing certificates, Ledger's year summary |
 | `kafka_hoard/hoard_link/` | Vendored family library (event bus, calls to other apps, local model). Not edited here |
@@ -87,7 +87,7 @@ Insurance, subscriptions and optionally utility bills with the same issuer and s
 
 ## Mail
 
-`mail/faustus_mail.py` is stdlib-only and imports nothing from Kafka: Kafka starts it with Faustus's Python inside the Faustus folder, writes one JSON request to stdin and reads one JSON line. It reuses Faustus's mail server module to resolve accounts, so passwords never leave Faustus. A scan returns candidate messages (paperwork words in the subject or body, or a PDF/image attachment) and writes each attachment of 15 MB or less to the cache folder as `<sha256>.<ext>`. `classify.py` labels each message `doc`, `maybe` or `noise`; documents are filed, doubtful mails wait in Revisión, noise is remembered so it is not shown again. The first scan looks back `mail.first_days` (180) and is quiet. The same helper sends notification mails.
+The Faustus mail helper is the family's `hoard_link/mail_helper.py`: `fam_mail.FaustusHelper` starts it with Faustus's Python inside the Faustus folder, writes one JSON request to stdin and reads one JSON line. It reuses Faustus's mail server module to resolve accounts, so passwords never leave Faustus (Kafka's own `KAFKA_*` secrets are removed from its environment). A scan returns candidate messages (paperwork words in the subject or body, or a PDF/image attachment) and writes each attachment of 15 MB or less to the cache folder as `<sha256>.<ext>`. `classify.py` labels each message `doc`, `maybe` or `noise`; documents are filed, doubtful mails wait in Revisión, noise is remembered so it is not shown again. The first scan looks back `mail.first_days` (180) and is quiet. The same helper sends notification mails.
 
 ## Tools, API and MCP
 
@@ -110,7 +110,7 @@ Everything lives in `data/` (or `KAFKA_DATA_DIR`): `kafka.db`, `files/` (origina
 ## The family hub
 
 - **Notifications.** `notify.send` sends through the hub (`fam_notify`) when `notify.via` is `auto` and the hub is up, or `hub`; any failure in `auto` falls back to the own channels and leaves a failed `hub_notify` marker. `own` never calls the hub.
-- **Mail.** `MailRouter` reads from the hub's mail gateway (`mail/hub.py`: interest registered with the paperwork words and attachments, watermark `mail.hub_since_id`, attachments copied into Kafka's own mail cache) or from the Faustus helper. Each filed mail is claimed with the document reference.
+- **Mail.** `mail.source.MailSource` wraps `fam_mail.MailRouter`: it reads from the hub's mail gateway (interest registered with the paperwork words and attachments, watermark `mail.hub_since_id` that moves only after the scan is filed, attachments copied into Kafka's own mail cache) or from the Faustus helper. Each filed mail is claimed with the document reference.
 - **Agenda.** `agenda.items` feeds `GET /api/family/agenda` (installed in `main.py`); the manifest announces it with `x-family.agenda`.
 - **Events.** Emitted by the engine: `kafka.document.archived`, `kafka.warranty.created`, `kafka.deadline.created`, `kafka.deadline.soon` and `kafka.deadline.overdue`. The last two go once per deadline, date and state (markers in the settings table). History is quiet, so none are emitted for old documents.
 - **Ledger link.** `engine.link_ledger` asks Ledger's `tx_find`, links one strong match (score of 0.8 or more, and only one) with `tx_attach_doc` and a reference, and keeps the movement in the document's facts (`ledger_tx`). `retry_ledger_links` runs from housekeeping once a day for documents of the last 45 days.

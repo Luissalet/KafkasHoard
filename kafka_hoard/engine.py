@@ -1110,8 +1110,9 @@ class Engine:
         summary = self.ingest_messages(messages, bootstrap=first)
         if first and not since_days and not query:
             self.set("mail.first_scan_done", "1")
-        if answer.get("hub_last_id") is not None:     # what the hub's gateway handed over is now filed: resume after it
-            self.set("mail.hub_since_id", str(int(answer["hub_last_id"])))
+        commit = getattr(self.mail, "commit", None)
+        if commit is not None:                        # what the hub's gateway handed over is now filed: resume after it
+            commit()
         self.set("mail.last_scan_ts", str(self.clock()))
         self.set("mail.last_error", "")
         self.store.add_run("mail", "", True, int((time.monotonic() - t0) * 1000),

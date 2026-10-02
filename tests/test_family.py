@@ -18,7 +18,7 @@ import docs
 from conftest import FakeMail, build, make_config
 from kafka_hoard import agenda
 from kafka_hoard import model as M
-from kafka_hoard.mail.hub import INTEREST, HubMail, MailRouter
+from kafka_hoard.mail.source import INTEREST, MailSource
 from kafka_hoard.notify import HUB_NOTIFY, Notifier
 from pdfmaker import make_pdf
 
@@ -167,9 +167,27 @@ def test_notify_via_is_a_setting_with_three_values(svc):
 
 
 # ================================================================== mail through the hub
+class FakeHelper:
+    """The Faustus helper's runner: answers a scan with the messages it was given."""
+
+    def __init__(self, messages=None):
+        self.messages, self.calls = list(messages or []), []
+
+    def available(self):
+        return True
+
+    def run(self, action, payload=None, timeout=0):
+        self.calls.append((action, payload))
+        return {"ok": True, "accounts": [{"account": "faustus"}], "messages": list(self.messages)}
+
+    def faustus_dir(self):
+        return None
+
+
 def make_router(svc_or_cfg, api, mode="auto", settings=None):
     store = {"mail.source": mode, **(settings or {})}
-    return MailRouter(lambda k, d="": store.get(k, d), lambda name: "", hub_api=api), store
+    source = MailSource(lambda k, d="": store.get(k, d), lambda name: "", hub_api=api, save=lambda k, v: store.__setitem__(k, v))
+    return source, store
 
 
 def test_hub_mail_returns_the_helpers_shape_copies_attachments_and_keeps_a_watermark(tmp_path):
@@ -180,9 +198,12 @@ def test_hub_mail_returns_the_helpers_shape_copies_attachments_and_keeps_a_water
     api = FakeMailApi([hub_row(5, "<a@x>", "Su factura", attachments=[{"name": "factura.pdf", "size": 90_000, "path": str(pdf), "sha": "abc"},
                                                                     {"name": "logo.exe", "size": 10, "path": str(pdf)}]),
                        hub_row(7, "<b@x>", "Otra")])
-    hub = HubMail(lambda k, d="": {}.get(k, d), api)
+    hub, store = make_router(None, api)
     out = hub.scan(since_days=14, limit=100, skip=[], attachments_dir=str(tmp_path / "cache"))
-    assert out["ok"] and [m["message_id"] for m in out["messages"]] == ["<a@x>", "<b@x>"] and out["hub_last_id"] == 7
+    assert out["ok"] and out["source"] == "hub" and [m["message_id"] for m in out["messages"]] == ["<a@x>", "<b@x>"]
+    assert "mail.hub_since_id" not in store                       # the watermark moves only after the mail is filed
+    hub.commit()
+    assert store["mail.hub_since_id"] == "7"
     first = out["messages"][0]
     assert first["hub_id"] == "5" and first["from_address"] == "avisos@bancodemo.example" and first["account"] == "demo"
     assert [a["name"] for a in first["attachments"]] == ["factura.pdf"] and Path(first["attachments"][0]["path"]).parent == tmp_path / "cache"
@@ -190,41 +211,45 @@ def test_hub_mail_returns_the_helpers_shape_copies_attachments_and_keeps_a_water
 
 def test_hub_mail_resumes_after_the_stored_watermark_and_skips_known_mail(tmp_path):
     api = FakeMailApi([hub_row(i, f"<m{i}@x>", "Factura") for i in range(1, 6)])
-    settings = {"mail.hub_since_id": "3"}
-    hub = HubMail(lambda k, d="": settings.get(k, d), api)
+    hub, store = make_router(None, api, settings={"mail.hub_since_id": "3"})
     out = hub.scan(since_days=14, limit=100, skip=["<m4@x>"])
-    assert api.pages[0] == 3 and [m["message_id"] for m in out["messages"]] == ["<m5@x>"] and out["hub_last_id"] == 5
-    settings["mail.hub_since_id"] = "5"
+    assert api.pages[0] == 3 and [m["message_id"] for m in out["messages"]] == ["<m5@x>"]
+    hub.commit()
+    assert store["mail.hub_since_id"] == "5"
     assert hub.scan(since_days=14, limit=100, skip=[])["messages"] == []                    # nothing new after the watermark moves on
 
 
 def test_hub_mail_stops_at_the_limit_and_resumes_from_the_last_message_it_returned():
     api = FakeMailApi([hub_row(i, f"<m{i}@x>", "Factura") for i in range(1, 8)])
-    hub = HubMail(lambda k, d="": {}.get(k, d), api)
+    hub, store = make_router(None, api)
     out = hub.scan(since_days=14, limit=3, skip=[])
-    assert len(out["messages"]) == 3 and out["hub_last_id"] == 3
+    hub.commit()
+    assert len(out["messages"]) == 3 and out["more"] and store["mail.hub_since_id"] == "3"
 
 
 def test_a_query_or_a_longer_look_back_rereads_from_the_start_without_moving_the_watermark():
     api = FakeMailApi([hub_row(1, "<a@x>", "Seguro del coche"), hub_row(2, "<b@x>", "Otra cosa")])
-    hub = HubMail(lambda k, d="": {"mail.hub_since_id": "2"}.get(k, d), api)
+    hub, store = make_router(None, api, settings={"mail.hub_since_id": "2"})
     out = hub.scan(since_days=14, limit=50, skip=[], query="seguro")
-    assert [m["message_id"] for m in out["messages"]] == ["<a@x>"] and out["hub_last_id"] is None
+    hub.commit()
+    assert [m["message_id"] for m in out["messages"]] == ["<a@x>"] and store["mail.hub_since_id"] == "2"
     deep = hub.scan(since_days=60, limit=50, skip=[])
-    assert len(deep["messages"]) == 2 and deep["hub_last_id"] is None
+    hub.commit()
+    assert len(deep["messages"]) == 2 and store["mail.hub_since_id"] == "2"
 
 
 def test_the_router_reads_the_hub_when_it_is_on_and_the_helper_otherwise(tmp_path):
     api = FakeMailApi([hub_row(1, "<a@x>", "Factura")])
     router, store = make_router(None, api)
-    helper = FakeMail([{"message_id": "<own@x>", "subject": "Del helper"}])
-    router.own = helper
+    helper = router.helper = router.router.helper = FakeHelper([{"message_id": "<own@x>", "subject": "Del helper"}])
     assert router.source_now() == "hub"
     assert router.scan(since_days=14, limit=10, skip=[])["messages"][0]["message_id"] == "<a@x>"
     assert api.interests == [INTEREST]
     api.up = False
     assert router.source_now() == "faustus"
     assert router.scan(since_days=14, limit=10, skip=[])["messages"][0]["message_id"] == "<own@x>"
+    action, payload = helper.calls[0]
+    assert action == "scan" and payload["max"] == 10 and "factura" in payload["subject_terms"] and "has:attachment" in payload["gmail_query"]
     store["mail.source"] = "faustus"
     api.up = True
     assert router.source_now() == "faustus"
@@ -236,7 +261,7 @@ def test_the_router_reads_the_hub_when_it_is_on_and_the_helper_otherwise(tmp_pat
 def test_the_router_falls_back_to_the_helper_when_the_hub_fails_in_auto_mode():
     api = FakeMailApi([hub_row(1, "<a@x>", "Factura")])
     router, _ = make_router(None, api)
-    router.own = FakeMail([{"message_id": "<own@x>", "subject": "Del helper"}])
+    router.router.helper = FakeHelper([{"message_id": "<own@x>", "subject": "Del helper"}])
     api.messages = lambda *a, **k: {"ok": False, "error": "boom", "messages": [], "last_id": 0}
     assert router.scan(since_days=14, limit=10, skip=[])["messages"][0]["message_id"] == "<own@x>"
 
@@ -244,13 +269,21 @@ def test_the_router_falls_back_to_the_helper_when_the_hub_fails_in_auto_mode():
 def test_interest_is_the_paperwork_words_and_attachments_and_is_registered_again_on_demand():
     assert "factura" in INTEREST["subject_terms"] and INTEREST["has_attachment"] is True
     api = FakeMailApi()
-    hub = HubMail(lambda k, d="": d, api)
+    hub, _ = make_router(None, api)
     hub.register_interest()
     hub.register_interest()
     assert len(api.interests) == 1
     hub.forget_interest()
     hub.register_interest()
     assert len(api.interests) == 2
+
+
+def test_the_status_says_where_the_mail_would_come_from():
+    api = FakeMailApi()
+    hub, _ = make_router(None, api)
+    assert hub.status()["source"] == "hub" and hub.status()["ok"] and hub.status()["mode"] == "auto"
+    api.up = False
+    assert hub.status()["source"] == "faustus"
 
 
 def test_mail_from_the_hub_is_filed_claimed_and_the_watermark_stored(config, clock, tmp_path):
@@ -260,7 +293,7 @@ def test_mail_from_the_hub_is_filed_claimed_and_the_watermark_stored(config, clo
     pdf.write_bytes(make_pdf(docs.UTILITY))
     api = FakeMailApi([hub_row(11, "<luz@x>", "Su factura de la luz", attachments=[{"name": "factura.pdf", "size": 90_000, "path": str(pdf), "sha": "luz"}]),
                        hub_row(12, "<ruido@x>", "Newsletter: ofertas 30% de descuento", text="Ofertas y rebajas. Darte de baja aquí.")])
-    router, _ = make_router(None, api)
+    router, marks = make_router(None, api)
     s = build(config, clock, router)
     claims = []
     s.engine.mail_claim = lambda ids, kind, ref: claims.append((ids, kind, ref)) or {"ok": True}
@@ -270,7 +303,7 @@ def test_mail_from_the_hub_is_filed_claimed_and_the_watermark_stored(config, clo
         assert out["ok"] and out["docs"] == 1
         doc = s.store.documents()[0]
         assert claims == [([11], "document", f"hoard://kafka/document/{doc['id']}")]
-        assert s.setting("mail.hub_since_id") == "12" and s.store.mail("<luz@x>")["hub_id"] == "11"
+        assert marks["mail.hub_since_id"] == "12" and s.store.mail("<luz@x>")["hub_id"] == "11"
         assert s.engine.scan_mail()["messages"] == 0
         assert len(claims) == 1
     finally:
