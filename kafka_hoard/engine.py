@@ -38,6 +38,7 @@ from .extract.types import Ctx, Extraction, Hints, Meta
 from .files import FileStore, sha256_of
 from .mail.classify import MailClass, classify_mail
 from .hoard_link.money import format_money
+from .hoard_link.notify_channels import in_quiet_hours
 from .hoard_link.text import clamp_text, fold
 from .hoard_link.dates import add_months, parse_iso
 from .util import human_day, issuer_key, ts_date
@@ -1407,14 +1408,12 @@ class Engine:
 
     # ================================================================== reminders
     def _in_night(self) -> bool:
+        """Is it inside the quiet window (``notify.night_from`` to ``notify.night_to``, in whole hours)? The urgent exception is the caller's."""
         try:
             start, end = int(float(self.setting("notify.night_from", "23"))), int(float(self.setting("notify.night_to", "7")))
         except ValueError:
             start, end = 23, 7
-        hour = datetime.fromtimestamp(self.clock()).hour
-        if start == end:
-            return False
-        return (hour >= start or hour < end) if start > end else (start <= hour < end)
+        return in_quiet_hours(datetime.fromtimestamp(self.clock()), start * 60, end * 60, priority="normal", allow_high=False)
 
     def run_reminders(self) -> dict[str, Any]:
         """Notify the deadlines whose lead day has come (once each) and the ones that just became overdue."""

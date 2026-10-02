@@ -1,8 +1,12 @@
 """Notification channels: Windows toast, family hub, ntfy, Telegram and e-mail.
 
-E-mail has two backends: plain SMTP with Kafka's own credentials, or the account configured in Faustus
-(``faustus_mail.py`` runs under Faustus's Python, so that password never reaches Kafka). ``auto`` uses SMTP when
-Kafka has its own user and password and Faustus otherwise.
+The senders themselves (toast, ntfy, Telegram, SMTP, the Faustus helper) are the family's (``hoard_link.notify_channels`` and
+``hoard_link.fam_mail``); this module decides which channel gets which event: the per-channel switches and severity floors, the
+``notify.via`` choice between the hub's notification service and Kafka's own channels (``fam_notify.Router``) and the wording.
+
+E-mail has two backends: plain SMTP with Kafka's own credentials, or the account configured in Faustus (the helper runs under
+Faustus's Python, so that password never reaches Kafka). ``auto`` uses SMTP when Kafka has its own user and password and Faustus
+otherwise.
 
 ``Notifier.send(event, channels)`` returns one ``{channel, ok, error}`` per channel and never raises.
 Secrets come only from ``config.secret(...)`` (environment / .env); the database holds only the
@@ -12,26 +16,16 @@ put in an error string.
 
 from __future__ import annotations
 
-import html
-import json
 import logging
-import os
-import re
-import shutil
-import smtplib
-import ssl
-import subprocess
 import sys
-import tempfile
 import time
-from email.message import EmailMessage
 from pathlib import Path
 from typing import Any, Callable, Optional
-from urllib.parse import urlsplit
 
 import httpx
 
-from ..config import REPO_ROOT
+from ..hoard_link import fam_mail, notify_channels as nc
+from ..hoard_link.fam_notify import Router
 from .labels import LABELS, TYPE_TAGS, WORDS, compose, format_price, label
 
 log = logging.getLogger("kafka.notify")
@@ -43,69 +37,57 @@ HUB_NOTIFY = "hub_notify"                                  # the channel name re
 URGENT_KINDS = ("appeal", "fine_discount", "cancel_by")    # on their last day these are urgent for the hub (it bypasses quiet hours)
 GROUPS = {"deadline_soon": "deadline", "deadline_overdue": "deadline", "price_change": "price", "document_added": "document"}
 SEVERITY_RANK = {"low": 0, "medium": 1, "high": 2}
+HUB_PRIORITY = {"low": "low", "medium": "normal", "high": "high"}
 APP_ID = "Kafka's Hoard"
-POWERSHELL_APP_ID = r"{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\WindowsPowerShell\v1.0\powershell.exe"
 DEFAULT_ENABLED = {"toast": True, "hub": True, "ntfy": False, "telegram": False, "email": False}
-HTTP_TIMEOUT_S = 10.0
+HTTP_TIMEOUT_S = nc.HTTP_TIMEOUT_S
 EMAIL_BACKENDS = ("auto", "faustus", "smtp")
-FAUSTUS_HELPER = Path(__file__).resolve().parent.parent / "mail" / "faustus_mail.py"
-FAUSTUS_TIMEOUT_S = 60
-FAUSTUS_STATUS_TTL_S = 300.0     # a good status is reused for five minutes, a failure for thirty seconds
+xml_escape = nc.xml_escape
+build_toast_ps1 = nc.build_toast_ps1
+_http_url = nc.http_url
+telegram_discover_chat_id = nc.telegram_discover_chat_id
 
 
-def xml_escape(text: str) -> str:
-    """Escape for XML text and attribute values; also drops characters XML 1.0 forbids."""
-    text = re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f]", "", text or "")
-    return html.escape(text, quote=True)
+class _Hub:
+    """The hub's notification client as ``fam_notify.Router`` wants it, with Kafka's offline switch in front."""
 
+    def __init__(self, notifier: "Notifier"):
+        self.n = notifier
+        self.last: Optional[dict[str, Any]] = None       # what the hub answered, for the result list
 
-def _http_url(url: Any) -> str:
-    url = str(url or "").strip()
-    return url if urlsplit(url).scheme in ("http", "https") else ""
+    def hub_available(self) -> bool:
+        return self.n.hub_available()
 
-
-def _scrub(text: str, secrets: list[str]) -> str:
-    for secret in secrets:
-        if secret and len(secret) >= 4:
-            text = text.replace(secret, "***")
-    return text
-
-
-def build_toast_ps1(title: str, body: str, url: str = "") -> str:
-    """PowerShell that shows one toast through Windows.UI.Notifications (no extra module needed)."""
-    launch = _http_url(url)
-    attrs = f' activationType="protocol" launch="{xml_escape(launch)}"' if launch else ""
-    xml = (f'<toast{attrs}><visual><binding template="ToastGeneric"><text>{xml_escape(title[:120])}</text>'
-           f'<text>{xml_escape(body[:300])}</text></binding></visual></toast>')
-    return (
-        "[Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null\n"
-        "[Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, ContentType = WindowsRuntime] | Out-Null\n"
-        f"$xml = @'\n{xml}\n'@\n"
-        "$doc = New-Object Windows.Data.Xml.Dom.XmlDocument\n"
-        "$doc.LoadXml($xml)\n"
-        "$toast = [Windows.UI.Notifications.ToastNotification]::new($doc)\n"
-        f"[Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier('{POWERSHELL_APP_ID}').Show($toast)\n"
-    )
+    def notify(self, title: str, body: str = "", **kw: Any) -> dict[str, Any]:
+        if getattr(self.n.config, "offline", False):
+            self.last = {"ok": False, "error": "offline"}
+        else:
+            try:
+                answer = self.n.hub_api.notify(title, body, **kw)
+                self.last = answer if isinstance(answer, dict) else {"ok": False, "error": "unexpected answer"}
+            except Exception as exc:  # noqa: BLE001 — never raise out of the engine
+                self.last = {"ok": False, "error": type(exc).__name__}
+        return self.last
 
 
 class Notifier:
     def __init__(self, config: Any, db_settings_get: Callable[[str, Optional[str]], Optional[str]], *, transport: Any = None,
                  clock: Callable[[], float] = time.time, smtp_factory: Optional[Callable[..., Any]] = None,
                  toast_backend: Optional[Callable[[str, str, str, bool], None]] = None,
-                 powershell_runner: Optional[Callable[..., Any]] = None, platform: Optional[str] = None, icon_path: Optional[Path] = None,
+                 powershell_runner: Optional[Callable[..., Any]] = None, platform: Optional[str] = None,
                  faustus_runner: Optional[Callable[..., Any]] = None, hub_api: Any = None):
         self.config = config
         self.get = db_settings_get
         self.transport = transport
         self.clock = clock
-        self.smtp_factory = smtp_factory or self._default_smtp
+        self.smtp_factory = smtp_factory                 # (host, port, use_ssl) -> client; the default is the family's
         self.toast_backend = toast_backend
-        self.powershell_runner = powershell_runner or subprocess.run
+        self.powershell_runner = powershell_runner
         self.platform = platform or sys.platform
-        self.icon_path = icon_path if icon_path is not None else REPO_ROOT / "app-icon.png"
-        self.faustus_runner = faustus_runner or subprocess.run
-        self._faustus_status: Optional[tuple[float, str, dict[str, Any]]] = None
         self._hub_api = hub_api            # ``notify(...)`` and ``hub_available()`` of the family library; tests inject a fake
+        self.helper = fam_mail.FaustusHelper(lambda: self._setting("mail.faustus_dir") or self._secret("FAUSTUS_DIR"),
+                                             owner=lambda: self._setting("mail.faustus_owner"), env_drop_prefixes=("KAFKA_",),
+                                             runner=faustus_runner, clock=clock)
 
     # ------------------------------------------------------------------ the hub's notification service
     @property
@@ -128,8 +110,7 @@ class Notifier:
             return False
 
     def via_status(self) -> dict[str, Any]:
-        mode, up = self.via(), self.hub_available()
-        return {"setting": mode, "hub_available": up, "effective": "hub" if (mode == "hub" or (mode == "auto" and up)) else "own"}
+        return Router(self.via, None, APP_ID, hub=_Hub(self)).via_status()
 
     @staticmethod
     def hub_priority(event: dict[str, Any]) -> str:
@@ -139,23 +120,15 @@ class Notifier:
         data = event.get("data") or {}
         if severity == "high" and data.get("days_left") == 0 and str(data.get("kind") or "") in URGENT_KINDS and event.get("type") != "deadline_overdue":
             return "urgent"
-        return {"low": "low", "medium": "normal", "high": "high"}.get(severity, "normal")
+        return HUB_PRIORITY.get(severity, "normal")
 
-    def _send_hub_notify(self, event: dict[str, Any]) -> dict[str, Any]:
-        title, body = compose(event, self._lang())
-        if getattr(self.config, "offline", False):
-            return {"channel": HUB_NOTIFY, "ok": False, "error": "offline"}
-        try:
-            res = self.hub_api.notify(title, body, priority=self.hub_priority(event), url=_http_url(event.get("url")),
-                                      group=GROUPS.get(str(event.get("type")), ""), dedupe_key=str(event.get("id") or ""))
-        except Exception as exc:  # noqa: BLE001 — never raise out of the engine
-            res = {"ok": False, "error": type(exc).__name__}
-        out: dict[str, Any] = {"channel": HUB_NOTIFY, "ok": bool(res.get("ok")), "error": "" if res.get("ok") else str(res.get("error") or "the hub refused")[:160],
-                               "ts": self.clock()}
-        if res.get("held"):
-            out["held"] = str(res["held"])
-        if res.get("ok"):
-            out["delivered"] = res.get("delivered")
+    def _hub_result(self, answer: dict[str, Any]) -> dict[str, Any]:
+        ok = bool(answer.get("ok"))
+        out: dict[str, Any] = {"channel": HUB_NOTIFY, "ok": ok, "error": "" if ok else str(answer.get("error") or "the hub refused")[:160], "ts": self.clock()}
+        if answer.get("held"):
+            out["held"] = str(answer["held"])
+        if ok:
+            out["delivered"] = answer.get("delivered")
         return out
 
     # ------------------------------------------------------------------ settings and status
@@ -205,13 +178,7 @@ class Notifier:
 
     def _configured(self, channel: str) -> tuple[bool, str]:
         if channel == "toast":
-            if not self._is_windows():
-                return False, "not windows"
-            try:
-                import winotify  # noqa: F401
-                return True, "winotify"
-            except ImportError:
-                return True, "PowerShell fallback"
+            return (True, "Windows toast") if self._is_windows() else (False, "not windows")
         if channel == "hub":
             return True, "family event bus"
         if channel == "ntfy":
@@ -254,62 +221,10 @@ class Notifier:
 
     def faustus_dir(self) -> Optional[Path]:
         """The Faustus folder: setting, KAFKA_FAUSTUS_DIR, FAUSTUS_DIR, then a ``faustus`` folder next to this app."""
-        raw = [self._setting("mail.faustus_dir"), self._secret("FAUSTUS_DIR"), os.environ.get("FAUSTUS_DIR", "")]
-        candidates = [Path(r).expanduser() for r in raw if r and r.strip()]
-        if not any(r and r.strip() for r in raw):
-            candidates += [REPO_ROOT.parent / "faustus", REPO_ROOT.parent.parent / "faustus"]
-        for path in candidates:
-            try:
-                if (path / "mcp_servers" / "email_server.py").is_file():
-                    return path.resolve()
-            except OSError:
-                continue
-        return None
-
-    @staticmethod
-    def faustus_python(root: Path) -> Optional[str]:
-        for rel in ("venv/Scripts/python.exe", ".venv/Scripts/python.exe", "venv/bin/python", ".venv/bin/python"):
-            if (root / rel).is_file():
-                return str(root / rel)
-        return None
-
-    def _faustus_call(self, request: dict[str, Any]) -> dict[str, Any]:
-        root = self.faustus_dir()
-        if root is None:
-            return {"ok": False, "error": "Faustus folder not found (set mail.faustus_dir)"}
-        python = self.faustus_python(root)
-        if python is None:
-            return {"ok": False, "error": "Faustus has no venv with Python"}
-        owner = self._setting("mail.faustus_owner")
-        if owner:
-            request = {**request, "owner": owner}
-        env = {k: v for k, v in os.environ.items() if not k.startswith("KAFKA_")}   # Kafka's own secrets stay here
-        env["PYTHONIOENCODING"] = "utf-8"
-        try:
-            done = self.faustus_runner([python, str(FAUSTUS_HELPER), str(root)], input=json.dumps(request), capture_output=True, text=True,
-                                       encoding="utf-8", timeout=FAUSTUS_TIMEOUT_S, cwd=str(root), env=env,
-                                       creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
-        except (OSError, subprocess.SubprocessError) as exc:
-            return {"ok": False, "error": f"Faustus mail helper: {type(exc).__name__}"}
-        lines = [line for line in (getattr(done, "stdout", "") or "").splitlines() if line.strip().startswith("{")]
-        try:
-            answer = json.loads(lines[-1]) if lines else {}
-        except ValueError:
-            answer = {}
-        if not isinstance(answer, dict) or "ok" not in answer:
-            return {"ok": False, "error": f"Faustus mail helper exit {getattr(done, 'returncode', '?')}"}
-        return answer
+        return self.helper.faustus_dir()
 
     def faustus_status(self, refresh: bool = False) -> dict[str, Any]:
-        key = str(self.faustus_dir() or "") + "|" + self._setting("mail.faustus_owner")
-        cached = self._faustus_status
-        if cached and not refresh and cached[1] == key:
-            ttl = FAUSTUS_STATUS_TTL_S if cached[2].get("ok") else 30.0
-            if self.clock() - cached[0] < ttl:
-                return cached[2]
-        result = self._faustus_call({"action": "status", "to": self._secret("SMTP_TO")})
-        self._faustus_status = (self.clock(), key, result)
-        return result
+        return self.helper.status(refresh)
 
     def _faustus_configured(self) -> tuple[bool, str]:
         if self.faustus_dir() is None:
@@ -325,17 +240,24 @@ class Notifier:
         """Deliver through the hub's notification service (it decides channels, quiet hours and the sphere) when ``notify.via`` says
         so, else through the app's own channels. ``auto`` falls back to the own channels when the hub does not take it."""
         asked = [c for c in channels if c in OWN_CHANNELS]
-        mode = self.via()
-        if not asked or mode == "own":
+        if not asked or self.via() == "own":
             return self._send_own(event, channels)
-        hub_res: Optional[dict[str, Any]] = None
-        if mode == "hub" or self.hub_available():
-            hub_res = self._send_hub_notify(event)
-        if hub_res is not None and hub_res["ok"]:
-            return [*self._send_own(event, [c for c in channels if c not in OWN_CHANNELS]), hub_res]
-        if mode == "hub":
-            return [*self._send_own(event, [c for c in channels if c not in OWN_CHANNELS]), hub_res or {"channel": HUB_NOTIFY, "ok": False, "error": "hub unavailable"}]
-        return [*self._send_own(event, channels), *([hub_res] if hub_res else [])]
+        rest = [c for c in channels if c not in OWN_CHANNELS]
+        own: list[dict[str, Any]] = []
+
+        def own_send(*_args: Any, **_kw: Any) -> dict[str, Any]:       # the router's fallback: every channel asked for, with its own gates
+            own.extend(self._send_own(event, channels))
+            return {"ok": any(r["ok"] for r in own)}
+
+        hub = _Hub(self)
+        router = Router(self.via, own_send, APP_ID, hub=hub)
+        title, body = compose(event, self._lang())
+        res = router.send(title, body, priority=self.hub_priority(event), url=_http_url(event.get("url")),
+                          group=GROUPS.get(str(event.get("type")), ""), dedupe_key=str(event.get("id") or ""))
+        tried = [self._hub_result(hub.last)] if hub.last is not None else []
+        if res["via"] == "hub":
+            return [*self._send_own(event, rest), *(tried or [{"channel": HUB_NOTIFY, "ok": False, "error": "hub unavailable", "ts": self.clock()}])]
+        return [*own, *tried]      # the hub was not asked (auto and it is down) or refused (auto falls back): the own channels carry it
 
     def _send_own(self, event: dict[str, Any], channels: list[str]) -> list[dict[str, Any]]:
         results = []
@@ -372,48 +294,32 @@ class Notifier:
             log.info("notify %s failed: %s", channel, type(exc).__name__)
         return {"channel": channel, "ok": not error, "error": error or "", "ts": self.clock()}
 
+    @staticmethod
+    def _error(answer: dict[str, Any]) -> str:
+        return "" if answer.get("ok") else str(answer.get("error") or "failed")[:200]
+
+    def _http(self, url: str, payload: Optional[dict[str, Any]] = None, headers: Optional[dict[str, str]] = None,
+              timeout: float = HTTP_TIMEOUT_S) -> tuple[Optional[int], Any]:
+        """The transport the shared senders use: ``(status, json | None)`` or ``(None, "<ExceptionName>")``. Tests inject an httpx transport."""
+        try:
+            with httpx.Client(transport=self.transport, timeout=timeout, follow_redirects=False) as client:
+                response = client.post(url, json=payload, headers=headers) if payload is not None else client.get(url, headers=headers)
+        except httpx.HTTPError as exc:
+            return None, type(exc).__name__
+        try:
+            return response.status_code, response.json()
+        except ValueError:
+            return response.status_code, None
+
     # ------------------------------------------------------------------ channels (each returns '' on success or an error)
     def _send_toast(self, event: dict[str, Any], title: str, body: str) -> str:
         if not self._is_windows():
             return "not windows"
         url = _http_url(event.get("url"))
-        high = str(event.get("severity")) == "high"
         if self.toast_backend is not None:
-            self.toast_backend(title, body, url, high)
+            self.toast_backend(title, body, url, str(event.get("severity")) == "high")
             return ""
-        try:
-            from winotify import Notification, audio  # type: ignore
-
-            icon = str(self.icon_path) if self.icon_path and Path(self.icon_path).exists() else ""
-            toast = Notification(app_id=APP_ID, title=title[:120], msg=body[:300], launch=url, **({"icon": icon} if icon else {}))
-            if high:
-                toast.set_audio(audio.Default, loop=False)
-            toast.show()
-            return ""
-        except ImportError:
-            pass
-        except Exception as exc:  # noqa: BLE001 — fall through to the PowerShell path
-            log.info("winotify failed (%s); trying PowerShell", type(exc).__name__)
-        return self._toast_powershell(title, body, url)
-
-    def _toast_powershell(self, title: str, body: str, url: str) -> str:
-        script = build_toast_ps1(title, body, url)
-        fd, path = tempfile.mkstemp(suffix=".ps1", prefix="kafka-toast-")
-        try:
-            with os.fdopen(fd, "w", encoding="utf-8-sig") as handle:  # BOM: Windows PowerShell 5.1 reads UTF-8 only with it
-                handle.write(script)
-            exe = shutil.which("powershell") or "powershell"
-            flags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
-            done = self.powershell_runner([exe, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", path], capture_output=True, text=True,
-                                          timeout=20, creationflags=flags)
-            return "" if getattr(done, "returncode", 1) == 0 else f"powershell exit {getattr(done, 'returncode', '?')}"
-        except (OSError, subprocess.SubprocessError) as exc:
-            return type(exc).__name__
-        finally:
-            try:
-                os.unlink(path)
-            except OSError:
-                pass
+        return self._error(nc.send_toast(title, body, url, app_name=APP_ID, runner=self.powershell_runner, platform=self.platform))
 
     def _send_hub(self, event: dict[str, Any], title: str, body: str) -> str:
         from ..hoard_link import family
@@ -426,121 +332,29 @@ class Notifier:
             accepted = False
         return "" if accepted else "hub not configured"
 
-    def _client(self) -> httpx.Client:
-        return httpx.Client(transport=self.transport, timeout=HTTP_TIMEOUT_S, follow_redirects=False)
-
     def _send_ntfy(self, event: dict[str, Any], title: str, body: str) -> str:
-        server, topic = self._ntfy_server(), self._ntfy_topic()
-        if urlsplit(server).scheme not in ("http", "https"):
-            return "invalid ntfy server"
-        severity = str(event.get("severity") or "medium")
-        priority = 4 if severity == "high" else 3 if severity == "medium" else 2
-        payload: dict[str, Any] = {"topic": topic, "title": title[:250], "message": body or title, "priority": priority,
-                                   "tags": [TYPE_TAGS.get(str(event.get("type")), "bell")]}
-        if _http_url(event.get("url")):
-            payload["click"] = event["url"]
-        headers = {"Content-Type": "application/json; charset=utf-8"}
-        token = self._secret("NTFY_TOKEN")
-        if token:
-            headers["Authorization"] = "Bearer " + token
-        try:
-            with self._client() as client:
-                response = client.post(server + "/", json=payload, headers=headers)
-        except httpx.HTTPError as exc:
-            return type(exc).__name__
-        return "" if 200 <= response.status_code < 300 else f"http {response.status_code}"
+        priority = {"high": "high", "medium": "normal"}.get(str(event.get("severity") or "medium"), "low")
+        return self._error(nc.send_ntfy(self._ntfy_server(), self._ntfy_topic(), title, body, priority=priority, url=_http_url(event.get("url")),
+                                        token=self._secret("NTFY_TOKEN") or None, tags=[TYPE_TAGS.get(str(event.get("type")), "bell")], http=self._http))
 
     def _send_telegram(self, event: dict[str, Any], title: str, body: str) -> str:
-        token, chat = self._secret("TELEGRAM_TOKEN"), self._secret("TELEGRAM_CHAT_ID")
-        text = f"<b>{html.escape(title)}</b>"
-        if body:
-            text += "\n" + html.escape(body)
-        url = _http_url(event.get("url"))
-        if url:
-            text += f'\n<a href="{html.escape(url, quote=True)}">{WORDS[self._lang()]["open"]}</a>'
-        payload = {"chat_id": chat, "text": text[:4000], "parse_mode": "HTML", "disable_web_page_preview": False}
-        try:
-            with self._client() as client:
-                response = client.post(f"https://api.telegram.org/bot{token}/sendMessage", json=payload)
-        except httpx.HTTPError as exc:
-            return type(exc).__name__
-        try:
-            data = response.json()
-        except ValueError:
-            data = {}
-        if response.status_code == 200 and data.get("ok"):
-            return ""
-        return _scrub(str(data.get("description") or f"http {response.status_code}"), [token, chat])[:160]
+        text = nc.telegram_text(title, body, event.get("url"), link_label=WORDS[self._lang()]["open"])
+        return self._error(nc.send_telegram(self._secret("TELEGRAM_TOKEN"), self._secret("TELEGRAM_CHAT_ID"), text, http=self._http))
 
     def telegram_discover_chat_id(self) -> dict[str, Any]:
         """Find the chat id after the user has written to the bot (getUpdates). Nothing is stored here."""
-        return telegram_discover_chat_id(self._secret("TELEGRAM_TOKEN"), transport=self.transport)
-
-    def _default_smtp(self, host: str, port: int, use_ssl: bool) -> Any:
-        context = ssl.create_default_context()
-        if use_ssl:
-            return smtplib.SMTP_SSL(host, port, timeout=20, context=context)
-        client = smtplib.SMTP(host, port, timeout=20)
-        client.starttls(context=context)
-        return client
-
-    @staticmethod
-    def _email_parts(event: dict[str, Any], title: str, body: str) -> tuple[str, str, str]:
-        subject = re.sub(r"[\r\n]+", " ", title)[:200]
-        url = _http_url(event.get("url"))
-        text = (body + (f"\n\n{url}" if url else "")) or title
-        rows = "".join(f"<p>{html.escape(line)}</p>" for line in body.splitlines() if line.strip())
-        link = f'<p><a href="{html.escape(url, quote=True)}">{html.escape(url)}</a></p>' if url else ""
-        return subject, text, f"<html><body><h3>{html.escape(title)}</h3>{rows}{link}</body></html>"
+        return nc.telegram_discover_chat_id(self._secret("TELEGRAM_TOKEN"), http=self._http)
 
     def _send_email(self, event: dict[str, Any], title: str, body: str) -> str:
-        subject, text, html_body = self._email_parts(event, title, body)
+        subject, text, html_body = nc.email_parts(title, body, event.get("url"))
         if self.email_backend() == "faustus":
             to = [a.strip() for a in self._secret("SMTP_TO").split(",") if a.strip()]
-            answer = self._faustus_call({"action": "send", "subject": subject, "text": text, "html": html_body, "to": to})
-            if not answer.get("ok"):
-                self._faustus_status = None      # re-check the account on the next status
-            return "" if answer.get("ok") else str(answer.get("error") or "Faustus mail failed")[:200]
+            return self._error(nc.send_via_helper(self.helper.run, subject, text, html=html_body, to=to or None))
         e = self._email_settings()
-        msg = EmailMessage()
-        msg["Subject"] = subject
-        msg["From"], msg["To"] = e["from"] or e["user"], ", ".join(e["to"])
-        msg.set_content(text)
-        msg.add_alternative(html_body, subtype="html")
-        client = self.smtp_factory(e["host"], e["port"], e["port"] == 465)
-        try:
-            client.login(e["user"], e["password"])
-            client.send_message(msg)
-        except smtplib.SMTPAuthenticationError:
-            return "authentication failed"
-        except (smtplib.SMTPException, OSError) as exc:
-            return _scrub(type(exc).__name__, [e["password"]])
-        finally:
-            try:
-                client.quit()
-            except Exception:  # noqa: BLE001
-                pass
-        return ""
-
-def telegram_discover_chat_id(token: str, *, transport: Any = None) -> dict[str, Any]:
-    """``{ok, chat_id, name, error}`` from the bot's latest update. The user must write to the bot first."""
-    if not token:
-        return {"ok": False, "chat_id": "", "name": "", "error": "missing KAFKA_TELEGRAM_TOKEN"}
-    try:
-        with httpx.Client(transport=transport, timeout=HTTP_TIMEOUT_S) as client:
-            response = client.get(f"https://api.telegram.org/bot{token}/getUpdates", params={"limit": 20, "timeout": 0})
-        data = response.json()
-    except (httpx.HTTPError, ValueError) as exc:
-        return {"ok": False, "chat_id": "", "name": "", "error": type(exc).__name__}
-    if response.status_code != 200 or not data.get("ok"):
-        return {"ok": False, "chat_id": "", "name": "", "error": _scrub(str(data.get("description") or f"http {response.status_code}"), [token])[:160]}
-    for update in reversed(data.get("result") or []):
-        for key in ("message", "edited_message", "channel_post", "my_chat_member"):
-            chat = (update.get(key) or {}).get("chat")
-            if isinstance(chat, dict) and chat.get("id") is not None:
-                name = chat.get("title") or " ".join(x for x in (chat.get("first_name"), chat.get("last_name")) if x) or chat.get("username") or ""
-                return {"ok": True, "chat_id": str(chat["id"]), "name": name, "error": ""}
-    return {"ok": False, "chat_id": "", "name": "", "error": "no messages yet: write to the bot first"}
+        factory = (lambda cfg: self.smtp_factory(cfg["host"], cfg["port"], cfg["port"] == 465)) if self.smtp_factory else None
+        return self._error(nc.send_smtp({"host": e["host"], "port": e["port"], "user": e["user"], "password": e["password"], "from": e["from"]},
+                                        e["to"], subject, text, html=html_body, smtp_factory=factory))
 
 
-__all__ = ["Notifier", "CHANNELS", "OWN_CHANNELS", "VIA_MODES", "HUB_NOTIFY", "EMAIL_BACKENDS", "telegram_discover_chat_id", "build_toast_ps1", "compose", "label", "LABELS", "format_price", "xml_escape"]
+__all__ = ["Notifier", "CHANNELS", "OWN_CHANNELS", "VIA_MODES", "HUB_NOTIFY", "EMAIL_BACKENDS", "telegram_discover_chat_id", "build_toast_ps1", "compose", "label",
+           "LABELS", "format_price", "xml_escape"]

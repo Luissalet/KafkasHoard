@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 import httpx
 import pytest
@@ -143,3 +144,52 @@ def test_ntfy_priority_by_severity(tmp_path, severity, expected):
     n, _ = make(tmp_path, {"notify.ntfy.enabled": "1"}, {"KAFKA_NTFY_TOPIC": "t"}, rec)
     n.send({**EVENT, "severity": severity}, ["ntfy"])
     assert json.loads(rec.requests[0].content)["priority"] == expected
+
+
+def test_the_toast_goes_through_powershell_without_a_console_window_and_names_the_app(tmp_path):
+    import subprocess
+    calls = []
+
+    def runner(cmd, **kw):
+        calls.append((cmd, kw, Path(cmd[-1]).read_text(encoding="utf-8-sig")))
+        return type("Done", (), {"returncode": 0})()
+
+    n, _ = make(tmp_path, powershell_runner=runner)
+    n.platform = "win32"
+    assert n.send(EVENT, ["toast"])[0]["ok"]
+    cmd, kw, script = calls[0]
+    assert kw["creationflags"] == getattr(subprocess, "CREATE_NO_WINDOW", 0) and "Kafka&#x27;s Hoard" in script and "Mañana: Pago de Demo" in script
+    n2, _ = make(tmp_path, powershell_runner=lambda cmd, **kw: type("Done", (), {"returncode": 5})())
+    n2.platform = "win32"
+    assert n2.send(EVENT, ["toast"])[0]["error"] == "powershell exit 5"
+
+
+def test_email_through_faustus_runs_the_helper_and_keeps_kafkas_secrets_out_of_its_environment(tmp_path, monkeypatch):
+    faustus = tmp_path / "faustus"
+    (faustus / "mcp_servers").mkdir(parents=True)
+    (faustus / "mcp_servers" / "email_server.py").write_text("", encoding="utf-8")
+    (faustus / "venv" / "bin").mkdir(parents=True)
+    (faustus / "venv" / "bin" / "python").write_text("", encoding="utf-8")
+    monkeypatch.setenv("KAFKA_SMTP_PASSWORD", "never-in-the-child")
+    seen = {}
+
+    def runner(cmd, **kw):
+        seen.update(cmd=cmd, kw=kw, request=json.loads(kw["input"]))
+        return type("Done", (), {"stdout": json.dumps({"ok": True, "from": "yo@example.org", "to": ["yo@example.org"]}) + "\n", "returncode": 0})()
+
+    n, _ = make(tmp_path, {"notify.email.enabled": "1", "notify.email.backend": "faustus", "mail.faustus_dir": str(faustus), "mail.faustus_owner": "ana"},
+                {"KAFKA_SMTP_TO": "yo@example.org"}, faustus_runner=runner)
+    r = n.send(EVENT, ["email"])[0]
+    assert r["ok"], r
+    assert seen["request"]["action"] == "send" and seen["request"]["owner"] == "ana" and seen["request"]["subject"] == EVENT["title"]
+    assert seen["request"]["to"] == ["yo@example.org"] and "KAFKA_SMTP_PASSWORD" not in seen["kw"]["env"]
+    assert n.channels_status()["email"]["faustus_dir"] == str(faustus.resolve())
+
+
+def test_telegram_chat_id_is_found_from_the_bots_latest_update(tmp_path):
+    rec = Recorder(body={"ok": True, "result": [{"message": {"chat": {"id": 4242, "first_name": "Ana", "last_name": "Demo"}}}]})
+    n, _ = make(tmp_path, secrets={"KAFKA_TELEGRAM_TOKEN": "123:ABCDEF"}, recorder=rec)
+    assert n.telegram_discover_chat_id() == {"ok": True, "chat_id": "4242", "name": "Ana Demo", "error": ""}
+    assert "getUpdates" in str(rec.requests[0].url)
+    n2, _ = make(tmp_path)
+    assert n2.telegram_discover_chat_id()["ok"] is False
