@@ -1,5 +1,5 @@
 // Vocabulary shared with the backend. Labels live in i18n.js.
-export const DOC_KINDS = ["invoice", "receipt", "bill", "contract", "insurance", "warranty", "tax", "official_notice", "fine", "vehicle", "identity", "subscription", "payslip", "bank", "other"];
+export const DOC_KINDS = ["invoice", "receipt", "bill", "contract", "insurance", "warranty", "tax", "official_notice", "fine", "vehicle", "identity", "subscription", "payslip", "bank", "manual", "other"];
 export const DEADLINE_KINDS = ["payment", "renewal", "cancel_by", "warranty_end", "permanence_end", "appeal", "fine_discount", "expiry", "itv", "tax", "custom"];
 
 // 24x24 stroke icon paths per document kind
@@ -18,6 +18,7 @@ export const KIND_ICON = {
   subscription: "M3 12a9 9 0 0115-6.7L21 8M21 3v5h-5M21 12a9 9 0 01-15 6.7L3 16M3 21v-5h5",
   payslip: "M5 4h14v16H5zM8 9h8M8 13h8M8 17h4",
   bank: "M3 10l9-6 9 6M5 10v8M9 10v8M15 10v8M19 10v8M3 20h18",
+  manual: "M4 5a2 2 0 012-2h12v16H6a2 2 0 00-2 2zM4 5v16M8 7h7M8 11h5",
   other: "M7 3h8l4 4v14H7zM15 3v4h4",
 };
 

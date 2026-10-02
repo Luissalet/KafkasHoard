@@ -5,6 +5,9 @@ import { dayLabel, money } from "../format.js";
 import { DEADLINE_KINDS, RECURRING } from "../meta.js";
 import { Busy, Chip, DaysChip, Field, Icon, ICONS, KindChip, Modal, useBusy } from "./ui.jsx";
 
+const SOURCE_NAMES = { homehoard: "HomeHoard" };
+const sourceName = (id) => SOURCE_NAMES[id] || id;
+
 // One deadline: what, when, how urgent, why that date, and the actions that close it.
 export function DeadlineCard({ d, onChanged, showDoc = true, compact = false }) {
   const { t, lang, notify, confirm, changed } = useApp();
@@ -34,6 +37,8 @@ export function DeadlineCard({ d, onChanged, showDoc = true, compact = false }) 
             <span className="num">{dayLabel(d.date, lang, { year: true })}</span>
             {d.amount !== null && d.amount !== undefined && <span className="num">{money(d.amount, doc?.currency, lang)}</span>}
             {showDoc && doc && <a href={`#/documentos/${doc.id}${d.page ? `?p=${d.page}` : ""}`}>{doc.title}</a>}
+            {d.source && (d.url ? <a href={d.url} target="_blank" rel="noreferrer">{t("from_source", { source: sourceName(d.source) })}</a>
+              : <span>{t("from_source", { source: sourceName(d.source) })}</span>)}
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-1.5">
