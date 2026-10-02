@@ -348,6 +348,15 @@ def test_agenda_items_carry_kind_priority_and_a_link(svc):
     assert all(i["id"].startswith("kafka:deadline:") and i["all_day"] for i in items.values())
 
 
+def test_agenda_items_pushed_by_other_apps_carry_the_original_ref_as_dedupe_key(svc):
+    svc.engine.add_deadline(title="Own deadline", date_="2026-12-01", kind=M.RENEWAL)
+    svc.engine.upsert_external(source="homehoard", external_key="k1", title="Limpiar la caldera", date_="2026-10-20", kind=M.CUSTOM,
+                               source_ref="hoard://home/maintenance/7")
+    items = {i["title"]: i for i in agenda.items(svc, datetime(2026, 9, 24).date(), datetime(2027, 1, 31).date())}
+    assert items["Limpiar la caldera"]["dedupe_key"] == "hoard://home/maintenance/7"
+    assert "dedupe_key" not in items["Own deadline"]
+
+
 def test_agenda_priority_grows_with_closeness_and_seriousness():
     assert agenda.agenda_priority(M.APPEAL, -2) == "urgent" and agenda.agenda_priority(M.WARRANTY_END, -2) == "high"
     assert agenda.agenda_priority(M.APPEAL, 0) == "urgent" and agenda.agenda_priority(M.APPEAL, 2) == "high"

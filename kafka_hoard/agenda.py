@@ -69,7 +69,12 @@ def items(svc: Any, date_from: date, date_to: date, sphere: str = "") -> list[di
             url = f"{base}/#/documentos/{doc['id']}"
         else:
             url = f"{base}/#/plazos" if base else ""
-        out.append({"id": f"kafka:deadline:{t['id']}", "title": t["title"], "start": t["date"], "all_day": True, "kind": kind,
-                    "priority": agenda_priority(t["kind"], days_left), "url": url, "detail": detail})
+        item = {"id": f"kafka:deadline:{t['id']}", "title": t["title"], "start": t["date"], "all_day": True, "kind": kind,
+                "priority": agenda_priority(t["kind"], days_left), "url": url, "detail": detail}
+        if t.get("source_ref"):
+            # A deadline another app pushed here (HomeHoard's maintenance, a follow-up) is already in that app's own agenda: the
+            # ref of the original record lets the hub show it once.
+            item["dedupe_key"] = str(t["source_ref"])
+        out.append(item)
     return out
 
