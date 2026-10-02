@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "kafka-hoard"
-version = "0.1.0"
+version = "0.2.0"
 description = "A local paperwork keeper: reads invoices, contracts, policies, fines and letters, extracts the dates that matter, turns them into deadlines and reminds you, with a dashboard, notifications and MCP tools."
 readme = "README.md"
 requires-python = ">=3.11"

@@ -40,6 +40,10 @@ New goods have a legal guarantee of **3 years** from delivery. Kafka creates a `
 - **Renewal**: the renewal date written in a contract or subscription becomes a `renewal` deadline (yearly when the text says annual). A monthly subscription becomes a recurring monthly `payment` instead.
 - **Payments**: the due date of an invoice or bill, or the date of the next charge of a subscription.
 
+## Instruction manuals
+
+A document of kind `manual` (given when filing it, chosen in Detalle, or recognised by its wording) is stored and searched like the rest but never produces a deadline, and it does not need a date to be complete.
+
 ## Documents with an expiry
 
 Identity documents (DNI, passport, driving licence, health card, residence card) produce an `expiry` deadline on the date of validity, with 90, 30 and 7 days of notice by default. Other documents get an `expiry` deadline only when the expiry date is stated explicitly (a label such as «válido hasta» or «caducidad»). A vehicle inspection report produces an `itv` deadline on «próxima inspección» (or the expiry date).
@@ -54,6 +58,16 @@ National holidays: 1 January, 6 January, Good Friday, 1 May, 15 August, 12 Octob
 - Dates from a document that is old history (a mail older than two days on the first scan, an old file) create their deadlines already as done.
 - A date without a role (for example a bare date in a table) never becomes a deadline; it stays as a fact with its evidence.
 - Your edits always win: a deadline you changed (date, title, reminders) is not replaced when the document is read again, and a field you corrected on the document is used by every rule.
+
+## Deadlines from other apps
+
+Another app of the family (HomeHoard sends the next date of each maintenance task) can keep its deadlines here with `deadline_add` plus `source` and `external_key`. The pair is unique: sending it again never duplicates.
+
+- The app sends the date, the title, the reminders, the basis (for example «Mantenimiento por empresa habilitada al menos cada 2 años (RITE, RD 1027/2007, IT 3.3)») and a short rule name. «Why this date?» shows that basis and rule; Kafka does not compute or check them.
+- A **new date** from the app is a new occurrence: the deadline moves to it, reopens and its reminders start again.
+- **Your edits win for the current occurrence**: a title, reminders or notes you changed here are kept; a date you moved stays until the app sends a different date; a deadline you marked done stays done until the next occurrence; a deadline you dismissed stays dismissed.
+- `deadline_update_by_key` lets the app close (done, dismissed), reopen or reschedule its deadline. It cannot reopen one you dismissed.
+- Reminders follow the same lead days and channels as every other deadline and link back to the app (`url`).
 
 ## Reminders
 

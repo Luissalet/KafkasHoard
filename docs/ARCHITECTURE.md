@@ -17,7 +17,7 @@
  services.py (wiring,        └──► series + price alerts · recurring roll · Phileas sync · housekeeping
  dashboard, settings)
         ▲
- agent_tools.py: one catalogue (51 tools) ──► api/agent.py (Bearer token, masked) · api/ui.py (local, unmasked) · mcp_server.py (stdio)
+ agent_tools.py: one catalogue (52 tools) ──► api/agent.py (Bearer token, masked) · api/ui.py (local, unmasked) · mcp_server.py (stdio)
  scheduler.py: lane "ingest" (folder and mail scans) · lane "reminders" (reminder run every 10 min, housekeeping hourly)
 ```
 
@@ -71,6 +71,8 @@ Nothing in `extract/` touches the database, the clock or the network; `Ctx` carr
 ## Deadlines
 
 A deadline has a key (`payment`, `renewal`, `cancel_by`, `warranty`, `appeal:10d`, …), a date, a basis (human text with the rule), the evidence and page, lead days, an amount, recurring (`none`, `monthly`, `yearly`) and flags `auto` (created by the extraction) and `edited` (touched by the user). Reading a document again replaces its `auto` deadlines except the ones you edited or closed. Marking a recurring deadline done moves it to its next occurrence; housekeeping also rolls recurring deadlines left open three days past their date.
+
+Deadlines of other apps carry `source` (the app id) and `external_key` (unique together), `ext_date` (the last date the app sent), `rule`, `basis` and `url`. `engine.upsert_external` creates or updates them; `engine.update_external` closes, reopens or reschedules them. See [RULES.md](RULES.md#deadlines-from-other-apps).
 
 ## Reminders
 

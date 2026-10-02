@@ -2,5 +2,5 @@
 letters from the administration), extracts who issued them, the amounts and every date that matters, turns those dates into
 deadlines and reminds you before each one."""
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 SERVICE = "kafka-hoard"
