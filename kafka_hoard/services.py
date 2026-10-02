@@ -165,7 +165,8 @@ class Services:
                                    folders_interval_min=lambda: float(self.setting("folders.interval_min") or 5),
                                    mail_interval_min=lambda: float(self.setting("mail.interval_min") or 15),
                                    mail_enabled=lambda: self.setting("mail.enabled") == "1" and not config.offline,
-                                   phileas_enabled=lambda: self.setting("links.phileas") == "1" and not config.offline)
+                                   phileas_enabled=lambda: self.setting("links.phileas") == "1" and not config.offline,
+                                   state_path=config.data_dir / "scheduler.json")
 
     def _submit_job(self, kind: str, ref: str) -> Any:
         if self.config.scheduler and self.scheduler._alive():

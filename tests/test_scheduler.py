@@ -44,8 +44,17 @@ class FakeStore:
         self.runs.append(a)
 
 
+class Now:
+    def __init__(self, t=1000.0):
+        self.t = t
+
+    def __call__(self):
+        return self.t
+
+
 def make(**kw):
     engine, store = FakeEngine(), FakeStore()
+    kw.setdefault("clock", Now())
     return Scheduler(engine, store, **kw), engine, store
 
 
@@ -57,10 +66,18 @@ def test_lanes():
 def test_enqueue_due_submits_every_kind_once_then_waits():
     s, _, _ = make()
     assert s.enqueue_due(1000.0) == 5
-    assert s.enqueue_due(1010.0) == 0
-    s.enqueue_due(1000.0 + REMINDERS_S + 1)
-    assert s.last["reminders"] == 1000.0 + REMINDERS_S + 1 and s.last["housekeeping"] == 1000.0     # housekeeping is hourly
-    assert s.status()["lanes"]["ingest"]["queue"] >= 3
+    assert s.enqueue_due(1010.0) == 0                             # still queued: not queued twice
+    assert s.status()["lanes"]["ingest"]["queue"] == 3 and s.status()["lanes"]["reminders"]["queue"] == 2
+
+
+def test_after_a_run_a_job_is_due_again_only_when_its_interval_has_passed():
+    clock = Now()
+    s, _, _ = make(clock=clock)
+    for kind in ("folders", "mail", "phileas", "reminders", "housekeeping"):
+        s.run_now(kind)                                           # the lanes are not running: inline
+    clock.t += REMINDERS_S + 1
+    assert s.enqueue_due(clock()) == 2 and s.last["housekeeping"] == 1000.0         # folders (5 min) and reminders (10 min); mail, Phileas and housekeeping wait
+    assert HOUSEKEEPING_S > REMINDERS_S
 
 
 def test_mail_and_phileas_follow_their_switches():
@@ -69,16 +86,46 @@ def test_mail_and_phileas_follow_their_switches():
 
 
 def test_intervals_come_from_the_callbacks():
-    s, _, _ = make(folders_interval_min=lambda: 1.0)
-    s.enqueue_due(0.0)
-    s.last["folders"] = 0.0
-    assert s._due("folders", 61.0, 60.0) and not s._due("folders", 59.0, 60.0)
-    assert HOUSEKEEPING_S > REMINDERS_S
+    clock = Now(0.0)
+    interval = {"min": 1.0}
+    s, _, _ = make(clock=clock, folders_interval_min=lambda: interval["min"])
+    s.run_now("folders")
+    folders = s.lanes._registered["folders"]
+    clock.t = 59.0
+    assert not s.lanes.is_due(folders, clock())
+    clock.t = 61.0
+    assert s.lanes.is_due(folders, clock())
+    interval["min"] = 10.0                                        # a setting changed at runtime
+    assert not s.lanes.is_due(folders, clock())
+    interval["min"] = 0.0                                         # never faster than a minute
+    assert s.lanes.is_due(folders, clock())
 
 
 def test_a_duplicate_submission_is_ignored_while_pending():
     s, _, _ = make()
     assert s.submit("folders") is not None and s.submit("folders") is None and s.submit("folders", "/x") is not None
+
+
+def test_an_unknown_job_kind_is_refused():
+    s, _, _ = make()
+    try:
+        s.submit("pigeons")
+        raised = False
+    except ValueError:
+        raised = True
+    assert raised
+
+
+def test_the_time_of_the_last_runs_survives_a_restart(tmp_path):
+    state = tmp_path / "scheduler.json"
+    clock = Now(5000.0)
+    first, _, _ = make(clock=clock, state_path=state)
+    first.run_now("folders")
+    first.run_now("mail")
+    clock.t = 5100.0
+    second, _, _ = make(clock=clock, state_path=state)
+    assert second.last["folders"] == 5000.0 and second.last["mail"] == 5000.0
+    assert second.enqueue_due(clock()) == 3                       # reminders, housekeeping and Phileas never ran; folders and mail are not due
 
 
 def test_run_now_is_inline_when_the_lanes_are_not_running():
@@ -88,7 +135,7 @@ def test_run_now_is_inline_when_the_lanes_are_not_running():
 
 
 def test_run_now_through_the_running_lanes_and_failures_are_recorded():
-    s, engine, store = make()
+    s, engine, store = make(enabled=False)
     s.start()
     try:
         assert s.run_now("mail", timeout=10) == {"ok": True}
