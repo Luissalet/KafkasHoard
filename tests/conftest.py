@@ -128,9 +128,19 @@ def fake_mail():
     return FakeMail()
 
 
+@pytest.fixture(autouse=True)
+def no_hub(monkeypatch):
+    """No test talks to a real hub: the family clients answer «not there» unless a test fakes them."""
+    from kafka_hoard.hoard_link import fam_mail, fam_notify
+    monkeypatch.setattr(fam_notify, "hub_available", lambda *a, **k: False)
+    monkeypatch.setattr(fam_mail, "available", lambda *a, **k: False)
+
+
 def build(config, clock, fake_mail, transport=None, llm=None, family_call=None, ocr=None):
-    return Services(config, clock_fn=clock, http_transport=transport or _no_network(), notifier=FakeNotifier(), mail_source=fake_mail,
-                    ocr=ocr or Ocr(False), llm=llm or FakeLlm(available=False), family_call=family_call or (lambda *a, **k: {"ok": False, "error": "off in tests"}))
+    s = Services(config, clock_fn=clock, http_transport=transport or _no_network(), notifier=FakeNotifier(), mail_source=fake_mail,
+                 ocr=ocr or Ocr(False), llm=llm or FakeLlm(available=False), family_call=family_call or (lambda *a, **k: {"ok": False, "error": "off in tests"}))
+    s.engine.mail_claim = s.engine.refs_link = s.engine.app_url = None      # hub helpers off unless a test sets them
+    return s
 
 
 @pytest.fixture

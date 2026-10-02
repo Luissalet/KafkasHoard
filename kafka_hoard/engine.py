@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import re
 
+import hashlib
 import json
 import logging
 import os
@@ -29,13 +30,14 @@ from . import paths, readers
 from .bizdays import Calendar
 from .errors import KafkaError
 from .extract import issuers as issuers_mod
+from .extract import refs as refs_mod
 from .extract import texts
 from .extract.pipeline import extract
 from .extract.rules import DEFAULT_WARRANTY_YEARS, warranty_end
 from .extract.types import Ctx, Extraction, Hints, Meta
 from .files import FileStore, sha256_of
 from .mail.classify import MailClass, classify_mail
-from .util import add_months, clamp_text, human_day, issuer_key, money_text, parse_iso, ts_date
+from .util import add_months, clamp_text, fold, human_day, issuer_key, money_text, parse_iso, ts_date
 from .workshop import jobs as workshop_jobs
 
 log = logging.getLogger("kafka.engine")
@@ -43,6 +45,7 @@ log = logging.getLogger("kafka.engine")
 DAY = 86400.0
 QUIET_AGE_S = 2 * DAY                 # mails and files older than this are history: no notifications
 ARCHIVE_DONE_DAYS = 30
+DEADLINE_CHANNELS = ("toast", "ntfy", "telegram", "email")   # the bus event of a deadline is emitted by the engine itself
 ROLL_AFTER_DAYS = 3                   # an open recurring deadline this late rolls to its next occurrence
 OVERDUE_NOTIFY_MAX_DAYS = 14          # older than this and it is history, not news
 PRICE_RECENT_DAYS = 120
@@ -50,6 +53,10 @@ MAX_NEW_FILES_PER_SCAN = 200
 SKIP_NAMES = ("~$", ".~lock", ".part", ".tmp", ".crdownload", ".download", "thumbs.db", "desktop.ini", ".ds_store")
 SERIES_KINDS = (M.INSURANCE, M.SUBSCRIPTION, M.BILL)
 PRICE_KINDS = (M.INSURANCE, M.SUBSCRIPTION)
+LEDGER_KINDS = (M.INVOICE, M.RECEIPT)   # documents that may be a payment seen in Ledger
+LEDGER_STRONG = 0.8                      # tx_find score that counts as a match
+LEDGER_RETRY_DAYS = 45                   # keep looking for the payment of a filed invoice this long
+LEDGER_RETRY_EVERY_S = 20 * 3600.0
 EDITABLE = ("title", "kind", "issuer", "ref", "amount", "issue_date", "period_from", "period_to", "item", "state", "tags", "notes")
 OVERRIDE_FIELDS = ("kind", "issuer", "ref", "amount", "issue_date", "item")
 
@@ -76,7 +83,8 @@ class Engine:
                  clock: Callable[[], float] = time.time, mail_source: Any = None, data_dir: Optional[Path] = None,
                  mail_cache_dir: Optional[Path] = None, inbox_dir: Optional[Path] = None, page_cache_dir: Optional[Path] = None,
                  llm: Any = None, family_call: Optional[Callable[..., dict]] = None, base_url: Callable[[], str] = lambda: "",
-                 submit: Optional[Callable[[str, str], Any]] = None):
+                 submit: Optional[Callable[[str, str], Any]] = None, mail_claim: Optional[Callable[..., dict]] = None,
+                 refs_link: Optional[Callable[..., dict]] = None, app_url: Optional[Callable[[str], str]] = None):
         self.store = store
         self.files = files
         self.notifier = notifier
@@ -94,6 +102,9 @@ class Engine:
         self.family_call = family_call
         self.base_url = base_url
         self.submit = submit
+        self.mail_claim = mail_claim      # (hub mail ids, kind, hoard:// ref) -> the hub's answer; None without a hub
+        self.refs_link = refs_link        # (from_uri, to_uri, rel, from_label=, to_label=) -> the hub's answer
+        self.app_url = app_url            # app id -> its base url as the hub knows it ('' when unknown)
 
     # ------------------------------------------------------------------ settings
     def setting(self, key: str, default: str = "") -> str:
@@ -152,6 +163,229 @@ class Engine:
     def link_to(self, doc_id: str) -> str:
         base = self.base_url()
         return f"{base}/#/documentos/{doc_id}" if base else ""
+
+
+    # ------------------------------------------------------------------ family: events, calls, references
+    def _emit_event(self, type_: str, data: dict[str, Any]) -> None:
+        """A fact for the family bus (ids and short titles only). Events are hints: they never fail the work."""
+        try:
+            self.emit(type_, data)
+        except Exception:  # noqa: BLE001
+            log.info("event %s not sent", type_)
+
+    def _fcall(self, app: str, tool: str, args: dict[str, Any], timeout: float = 15.0) -> dict[str, Any]:
+        """Call a tool of another app through the hub; always a dict, ``{"ok": False, "error": ...}`` when nothing answered."""
+        if self.family_call is None:
+            return {"ok": False, "error": "no hub connection"}
+        try:
+            try:
+                answer = self.family_call(app, tool, args, timeout=timeout)
+            except TypeError:
+                answer = self.family_call(app, tool, args)
+        except Exception as exc:  # noqa: BLE001
+            return {"ok": False, "error": f"{type(exc).__name__}: {str(exc)[:120]}"}
+        return answer if isinstance(answer, dict) else {"ok": False, "error": "unexpected answer"}
+
+    @staticmethod
+    def _unwrap(answer: dict[str, Any]) -> dict[str, Any]:
+        """The tool's own result inside the hub's ``{ok, app, tool, result|error}`` envelope."""
+        if not answer.get("ok"):
+            return {"ok": False, "error": str(answer.get("error") or "the app did not answer")[:200]}
+        inner = answer.get("result")
+        if isinstance(inner, dict):
+            if inner.get("ok") is False:
+                return {"ok": False, "error": str(inner.get("error") or "the tool failed")[:200], **{k: v for k, v in inner.items() if k not in ("ok", "error")}}
+            return {"ok": True, **inner}
+        return {"ok": True, "result": inner}
+
+    @staticmethod
+    def doc_ref(doc_id: str) -> str:
+        return f"hoard://kafka/document/{doc_id}"
+
+    def order_ref_of(self, doc: dict[str, Any]) -> str:
+        """The order number of a purchase document: the shipment's for a parcel, else the one found in the text."""
+        facts = doc.get("facts") or {}
+        if doc.get("source") == "phileas":
+            return str(doc.get("ref") or "")
+        if doc.get("ref") and facts.get("ref_what") == "order":
+            return str(doc["ref"])
+        return str(facts.get("order_ref") or "")
+
+    def _emit_archived(self, doc: dict[str, Any]) -> None:
+        self._emit_event("kafka.document.archived", {
+            "doc_id": doc["id"], "kind": doc["kind"], "merchant": doc.get("issuer") or "", "amount": doc.get("amount"),
+            "currency": (doc.get("currency") or "") if doc.get("amount") is not None else "", "date": doc.get("issue_date") or "",
+            "order_ref": self.order_ref_of(doc), "message_id": doc.get("source_ref") if doc.get("source") == "mail" else ""})
+
+    def _emit_deadline_created(self, t: dict[str, Any]) -> None:
+        if t.get("state") == M.OPEN:
+            self._emit_event("kafka.deadline.created", {"deadline_id": t["id"], "title": t["title"], "due": t["date"], "kind": t["kind"]})
+
+    # ------------------------------------------------------------------ Ledger: an invoice and the payment that paid it
+    def _ledger_enabled(self) -> bool:
+        return self.setting("links.ledger", "1") == "1"
+
+    def _ledger_eligible(self, doc: dict[str, Any]) -> str:
+        """'' when the document can be looked up in Ledger, else why not."""
+        if doc.get("kind") not in LEDGER_KINDS:
+            return "only invoices and receipts are looked up in Ledger"
+        if doc.get("amount") is None or not parse_iso(doc.get("issue_date")):
+            return "the document needs an amount and an issue date"
+        return ""
+
+    def ledger_candidates(self, doc: dict[str, Any]) -> dict[str, Any]:
+        args: dict[str, Any] = {"amount": doc["amount"], "date": doc["issue_date"], "days": 5}
+        if doc.get("issuer"):
+            args["merchant"] = doc["issuer"]
+        if doc.get("currency"):
+            args["currency"] = doc["currency"]
+        res = self._unwrap(self._fcall("ledger", "tx_find", args))
+        if not res.get("ok"):
+            return {"ok": False, "error": res.get("error") or "Ledger did not answer", "matches": []}
+        matches = []
+        for m in res.get("matches") or []:
+            if not isinstance(m, dict) or m.get("tx_id") in (None, ""):
+                continue
+            try:
+                score = float(m.get("score") or 0)
+            except (TypeError, ValueError):
+                score = 0.0
+            matches.append({"tx_id": str(m["tx_id"]), "date": str(m.get("date") or ""), "amount": m.get("amount"),
+                            "merchant": str(m.get("merchant") or "")[:80], "score": round(score, 3)})
+        matches.sort(key=lambda m: -m["score"])
+        return {"ok": True, "matches": matches}
+
+    def link_ledger(self, did: str, *, tx_id: str = "") -> dict[str, Any]:
+        """Find the Ledger transaction of an invoice or receipt and link both ways.
+
+        Without ``tx_id``: exactly one candidate with a score of 0.8 or more is linked, otherwise the candidates come back.
+        With ``tx_id`` the chosen transaction is linked (the manual choice)."""
+        doc = self.store.document(did)
+        facts = dict(doc.get("facts") or {})
+        current = facts.get("ledger_tx")
+        if current and not tx_id:
+            return {"ok": True, "linked": True, "tx_id": current["tx_id"], "ref": current["ref"], "candidates": [], "reason": "already linked"}
+        why = self._ledger_eligible(doc)
+        if why:
+            return {"ok": False, "linked": False, "candidates": [], "reason": why}
+        found = self.ledger_candidates(doc)
+        facts["ledger_checked_ts"] = self.clock()
+        self.store.update_document(did, facts=facts)
+        if not found["ok"]:
+            return {"ok": False, "linked": False, "candidates": [], "reason": found["error"]}
+        matches = found["matches"]
+        chosen: Optional[dict[str, Any]] = None
+        if tx_id:
+            chosen = next((m for m in matches if m["tx_id"] == str(tx_id)), {"tx_id": str(tx_id), "date": "", "amount": None, "merchant": "", "score": 0.0})
+        else:
+            strong = [m for m in matches if m["score"] >= LEDGER_STRONG]
+            if len(strong) == 1:
+                chosen = strong[0]
+        if chosen is None:
+            reason = "no transaction matches" if not matches else ("several transactions match: pick one" if len([m for m in matches if m["score"] >= LEDGER_STRONG]) > 1
+                                                                       else "no transaction is a strong match: pick one")
+            return {"ok": True, "linked": False, "candidates": matches, "reason": reason}
+        return self._attach_ledger(doc, chosen, matches)
+
+    def _attach_ledger(self, doc: dict[str, Any], tx: dict[str, Any], candidates: list[dict[str, Any]]) -> dict[str, Any]:
+        ref = f"hoard://ledger/tx/{tx['tx_id']}"
+        label = clamp_text(doc.get("title") or doc.get("issuer") or doc["id"], 120)
+        res = self._unwrap(self._fcall("ledger", "tx_attach_doc", {"tx_id": tx["tx_id"], "doc_ref": self.doc_ref(doc["id"]), "label": label}))
+        if not res.get("ok"):
+            return {"ok": False, "linked": False, "candidates": candidates, "reason": f"Ledger did not attach the document: {res.get('error')}"}
+        if self.refs_link is not None:
+            try:
+                self.refs_link(ref, self.doc_ref(doc["id"]), "invoice", from_label=" ".join(x for x in (tx.get("merchant"), str(tx.get("amount") or "")) if x),
+                               to_label=label)
+            except Exception:  # noqa: BLE001 — references are hints
+                log.info("reference to %s not recorded", ref)
+        base = ""
+        if self.app_url is not None:
+            try:
+                base = (self.app_url("ledger") or "").rstrip("/")
+            except Exception:  # noqa: BLE001
+                base = ""
+        facts = dict(self.store.document(doc["id"]).get("facts") or {})
+        facts["ledger_tx"] = {"tx_id": tx["tx_id"], "ref": ref, "score": tx.get("score"), "merchant": tx.get("merchant") or "",
+                              "amount": tx.get("amount"), "date": tx.get("date") or "", "linked_ts": self.clock(),
+                              "url": f"{base}/#/movimientos?tx={tx['tx_id']}" if base else ""}
+        self.store.update_document(doc["id"], facts=facts)
+        return {"ok": True, "linked": True, "tx_id": tx["tx_id"], "ref": ref, "candidates": candidates, "reason": ""}
+
+    def _auto_link_ledger(self, doc: dict[str, Any]) -> None:
+        if not self._ledger_enabled() or self.family_call is None or self._ledger_eligible(doc):
+            return
+        try:
+            self.link_ledger(doc["id"])
+        except Exception:  # noqa: BLE001 — a missing Ledger never stops filing
+            log.info("ledger lookup for %s failed", doc["id"])
+
+    # ------------------------------------------------------------------ minutes: the dated action items become deadlines
+    MINUTES_ME = ("yo", "me", "i", "mi", "mí", "myself")
+
+    def _mine(self, owner: str) -> bool:
+        """An action item is the user's when it names nobody or names the user (the minutes.me setting, or «yo»/«me»)."""
+        owner = fold(owner or "").strip()
+        if not owner:
+            return True
+        mine = {fold(x).strip() for x in self.setting("minutes.me", "").replace(";", ",").split(",") if x.strip()} | {fold(x) for x in self.MINUTES_ME}
+        return owner in mine or any(part.strip() in mine for part in re.split(r"[,/&]|\by\b|\band\b", owner) if part.strip())
+
+    def deadlines_from_minutes(self, minutes_id: str) -> dict[str, Any]:
+        """Read the minutes from Funes through the hub; one deadline per action item that has a date and is not someone else's."""
+        res = self._unwrap(self._fcall("funes", "minutes_get", {"minutes_id": minutes_id}, timeout=30.0))
+        if not res.get("ok"):
+            return {"ok": False, "error": res.get("error") or "Funes did not answer", "added": [], "skipped": []}
+        title = str(res.get("title") or "").strip()
+        when = parse_iso(str(res.get("date") or ""))
+        es = self.lang() == "es"
+        ref = f"hoard://funes/minutes/{minutes_id}"
+        added: list[dict[str, Any]] = []
+        skipped: list[dict[str, Any]] = []
+        for item in res.get("action_items") or []:
+            if isinstance(item, str):
+                item = {"text": item}
+            if not isinstance(item, dict):
+                continue
+            text = clamp_text(str(item.get("text") or ""), 160)
+            if not text:
+                continue
+            due = parse_iso(str(item.get("due") or ""))
+            owner = str(item.get("owner") or "").strip()
+            if due is None or len(str(item.get("due") or "").strip()) < 10:
+                skipped.append({"text": text, "reason": "no date"})
+                continue
+            if not self._mine(owner):
+                skipped.append({"text": text, "reason": f"belongs to {owner}"})
+                continue
+            key = f"minutes:{minutes_id}:{hashlib.sha1(fold(text).encode('utf-8')).hexdigest()[:12]}"
+            basis = ((f"Acción acordada en la reunión «{title}»" + (f" del {human_day(when, True)}" if when else "") + ".") if es else
+                     (f"Action item from the meeting «{title}»" + (f" of {human_day(when, False)}" if when else "") + "."))
+            r = self.upsert_external(source="funes", external_key=key, title=text, date_=due.isoformat(), kind=M.CUSTOM, basis=basis,
+                                     rule="Funes", source_ref=ref)
+            row = {"deadline_id": r["deadline"]["id"], "title": text, "due": due.isoformat(), "action": r["action"]}
+            if r["action"] == "created":
+                added.append(row)
+            else:
+                skipped.append({"text": text, "reason": f"already added ({r['action']})", "deadline_id": row["deadline_id"]})
+        return {"ok": True, "minutes": {"id": minutes_id, "title": title, "date": res.get("date") or ""}, "added": added, "skipped": skipped}
+
+    def retry_ledger_links(self, limit: int = 20) -> int:
+        """The payment often shows up in Ledger after the invoice was filed: look again for recent unlinked invoices, once a day."""
+        if not self._ledger_enabled() or self.family_call is None:
+            return 0
+        now, tried = self.clock(), 0
+        for doc in self.store.documents(limit=400, exclude_archived=True):
+            if tried >= limit:
+                break
+            facts = doc.get("facts") or {}
+            if facts.get("ledger_tx") or self._ledger_eligible(doc) or doc.get("source") == "phileas":
+                continue
+            if now - float(doc.get("created_ts") or 0) > LEDGER_RETRY_DAYS * DAY or now - float(facts.get("ledger_checked_ts") or 0) < LEDGER_RETRY_EVERY_S:
+                continue
+            tried += 1
+            self._auto_link_ledger(doc)
+        return tried
 
     # ================================================================== ingestion
     def ingest_bytes(self, data: bytes, name: str, *, source: str = "upload", source_ref: str = "", mail: Optional[dict[str, Any]] = None,
@@ -327,7 +561,9 @@ class Engine:
             fields["state"] = M.REVIEW if ex.state == M.REVIEW else M.OK
         elif doc["state"] == M.OK and ex.state == M.REVIEW:
             fields["state"] = M.OK
-        facts.update({"extracted": ex.facts, "notes": sorted(set((facts.get("notes") or []) + ex.notes)), "kind_reasons": ex.kind_reasons,
+        joined = "\n".join(pages)[:60_000]
+        facts.update({"ref_what": ex.ref_what, "order_ref": refs_mod.find_order_ref(joined, fold(joined)),
+                      "extracted": ex.facts, "notes": sorted(set((facts.get("notes") or []) + ex.notes)), "kind_reasons": ex.kind_reasons,
                       "amount_reduced": ex.amount_reduced, "period_hint": ex.period_hint, "processed": self.clock(),
                       "relative": [{"n": p.n, "unit": p.unit, "working": p.working, "purpose": p.purpose, "raw": p.raw} for p in ex.periods]})
         facts["notes"] = [n for n in facts["notes"] if n not in ("no_deadline_found", "kind_unknown", "no_dates") or n in ex.notes]
@@ -339,6 +575,10 @@ class Engine:
         doc = self.store.document(did)
         if announce:
             self._announce_document(doc, quiet=old_past_quiet)
+            if not old_past_quiet:
+                self._emit_archived(doc)
+            self._auto_link_ledger(doc)
+            doc = self.store.document(did)
             if (doc["state"] == M.REVIEW and self.setting("extract.llm", "auto") == "auto" and self.llm is not None and self.submit is not None
                     and "llm" not in (doc.get("facts") or {})):
                 try:
@@ -402,10 +642,12 @@ class Engine:
             past = draft.date < today
             state = M.DONE if (past and quiet) else M.OPEN
             notified = [] if state == M.OPEN else [*draft.remind, "overdue"]
-            self.store.create_deadline(doc_id=doc["id"], kind=draft.kind, title=draft.title, date=draft.date.isoformat(), basis=draft.basis,
-                                       evidence=draft.evidence, page=draft.page, confidence=draft.confidence, state=state,
-                                       remind=draft.remind, notified=notified, amount=draft.amount, recurring=draft.recurring, key=draft.key,
-                                       auto=True, done_ts=self.clock() if state == M.DONE else None)
+            created = self.store.create_deadline(doc_id=doc["id"], kind=draft.kind, title=draft.title, date=draft.date.isoformat(), basis=draft.basis,
+                                                 evidence=draft.evidence, page=draft.page, confidence=draft.confidence, state=state,
+                                                 remind=draft.remind, notified=notified, amount=draft.amount, recurring=draft.recurring, key=draft.key,
+                                                 auto=True, done_ts=self.clock() if state == M.DONE else None)
+            if not quiet:
+                self._emit_deadline_created(created)
         for stale in pool:
             if stale["state"] == M.OPEN and not stale["edited"]:
                 self.store.delete_deadline(stale["id"])
@@ -588,14 +830,16 @@ class Engine:
         if not title:
             raise KafkaError("invalid", "The deadline needs a title.")
         notified = ["overdue"] if day < self.today() else []
-        return self.store.create_deadline(doc_id=doc_id or None, kind=kind, title=title[:160], date=day.isoformat(),
-                                          basis=texts.tr(self.lang(), "custom_basis"), confidence=100, state=M.OPEN, remind=leads,
-                                          notified=notified, amount=amount, recurring=recurring, key="manual", auto=False, edited=True, notes=notes[:2000])
+        created = self.store.create_deadline(doc_id=doc_id or None, kind=kind, title=title[:160], date=day.isoformat(),
+                                             basis=texts.tr(self.lang(), "custom_basis"), confidence=100, state=M.OPEN, remind=leads,
+                                             notified=notified, amount=amount, recurring=recurring, key="manual", auto=False, edited=True, notes=notes[:2000])
+        self._emit_deadline_created(created)
+        return created
 
     # ------------------------------------------------------------------ deadlines kept for another app (source + external key)
     def upsert_external(self, *, source: str, external_key: str, title: str, date_: str, kind: str = M.CUSTOM, remind: Optional[list[int]] = None,
                         recurring: str = "none", notes: str = "", amount: Optional[float] = None, basis: str = "", rule: str = "",
-                        url: str = "", doc_id: str = "") -> dict[str, Any]:
+                        url: str = "", doc_id: str = "", source_ref: str = "") -> dict[str, Any]:
         """Add or update the deadline another app keeps here under (source, external_key); never a duplicate.
 
         The owner app moves the occurrence (a new date reopens it); what the user changed here wins for the current occurrence:
@@ -623,12 +867,16 @@ class Engine:
         if existing is None:
             t = self.store.create_deadline(doc_id=doc_id or None, kind=kind, title=title, date=iso_day, basis=basis, confidence=100, state=M.OPEN,
                                            remind=leads, notified=past, amount=amount, recurring=recurring, key="external", auto=False, edited=False,
-                                           notes=notes[:2000], source=source, external_key=external_key, ext_date=iso_day, rule=rule, url=url)
+                                           notes=notes[:2000], source=source, external_key=external_key, ext_date=iso_day, rule=rule, url=url,
+                                           source_ref=(source_ref or "").strip()[:300])
+            self._emit_deadline_created(t)
             return {"deadline": t, "action": "created"}
         if existing["state"] == M.DISMISSED and existing["edited"]:
             t = self.store.update_deadline(existing["id"], basis=basis, rule=rule, url=url)
             return {"deadline": t, "action": "kept_user_dismissed"}
         fields: dict[str, Any] = {"basis": basis, "rule": rule, "url": url, "kind": kind, "amount": amount, "doc_id": doc_id or existing["doc_id"]}
+        if source_ref:
+            fields["source_ref"] = source_ref.strip()[:300]
         if not existing["edited"]:
             fields.update(title=title, remind=leads, recurring=recurring, notes=notes[:2000])
         action = "updated"
@@ -858,6 +1106,8 @@ class Engine:
         summary = self.ingest_messages(messages, bootstrap=first)
         if first and not since_days and not query:
             self.set("mail.first_scan_done", "1")
+        if answer.get("hub_last_id") is not None:     # what the hub's gateway handed over is now filed: resume after it
+            self.set("mail.hub_since_id", str(int(answer["hub_last_id"])))
         self.set("mail.last_scan_ts", str(self.clock()))
         self.set("mail.last_error", "")
         self.store.add_run("mail", "", True, int((time.monotonic() - t0) * 1000),
@@ -889,12 +1139,23 @@ class Engine:
             else:
                 state = "ignored"
                 out["noise"] += 1
+            if doc_ids and message.get("hub_id"):
+                self._claim_mail(message["hub_id"], doc_ids[0])
             created = [d for d in doc_ids if d not in out["documents"]]
             out["documents"].extend(created)
             out["documents_created"] += len(created)
             self.store.save_mail(message, kind=kind, score=result.score, state=state, doc_ids=doc_ids, reasons=result.reasons)
             self._drop_cached_attachments(message)
         return out
+
+    def _claim_mail(self, hub_id: Any, doc_id: str) -> None:
+        """Tell the hub this mail became a document, so it leaves the person's «sin dueño» tray."""
+        if self.mail_claim is None:
+            return
+        try:
+            self.mail_claim([int(hub_id)], "document", self.doc_ref(doc_id))
+        except Exception:  # noqa: BLE001 — a claim is a hint
+            log.info("mail claim for %s failed", doc_id)
 
     def _file_mail(self, message: dict[str, Any], result: MailClass, *, quiet: bool, force: bool = False) -> list[str]:
         ids: list[str] = []
@@ -989,6 +1250,8 @@ class Engine:
             raise KafkaError("invalid", "Nothing in that mail could be filed as a document.",
                              "Its attachments are gone (they are kept only while a scan runs) and the text is too short.")
         self.store.set_mail_state(message_id, "filed", ids)
+        if mail.get("hub_id"):
+            self._claim_mail(mail["hub_id"], ids[0])
         return {"message_id": message_id, "documents": ids}
 
     def ignore_mail(self, message_id: str) -> dict[str, Any]:
@@ -1097,7 +1360,7 @@ class Engine:
             return self.store.document(doc["id"])
         delivered = parse_iso(facts.get("delivered") or doc.get("issue_date"))
         if delivered is not None:
-            self._set_delivery_warranty(doc, delivered, quiet=quiet)
+            self._set_delivery_warranty(doc, delivered, quiet=quiet, shipment_id=str(doc.get("source_ref") or "") if doc.get("source") == "phileas" else "")
         return self.store.document(doc["id"])
 
     def _drop_auto_warranty(self, doc: dict[str, Any]) -> None:
@@ -1110,9 +1373,9 @@ class Engine:
         for link in links:
             delivered = parse_iso(link.get("delivered"))
             if delivered is not None:
-                self._set_delivery_warranty(doc, delivered, quiet=self._is_history_day(delivered))
+                self._set_delivery_warranty(doc, delivered, quiet=self._is_history_day(delivered), shipment_id=str(link.get("phileas") or ""))
 
-    def _set_delivery_warranty(self, doc: dict[str, Any], delivered: date, *, quiet: bool) -> None:
+    def _set_delivery_warranty(self, doc: dict[str, Any], delivered: date, *, quiet: bool, shipment_id: str = "") -> None:
         lang = self.lang()
         months = (doc.get("facts") or {}).get("warranty_months") or self.warranty_years() * 12
         end = warranty_end(delivered, months=int(months))
@@ -1131,9 +1394,13 @@ class Engine:
         past = end < self.today()
         state = M.DONE if (past and quiet) else M.OPEN
         leads = self.lead_days(M.WARRANTY_END)
-        self.store.create_deadline(doc_id=doc["id"], kind=M.WARRANTY_END, title=title, date=end.isoformat(), basis=basis, evidence=evidence,
-                                   confidence=90, state=state, remind=leads, notified=[] if state == M.OPEN else [*leads, "overdue"],
-                                   key="warranty", auto=True, done_ts=self.clock() if state == M.DONE else None)
+        created = self.store.create_deadline(doc_id=doc["id"], kind=M.WARRANTY_END, title=title, date=end.isoformat(), basis=basis, evidence=evidence,
+                                             confidence=90, state=state, remind=leads, notified=[] if state == M.OPEN else [*leads, "overdue"],
+                                             key="warranty", auto=True, done_ts=self.clock() if state == M.DONE else None)
+        if not quiet:
+            self._emit_deadline_created(created)
+            self._emit_event("kafka.warranty.created", {"doc_id": doc["id"], "shipment_id": shipment_id, "merchant": doc.get("issuer") or "",
+                                                         "until": end.isoformat()})
 
     # ================================================================== reminders
     def _in_night(self) -> bool:
@@ -1203,11 +1470,18 @@ class Engine:
             parts.insert(1, money_text(d["amount"], (doc or {}).get("currency") or "EUR", es))
         if doc:
             parts.append(f"«{doc['title']}»")
+        data = {"deadline_id": d["id"], "title": d["title"], "due": d["date"], "date": d["date"], "days_left": days_left, "kind": d["kind"],
+                "severity": severity, "doc_id": doc["id"] if doc else None, "source": d.get("source") or None,
+                "external_key": d.get("external_key") or None}
         event = {"id": dedupe, "type": type_, "severity": severity, "title": title[:200], "summary": " · ".join(p for p in parts if p),
-                 "url": self.link_to(doc["id"]) if doc else (d.get("url") or ""), "bus": bus,
-                 "data": {"deadline_id": d["id"], "title": d["title"], "date": d["date"], "days_left": days_left, "kind": d["kind"], "severity": severity,
-                          "doc_id": doc["id"] if doc else None, "source": d.get("source") or None, "external_key": d.get("external_key") or None}}
-        self._send(event, ["toast", "hub", "ntfy", "telegram", "email"], doc_id=doc["id"] if doc else None, deadline_id=d["id"], dedupe=dedupe)
+                 "url": self.link_to(doc["id"]) if doc else (d.get("url") or ""), "bus": bus, "data": data}
+        self._send(event, list(DEADLINE_CHANNELS), doc_id=doc["id"] if doc else None, deadline_id=d["id"], dedupe=dedupe)
+        # the bus event of the state (soon, overdue): once per deadline, date and state, whatever the lead day that triggered it
+        marker = f"evt.{'overdue' if overdue else 'soon'}.{d['id']}.{d['date']}"      # a new date is a new state
+        if self.setting(marker) == "":
+            self.set(marker, "1")
+            if self.setting("notify.hub.enabled", "1") != "0":
+                self._emit_event(bus, {k: data[k] for k in ("deadline_id", "title", "due", "days_left", "kind", "doc_id")})
 
     def _send(self, event: dict[str, Any], channels: list[str], *, doc_id: Optional[str], deadline_id: Optional[str], dedupe: str) -> bool:
         if self.store.notified(dedupe):
@@ -1266,7 +1540,7 @@ class Engine:
                         continue
         jobs_purged = workshop_jobs.purge(self.data_dir / "workshop", now) if self.data_dir else 0
         return {"archived_deadlines": archived, "rolled_recurring": rolled, "series_relinked": relinked, "cache_files_purged": purged,
-                "workshop_jobs_purged": jobs_purged}
+                "workshop_jobs_purged": jobs_purged, "ledger_lookups": self.retry_ledger_links()}
 
 
 def _format_sender(mail: dict[str, Any]) -> str:

@@ -37,6 +37,11 @@ from .labels import LABELS, TYPE_TAGS, WORDS, compose, format_price, label
 log = logging.getLogger("kafka.notify")
 
 CHANNELS = ("toast", "hub", "ntfy", "telegram", "email")
+OWN_CHANNELS = ("toast", "ntfy", "telegram", "email")     # what the hub's notification service replaces when notify.via is hub or auto
+VIA_MODES = ("auto", "hub", "own")
+HUB_NOTIFY = "hub_notify"                                  # the channel name recorded for a notification handed to the hub
+URGENT_KINDS = ("appeal", "fine_discount", "cancel_by")    # on their last day these are urgent for the hub (it bypasses quiet hours)
+GROUPS = {"deadline_soon": "deadline", "deadline_overdue": "deadline", "price_change": "price", "document_added": "document"}
 SEVERITY_RANK = {"low": 0, "medium": 1, "high": 2}
 APP_ID = "Kafka's Hoard"
 POWERSHELL_APP_ID = r"{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\WindowsPowerShell\v1.0\powershell.exe"
@@ -88,7 +93,7 @@ class Notifier:
                  clock: Callable[[], float] = time.time, smtp_factory: Optional[Callable[..., Any]] = None,
                  toast_backend: Optional[Callable[[str, str, str, bool], None]] = None,
                  powershell_runner: Optional[Callable[..., Any]] = None, platform: Optional[str] = None, icon_path: Optional[Path] = None,
-                 faustus_runner: Optional[Callable[..., Any]] = None):
+                 faustus_runner: Optional[Callable[..., Any]] = None, hub_api: Any = None):
         self.config = config
         self.get = db_settings_get
         self.transport = transport
@@ -100,6 +105,58 @@ class Notifier:
         self.icon_path = icon_path if icon_path is not None else REPO_ROOT / "app-icon.png"
         self.faustus_runner = faustus_runner or subprocess.run
         self._faustus_status: Optional[tuple[float, str, dict[str, Any]]] = None
+        self._hub_api = hub_api            # ``notify(...)`` and ``hub_available()`` of the family library; tests inject a fake
+
+    # ------------------------------------------------------------------ the hub's notification service
+    @property
+    def hub_api(self) -> Any:
+        if self._hub_api is None:
+            from ..hoard_link import fam_notify
+            self._hub_api = fam_notify
+        return self._hub_api
+
+    def via(self) -> str:
+        value = self._setting("notify.via", "auto").lower()
+        return value if value in VIA_MODES else "auto"
+
+    def hub_available(self) -> bool:
+        if getattr(self.config, "offline", False):
+            return False
+        try:
+            return bool(self.hub_api.hub_available())
+        except Exception:  # noqa: BLE001
+            return False
+
+    def via_status(self) -> dict[str, Any]:
+        mode, up = self.via(), self.hub_available()
+        return {"setting": mode, "hub_available": up, "effective": "hub" if (mode == "hub" or (mode == "auto" and up)) else "own"}
+
+    @staticmethod
+    def hub_priority(event: dict[str, Any]) -> str:
+        """Kafka's severities to the hub's priorities: low, medium to normal, high to high; the last day of an appeal, a fine
+        discount or a cancellation window is urgent."""
+        severity = str(event.get("severity") or "medium").lower()
+        data = event.get("data") or {}
+        if severity == "high" and data.get("days_left") == 0 and str(data.get("kind") or "") in URGENT_KINDS and event.get("type") != "deadline_overdue":
+            return "urgent"
+        return {"low": "low", "medium": "normal", "high": "high"}.get(severity, "normal")
+
+    def _send_hub_notify(self, event: dict[str, Any]) -> dict[str, Any]:
+        title, body = compose(event, self._lang())
+        if getattr(self.config, "offline", False):
+            return {"channel": HUB_NOTIFY, "ok": False, "error": "offline"}
+        try:
+            res = self.hub_api.notify(title, body, priority=self.hub_priority(event), url=_http_url(event.get("url")),
+                                      group=GROUPS.get(str(event.get("type")), ""), dedupe_key=str(event.get("id") or ""))
+        except Exception as exc:  # noqa: BLE001 — never raise out of the engine
+            res = {"ok": False, "error": type(exc).__name__}
+        out: dict[str, Any] = {"channel": HUB_NOTIFY, "ok": bool(res.get("ok")), "error": "" if res.get("ok") else str(res.get("error") or "the hub refused")[:160],
+                               "ts": self.clock()}
+        if res.get("held"):
+            out["held"] = str(res["held"])
+        if res.get("ok"):
+            out["delivered"] = res.get("delivered")
+        return out
 
     # ------------------------------------------------------------------ settings and status
     def _setting(self, key: str, default: str = "") -> str:
@@ -265,6 +322,22 @@ class Notifier:
 
     # ------------------------------------------------------------------ sending
     def send(self, event: dict[str, Any], channels: list[str]) -> list[dict[str, Any]]:
+        """Deliver through the hub's notification service (it decides channels, quiet hours and the sphere) when ``notify.via`` says
+        so, else through the app's own channels. ``auto`` falls back to the own channels when the hub does not take it."""
+        asked = [c for c in channels if c in OWN_CHANNELS]
+        mode = self.via()
+        if not asked or mode == "own":
+            return self._send_own(event, channels)
+        hub_res: Optional[dict[str, Any]] = None
+        if mode == "hub" or self.hub_available():
+            hub_res = self._send_hub_notify(event)
+        if hub_res is not None and hub_res["ok"]:
+            return [*self._send_own(event, [c for c in channels if c not in OWN_CHANNELS]), hub_res]
+        if mode == "hub":
+            return [*self._send_own(event, [c for c in channels if c not in OWN_CHANNELS]), hub_res or {"channel": HUB_NOTIFY, "ok": False, "error": "hub unavailable"}]
+        return [*self._send_own(event, channels), *([hub_res] if hub_res else [])]
+
+    def _send_own(self, event: dict[str, Any], channels: list[str]) -> list[dict[str, Any]]:
         results = []
         rank = SEVERITY_RANK.get(str(event.get("severity") or "medium").lower(), 1)
         for channel in channels:
@@ -470,4 +543,4 @@ def telegram_discover_chat_id(token: str, *, transport: Any = None) -> dict[str,
     return {"ok": False, "chat_id": "", "name": "", "error": "no messages yet: write to the bot first"}
 
 
-__all__ = ["Notifier", "CHANNELS", "EMAIL_BACKENDS", "telegram_discover_chat_id", "build_toast_ps1", "compose", "label", "LABELS", "format_price", "xml_escape"]
+__all__ = ["Notifier", "CHANNELS", "OWN_CHANNELS", "VIA_MODES", "HUB_NOTIFY", "EMAIL_BACKENDS", "telegram_discover_chat_id", "build_toast_ps1", "compose", "label", "LABELS", "format_price", "xml_escape"]

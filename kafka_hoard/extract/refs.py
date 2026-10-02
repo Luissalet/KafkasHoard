@@ -76,3 +76,16 @@ def choose_ref(hits: list[RefHit], kind: str) -> tuple[Optional[RefHit], Optiona
     main = main or hits[0]
     stable = main if main.stable else next((h for h in hits if h.stable and h.what in ("policy", "contract", "supply")), None)
     return main, stable
+
+
+AMAZON_ORDER = re.compile(r"(?<!\d)(\d{3}-\d{7}-\d{7})(?!\d)")
+
+
+def find_order_ref(original: str, folded: str) -> str:
+    """The order number of a purchase document, or ''. A labelled order reference («nº de pedido», «order number») wins;
+    an unlabelled 3-7-7 digit number (the format large marketplaces use) is accepted on its own."""
+    for hit in find_refs(original, folded):
+        if hit.what == "order":
+            return hit.value
+    found = AMAZON_ORDER.search(original)
+    return found.group(1) if found else ""

@@ -151,6 +151,11 @@ MIGRATIONS: list[str] = [
     ALTER TABLE deadlines ADD COLUMN url TEXT NOT NULL DEFAULT '';
     CREATE UNIQUE INDEX deadlines_external ON deadlines(source, external_key) WHERE external_key != '';
     """,
+    # 3: the record a deadline came from (hoard:// uri) and the hub's id of a mail that was read through the gateway
+    """
+    ALTER TABLE deadlines ADD COLUMN source_ref TEXT NOT NULL DEFAULT '';
+    ALTER TABLE mails ADD COLUMN hub_id TEXT NOT NULL DEFAULT '';
+    """,
 ]
 
 

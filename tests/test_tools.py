@@ -272,7 +272,7 @@ def test_the_workshop_tools_are_in_the_catalogue_and_documented():
     wanted = {"pdf_merge", "pdf_split", "pdf_pages", "pdf_compress", "pdf_protect", "pdf_watermark", "pdf_info", "pdf_metadata_set", "pdf_from_images",
               "pdf_from_office", "pdf_to_images", "images_compress"}
     names = {t.name for t in TOOLS}
-    assert wanted <= names and len(names) == 52
+    assert wanted <= names and len(names) == 55
     from pathlib import Path
     api = (Path(__file__).resolve().parent.parent / "docs" / "API.md").read_text(encoding="utf-8")
     for name in wanted:

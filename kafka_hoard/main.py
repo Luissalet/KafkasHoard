@@ -12,11 +12,12 @@ from fastapi.responses import FileResponse, JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from . import __version__
+from . import agenda
 from .api import ROUTERS
 from .config import Config
 from .errors import KafkaError
 from .guard import install_guard
-from .hoard_link import family
+from .hoard_link import fam_agenda, family
 from .services import Services
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
@@ -42,6 +43,7 @@ def create_app(config: Config | None = None, services: Services | None = None) -
     family.configure("kafka", str(config.data_dir), token_file=str(config.token_path))
 
     install_guard(app, config.allowed_hosts)
+    fam_agenda.install_fastapi(app, lambda start, end, sphere: agenda.items(app.state.services, start, end, sphere))
 
     @app.exception_handler(KafkaError)
     async def kafka_error(_: Request, exc: KafkaError):

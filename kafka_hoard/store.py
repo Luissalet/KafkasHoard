@@ -22,7 +22,7 @@ DOC_FIELDS = (
     "confidence", "series_id", "tags", "notes", "facts")
 DL_JSON = ("remind", "notified")
 DL_FIELDS = ("doc_id", "kind", "title", "date", "basis", "evidence", "page", "confidence", "state", "remind", "notified", "amount",
-             "recurring", "key", "auto", "edited", "archived", "notes", "done_ts", "source", "external_key", "ext_date", "rule", "url")
+             "recurring", "key", "auto", "edited", "archived", "notes", "done_ts", "source", "external_key", "ext_date", "rule", "url", "source_ref")
 MAIL_JSON = ("doc_ids", "attachments", "reasons")
 
 
@@ -338,12 +338,14 @@ class Store:
         snippet = text[:280]
         attachments = [{k: a.get(k) for k in ("name", "mime", "size", "sha", "path")} for a in (message.get("attachments") or [])]
         self.db.execute(
-            "INSERT INTO mails(message_id, ts, from_address, from_name, subject, account, kind, score, state, doc_ids, snippet, body, attachments, reasons, created_ts) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(message_id) DO UPDATE SET kind = excluded.kind, score = excluded.score, "
-            "state = excluded.state, doc_ids = excluded.doc_ids, reasons = excluded.reasons, attachments = excluded.attachments",
+            "INSERT INTO mails(message_id, ts, from_address, from_name, subject, account, kind, score, state, doc_ids, snippet, body, attachments, reasons, created_ts, hub_id) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(message_id) DO UPDATE SET kind = excluded.kind, score = excluded.score, "
+            "state = excluded.state, doc_ids = excluded.doc_ids, reasons = excluded.reasons, attachments = excluded.attachments, "
+            "hub_id = CASE WHEN excluded.hub_id != '' THEN excluded.hub_id ELSE mails.hub_id END",
             (message.get("message_id"), message.get("ts"), message.get("from_address") or "", message.get("from_name") or "",
              message.get("subject") or "", message.get("account") or "", kind, int(score), state, json.dumps(doc_ids), snippet,
-             str(message.get("text") or "")[:24000], json.dumps(attachments, ensure_ascii=False), json.dumps(reasons, ensure_ascii=False), self.clock()))
+             str(message.get("text") or "")[:24000], json.dumps(attachments, ensure_ascii=False), json.dumps(reasons, ensure_ascii=False), self.clock(),
+             str(message.get("hub_id") or "")))
 
     def set_mail_state(self, message_id: str, state: str, doc_ids: Optional[list[str]] = None) -> None:
         if doc_ids is None:

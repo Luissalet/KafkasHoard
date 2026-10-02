@@ -6,6 +6,7 @@ from __future__ import annotations
 import logging
 import os
 import secrets as _secrets
+import threading
 import time
 from pathlib import Path
 from typing import Any, Callable, Optional
@@ -21,8 +22,9 @@ from .engine import Engine
 from .errors import KafkaError
 from .extract.llm import LlmPass
 from .files import FileStore
-from .mail.source import FaustusMail
-from .notify import CHANNELS, EMAIL_BACKENDS, Notifier
+from .mail.hub import SOURCES as MAIL_SOURCES
+from .mail.hub import MailRouter
+from .notify import CHANNELS, EMAIL_BACKENDS, VIA_MODES, Notifier
 from .ocr import Ocr
 from .scheduler import Scheduler
 from .store import Store
@@ -44,6 +46,7 @@ UI_SETTINGS: dict[str, Optional[tuple[str, ...]]] = {
     "mail.first_days": None,
     "mail.faustus_dir": None,
     "mail.faustus_owner": None,
+    "mail.source": MAIL_SOURCES,
     "extract.llm": ("auto", "off"),
     "warranty.years": None,
     "calendar.region": REGIONS,
@@ -51,19 +54,23 @@ UI_SETTINGS: dict[str, Optional[tuple[str, ...]]] = {
     "prices.alert_pct": None,
     "prices.bills": ("0", "1"),
     "links.phileas": ("1", "0"),
+    "links.ledger": ("1", "0"),
+    "minutes.me": None,
     "workshop.dir": None,
     "notify.night_from": None,
     "notify.night_to": None,
     "notify.night_high": ("0", "1"),
     "notify.ntfy.server": None,
     "notify.email.backend": EMAIL_BACKENDS,
+    "notify.via": VIA_MODES,
     **{f"remind.{k}": None for k in M.DEADLINE_KINDS},
     **{f"notify.{c}.enabled": ("1", "0") for c in CHANNELS},
     **{f"notify.{c}.min_severity": ("low", "medium", "high") for c in CHANNELS},
 }
 DEFAULTS = {"ui.language": "es", "scheduler.paused": "0", "folders.interval_min": "5", "mail.enabled": "1", "mail.interval_min": "15",
             "mail.window_days": "14", "mail.first_days": "180", "extract.llm": "auto", "warranty.years": "3", "calendar.region": "ES-MD",
-            "prices.alert_pct": "5", "prices.bills": "0", "links.phileas": "1", "notify.night_from": "23", "notify.night_to": "7",
+            "prices.alert_pct": "5", "prices.bills": "0", "links.phileas": "1", "links.ledger": "1", "mail.source": "auto", "notify.via": "auto",
+            "notify.night_from": "23", "notify.night_to": "7",
             "notify.night_high": "0", "notify.ntfy.server": "https://ntfy.sh", "notify.email.backend": "auto",
             **{f"remind.{k}": ",".join(str(x) for x in v) for k, v in M.DEFAULT_LEADS.items()}}
 NUMERIC = {"folders.interval_min": (1, 1440), "mail.interval_min": (5, 1440), "mail.window_days": (1, 365), "mail.first_days": (1, 730),
@@ -97,9 +104,30 @@ def write_url(config: Config) -> None:
         pass
 
 
-def _family_call(app: str, tool: str, arguments: Optional[dict[str, Any]] = None) -> dict[str, Any]:
+def _family_call(app: str, tool: str, arguments: Optional[dict[str, Any]] = None, timeout: float = 60.0) -> dict[str, Any]:
     from .hoard_link import family
-    return family.call(app, tool, arguments, timeout=60.0)
+    return family.call(app, tool, arguments, timeout=timeout)
+
+
+def _hub_claim(ids: list[int], kind: str, ref: str) -> dict[str, Any]:
+    from .hoard_link import fam_mail
+    return fam_mail.claim(ids, kind, ref)
+
+
+def _hub_app_url(app: str) -> str:
+    """The base url the hub knows for an app of the family ('' when it does not say)."""
+    from .hoard_link import family
+    from .hoard_link._hubclient import fetch
+    status, body = fetch(f"{family._hub()}/api/apps/{app}", timeout=3.0, headers=family._headers())
+    if status != 200 or not isinstance(body, dict):
+        return ""
+    inner = body.get("app") if isinstance(body.get("app"), dict) else body
+    return str(inner.get("url") or "")
+
+
+def _hub_link(from_uri: str, to_uri: str, rel: str = "related", **kw: Any) -> dict[str, Any]:
+    from .hoard_link import fam_refs
+    return fam_refs.link(from_uri, to_uri, rel, **kw)
 
 
 class Services:
@@ -119,14 +147,16 @@ class Services:
         self.files = FileStore(config.files_dir)
         self.workshop = Workshop(config, self.store, self.files, self.setting)
         self.notifier = notifier or Notifier(config, self.db.get_setting, transport=http_transport, clock=clock_fn)
-        self.mail = mail_source or FaustusMail(self.setting, config.secret, runner=mail_runner, clock=clock_fn)
+        self.mail = mail_source or MailRouter(self.setting, config.secret, runner=mail_runner, clock=clock_fn, offline=config.offline)
         self.ocr = ocr or Ocr(config.ocr)
         self.llm = llm if llm is not None else LlmPass(config.backend_json_path)
         self.engine = Engine(self.store, self.files, self.notifier, self.ocr, settings_get=self.db.get_setting, settings_set=self.db.set_setting,
                              emit=self._emit, clock=clock_fn, mail_source=self.mail, data_dir=config.data_dir, mail_cache_dir=config.mail_cache_dir,
                              inbox_dir=config.inbox_dir, page_cache_dir=config.cache_dir / "pages", llm=self.llm,
                              family_call=family_call if family_call is not None else (None if config.offline else _family_call),
-                             base_url=lambda: f"http://127.0.0.1:{config.port}", submit=self._submit_job)
+                             base_url=lambda: f"http://127.0.0.1:{config.port}", submit=self._submit_job,
+                             mail_claim=None if config.offline else _hub_claim, refs_link=None if config.offline else _hub_link,
+                             app_url=None if config.offline else _hub_app_url)
         self.scheduler = Scheduler(self.engine, self.store, clock=clock_fn, enabled=config.scheduler,
                                    paused=lambda: self.setting("scheduler.paused") == "1",
                                    folders_interval_min=lambda: float(self.setting("folders.interval_min") or 5),
@@ -143,6 +173,20 @@ class Services:
     def start(self) -> None:
         if self.config.scheduler:
             self.scheduler.start()
+            self._register_mail_interest_async()
+
+    def _register_mail_interest_async(self) -> None:
+        """Tell the hub's mail gateway which mail Kafka wants (at start, and again when the mail settings change)."""
+        register = getattr(self.mail, "register_interest", None)
+        if register is None or self.config.offline:
+            return
+
+        def run() -> None:
+            try:
+                register(True)
+            except Exception:  # noqa: BLE001
+                log.info("could not register the mail interest with the hub")
+        threading.Thread(target=run, name="kafka-mail-interest", daemon=True).start()
 
     def stop(self) -> None:
         self.scheduler.stop()
@@ -211,6 +255,12 @@ class Services:
                     raise KafkaError("invalid", f"{key}: days must be between 0 and 365.")
                 value = ",".join(str(x) for x in leads)
             self.db.set_setting(key, value)
+            if key.startswith("mail.") and key != "mail.hub_since_id":
+                forget = getattr(self.mail, "forget_interest", None)
+                if forget:
+                    forget()
+                if self.config.scheduler:
+                    self._register_mail_interest_async()
         return self.settings()
 
     def _load_secrets(self) -> None:
@@ -258,7 +308,8 @@ class Services:
                                          "state", "confidence", "series_id", "tags", "notes", "created_ts", "updated_ts")},
                 "kind_label": M.kind_label(d.get("kind") or M.OTHER, lang), "has_file": bool(d.get("file_sha")),
                 "notes_extraction": facts.get("notes") or [], "edited": facts.get("edited") or [],
-                "warranty_months": facts.get("warranty_months"), "links": facts.get("links") or [],
+                "warranty_months": facts.get("warranty_months"), "links": facts.get("links") or [], "ledger_tx": facts.get("ledger_tx"),
+                "order_ref": facts.get("order_ref") or "",
                 "next_deadline": ({"date": deadline["date"], "title": deadline["title"]} if deadline else None)}
 
     def deadline_card(self, t: dict[str, Any], doc: Optional[dict[str, Any]] = None) -> dict[str, Any]:
@@ -270,7 +321,7 @@ class Services:
             doc = self.store.find_document(t["doc_id"])
         return {**{k: t.get(k) for k in ("id", "doc_id", "kind", "title", "date", "basis", "evidence", "page", "confidence", "state", "remind",
                                          "notified", "amount", "recurring", "auto", "edited", "archived", "notes", "created_ts", "done_ts",
-                                         "source", "external_key", "rule", "url")},
+                                         "source", "external_key", "rule", "url", "source_ref")},
                 "kind_label": M.deadline_label(t["kind"], lang), "days_left": days_left,
                 "severity": M.severity_for(t["kind"], days_left) if days_left is not None and t["state"] == M.OPEN else "low",
                 "document": ({"id": doc["id"], "title": doc["title"], "issuer": doc["issuer"], "kind": doc["kind"], "kind_label": M.kind_label(doc["kind"], lang),
@@ -357,13 +408,28 @@ class Services:
         return {"service": SERVICE, "version": __version__, "data_dir": str(self.config.data_dir), "uptime_s": int(time.time() - self.started_at),
                 "counts": self.counts(), "scheduler": self.scheduler.status(), "channels": self.notifier.channels_status(),
                 "folders": self.folders_view(), "last_folder_scan_ts": float(self.setting("folders.last_scan_ts") or 0) or None,
-                "mail": {"faustus_dir": str(self.mail.faustus_dir() or ""), "last_scan_ts": float(self.setting("mail.last_scan_ts") or 0) or None,
+                "notify": self._notify_via(),
+                "mail": {"source": self._mail_source(), "mode": self.setting("mail.source"), "faustus_dir": str(self.mail.faustus_dir() or ""), "last_scan_ts": float(self.setting("mail.last_scan_ts") or 0) or None,
                          "last_error": self.setting("mail.last_error"), "first_scan_done": self.setting("mail.first_scan_done") == "1"},
                 "ocr": {"available": ocr_ok, "detail": ocr_note},
                 "llm": {"mode": self.setting("extract.llm"), "available": self._llm_available()},
                 "phileas": {"enabled": self.setting("links.phileas") == "1", "last_sync_ts": float(self.setting("links.phileas.last_sync_ts") or 0) or None,
                             "last_error": self.setting("links.phileas.last_error")},
                 "offline": self.config.offline, "recent_runs": self.store.runs(limit=12)}
+
+    def _notify_via(self) -> dict[str, Any]:
+        fn = getattr(self.notifier, "via_status", None)
+        try:
+            return fn() if fn else {"setting": self.setting("notify.via"), "hub_available": False, "effective": "own"}
+        except Exception:  # noqa: BLE001
+            return {"setting": self.setting("notify.via"), "hub_available": False, "effective": "own"}
+
+    def _mail_source(self) -> str:
+        fn = getattr(self.mail, "source_now", None)
+        try:
+            return fn() if fn else "faustus"
+        except Exception:  # noqa: BLE001
+            return "faustus"
 
     def _llm_available(self) -> Optional[dict[str, Any]]:
         if self.config.offline or self.setting("extract.llm") == "off":
