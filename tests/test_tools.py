@@ -10,7 +10,7 @@ import docs
 from conftest import tool
 from kafka_hoard import model as M
 from kafka_hoard.agent_tools import TOOLS, uncapped
-from kafka_hoard.errors import KafkaError
+from kafka_hoard.hoard_link.agentkit import AppError
 
 
 def seed(svc):
@@ -73,11 +73,11 @@ def test_deadline_write_tools(svc):
     assert upd["date"] == "2026-12-01" or upd["date"] >= "2026-10-11"
     done = tool(svc, "deadline_update", deadline=added["id"], state="done")["deadline"]
     assert done["state"] == "done"
-    with pytest.raises(KafkaError) as e:
+    with pytest.raises(AppError) as e:
         tool(svc, "deadline_delete", deadline=added["id"])
     assert e.value.code == "confirm_required"
     assert tool(svc, "deadline_delete", deadline=added["id"], confirm=True)["deleted"] == added["id"]
-    with pytest.raises(KafkaError) as e:
+    with pytest.raises(AppError) as e:
         tool(svc, "deadline_get", deadline=added["id"])
     assert e.value.code == "not_found"
 
@@ -111,7 +111,7 @@ def test_doc_add_file_and_its_refusals(svc, tmp_path):
     for bad in (tmp_path / ".env", tmp_path / "x.exe", tmp_path / "missing.pdf"):
         if bad.name == ".env":
             bad.write_text("A=1", encoding="utf-8")
-        with pytest.raises(KafkaError):
+        with pytest.raises(AppError):
             tool(svc, "doc_add_file", path=str(bad))
 
 
@@ -130,7 +130,7 @@ def test_doc_update_reprocess_delete(svc):
     assert out["document"]["issuer"] == "Tienda Demo"
     rep = tool(svc, "doc_reprocess", doc=did)
     assert "issuer" in rep["kept_user_edits"] and rep["llm"] == "off"
-    with pytest.raises(KafkaError):
+    with pytest.raises(AppError):
         tool(svc, "doc_delete", doc=did)
     assert tool(svc, "doc_delete", doc=did, confirm=True)["deleted"] == did
     assert tool(svc, "docs_list")["count"] == 0 and tool(svc, "deadlines_list", filter="all")["count"] == 0
@@ -158,9 +158,9 @@ def test_series_and_price_history(svc):
     h = tool(svc, "price_history", issuer="mapfre")
     assert [x["amount"] for x in h["series"][0]["history"]] == [320.0, 352.0]
     assert tool(svc, "price_history", series=s["series"][0]["id"])["series"][0]["latest_amount"] == 352.0
-    with pytest.raises(KafkaError):
+    with pytest.raises(AppError):
         tool(svc, "price_history")
-    with pytest.raises(KafkaError):
+    with pytest.raises(AppError):
         tool(svc, "price_history", issuer="nadie")
 
 
@@ -174,7 +174,7 @@ def test_mail_tools(svc, fake_mail):
     mid = listed["mails"][0]["message_id"]
     assert tool(svc, "mail_ignore", message_id=mid)["ignored"] == mid
     assert tool(svc, "mail_status")["ok"]
-    with pytest.raises(KafkaError):
+    with pytest.raises(AppError):
         tool(svc, "mail_accept", message_id="zzz@none")
 
 
@@ -191,7 +191,7 @@ def test_folder_tools(svc, tmp_path):
     scan = tool(svc, "folder_scan")
     assert scan["new_documents"] == 1
     assert tool(svc, "folder_remove", path=str(folder))["removed"] == str(folder.resolve())
-    with pytest.raises(KafkaError):
+    with pytest.raises(AppError):
         tool(svc, "folder_add", path="/etc")
 
 
@@ -214,7 +214,7 @@ def test_settings_and_secrets(svc):
     assert out["settings"]["warranty.years"] == "2" and out["settings"]["calendar.region"] == "ES-CT"
     assert svc.engine.lead_days(M.ITV) == [45, 10]
     for bad in ({"warranty.years": 99}, {"nonsense.key": 1}, {"prices.alert_pct": "mucho"}, {"calendar.region": "ZZ"}):
-        with pytest.raises(KafkaError):
+        with pytest.raises(AppError):
             tool(svc, "settings_set", values=bad)
     sec = tool(svc, "secret_set", name="NTFY_TOPIC", value="mi-tema-secreto-123")
     assert sec["NTFY_TOPIC"]["value"].endswith("-123") and "mi-tema" not in json.dumps(sec)
@@ -305,7 +305,7 @@ def test_manual_kind_files_without_deadlines_and_is_searchable(svc, tmp_path):
     t = tool(svc, "doc_add_text", title="Manual pegado", text=docs.MANUAL + "\nModelo WX-100")["documents"][0]
     assert t["kind"] == "manual" and t["deadlines"] == []
     assert tool(svc, "doc_reprocess", doc=d["id"])["document"]["kind"] == "manual"
-    with pytest.raises(KafkaError) as e:
+    with pytest.raises(AppError) as e:
         tool(svc, "doc_add_text", title="x", text=docs.RECEIPT, kind="folleto")
     assert e.value.code == "invalid"
 
@@ -351,12 +351,12 @@ def test_deadlines_from_another_app_upsert_by_external_key(svc, clock):
     assert reopened["action"] == "reopened" and reopened["deadline"]["state"] == "open"
     resched = tool(svc, "deadline_update_by_key", source="homehoard", external_key="mt_1", date="2029-01-10")
     assert resched["action"] == "rescheduled" and resched["deadline"]["date"] == "2029-01-10"
-    with pytest.raises(KafkaError) as e:
+    with pytest.raises(AppError) as e:
         tool(svc, "deadline_update_by_key", source="homehoard", external_key="nope", state="done")
     assert e.value.code == "not_found"
-    with pytest.raises(KafkaError):
+    with pytest.raises(AppError):
         tool(svc, "deadline_add", title="x y", date="2026-12-01", source="homehoard")
-    with pytest.raises(KafkaError):
+    with pytest.raises(AppError):
         tool(svc, "deadline_add", title="x y", date="2026-12-01", source="Home Hoard!", external_key="k")
 
 

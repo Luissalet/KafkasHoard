@@ -5,12 +5,9 @@ The assistant's route masks personal identifiers (DNI, NIE, IBAN, cards, phones)
 
 from __future__ import annotations
 
-import contextlib
-import contextvars
 import hashlib
 import json
 import re
-from dataclasses import dataclass
 from datetime import timedelta
 from typing import Any, Callable, Literal, Optional
 
@@ -19,6 +16,8 @@ from pydantic import BaseModel, Field, field_validator, model_validator
 from . import model as M
 from . import taxpack
 from .errors import KafkaError
+from .hoard_link import agentkit
+from .hoard_link.agentkit import Empty, Tool, ann as _ann, cap_result, confirm as _confirm, uncapped
 from .extract.pipeline import extract
 from .extract.types import Meta
 from .notify import CHANNELS
@@ -29,7 +28,6 @@ from .hoard_link.text import fold
 from .hoard_link.dates import parse_iso
 from .workshop import redact
 
-MAX_RESULT_BYTES = 20_000
 DOC_TEXT_CAP = 6_000
 # The family service tools read a file the caller names and hand its text to another app (which indexes it): masking would corrupt the
 # data, and nothing stored in Kafka is involved. Every other tool that can carry text is masked for assistants.
@@ -43,20 +41,6 @@ For the family: deadline_add also takes due, source_ref and note (adding the sam
 Kafka does not give legal advice: it states the rule it applied (the basis) and the user decides."""
 
 
-@dataclass(frozen=True)
-class Tool:
-    name: str
-    description: str
-    input_model: type[BaseModel]
-    annotations: dict[str, bool]
-    run: Callable[[Services, Any], Any]
-
-
-def _ann(read_only: bool, destructive: bool = False, idempotent: Optional[bool] = None, open_world: bool = False) -> dict[str, bool]:
-    return {"readOnlyHint": read_only, "destructiveHint": destructive, "idempotentHint": read_only if idempotent is None else idempotent,
-            "openWorldHint": open_world}
-
-
 def _d(first: str, detail: str = "", synonyms: str = "") -> str:
     """Description: first line (what it does, EN + ES keywords, <= 110 chars), details, then the «Sinónimos» line."""
     assert len(first) <= 110, first
@@ -66,53 +50,6 @@ def _d(first: str, detail: str = "", synonyms: str = "") -> str:
     if synonyms:
         parts.append("Sinónimos: " + synonyms)
     return "\n".join(parts)
-
-
-_UNCAPPED: contextvars.ContextVar[bool] = contextvars.ContextVar("kafka_uncapped", default=False)
-
-
-@contextlib.contextmanager
-def uncapped():
-    """The web UI shares the tool handlers but is not bound by the assistant's context budget, and sees everything unmasked."""
-    token = _UNCAPPED.set(True)
-    try:
-        yield
-    finally:
-        _UNCAPPED.reset(token)
-
-
-def cap_result(data: dict[str, Any], limit: int = MAX_RESULT_BYTES) -> dict[str, Any]:
-    if _UNCAPPED.get():
-        return data
-
-    def size(d: Any) -> int:
-        return len(json.dumps(d, default=str, ensure_ascii=False).encode("utf-8"))
-
-    if size(data) <= limit:
-        return data
-    data = dict(data)
-    truncated: dict[str, int] = {}
-    for _ in range(40):
-        if size(data) <= limit - 300:
-            break
-        lists = [(k, v) for k, v in data.items() if isinstance(v, list) and len(v) > 1]
-        if not lists:
-            break
-        key, value = max(lists, key=lambda kv: size(kv[1]))
-        truncated.setdefault(key, len(value))
-        data[key] = value[: max(1, len(value) // 2)]
-    data["truncated"] = {"reason": f"result capped at ~{limit // 1000} KB", "original_lengths": truncated,
-                         "hint": "Use limit or narrower filters to see the rest."}
-    return data
-
-
-def _confirm(confirm: bool, what: str) -> None:
-    if not confirm:
-        raise KafkaError("confirm_required", f"Deleting {what} is permanent.", "Repeat the call with confirm=true if the user asked for it.")
-
-
-class Empty(BaseModel):
-    pass
 
 
 # ================================================================================ argument models
@@ -670,7 +607,7 @@ def _clean_ids(ids: Optional[list[str]]) -> Optional[list[str]]:
 
 
 def run_doc_get(svc: Services, a: DocGetArgs) -> dict[str, Any]:
-    d = svc.detail(a.doc, text_limit=DOC_TEXT_CAP if not _UNCAPPED.get() else 80_000)
+    d = svc.detail(a.doc, text_limit=DOC_TEXT_CAP if not _is_uncapped() else 80_000)
     pages = d["pages"] if a.include_text else []
     if a.pages:
         pages = [p for p in pages if p["page"] in a.pages]
@@ -1191,21 +1128,26 @@ assert len(TOOLS_BY_NAME) == len(TOOLS)
 
 
 def tool_catalog() -> list[dict]:
-    return [{"name": t.name, "description": t.description, "annotations": t.annotations,
-             "inputSchema": t.input_model.model_json_schema(by_alias=True)} for t in TOOLS]
+    return agentkit.tool_catalog(TOOLS)
+
+
+def _is_uncapped() -> bool:
+    return agentkit._UNCAPPED.get()
+
+
+def _mask_unless_allowed(name: str):
+    def post(result: dict, args: Any) -> dict:
+        if _is_uncapped() or getattr(args, "reveal", False) or name in UNMASKED:
+            return result
+        return mask_obj(result)
+
+    return post
 
 
 def call_tool(services: Services, name: str, arguments: dict | None) -> Any:
-    tool = TOOLS_BY_NAME.get(name)
-    if tool is None:
-        raise KeyError(f"Unknown tool: {name}")
-    args = tool.input_model.model_validate(arguments or {})
-    result = tool.run(services, args)
-    if not isinstance(result, dict):
-        result = {"result": result}
-    if not _UNCAPPED.get() and not getattr(args, "reveal", False) and name not in UNMASKED:
-        result = mask_obj(result)
-    return result
+    """Run a tool: validated arguments, personal identifiers masked unless asked for, the result capped for assistants.
+    The family document tools are neither masked nor capped (their text goes to another app)."""
+    return agentkit.call_tool(TOOLS_BY_NAME, services, name, arguments, cap=name not in UNMASKED, post=_mask_unless_allowed(name))
 
 
 __all__ = ["TOOLS", "TOOLS_BY_NAME", "AGENT_INSTRUCTIONS", "call_tool", "tool_catalog", "uncapped", "cap_result"]
