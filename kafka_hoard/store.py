@@ -22,7 +22,7 @@ DOC_FIELDS = (
     "confidence", "series_id", "tags", "notes", "facts")
 DL_JSON = ("remind", "notified")
 DL_FIELDS = ("doc_id", "kind", "title", "date", "basis", "evidence", "page", "confidence", "state", "remind", "notified", "amount",
-             "recurring", "key", "auto", "edited", "archived", "notes", "done_ts")
+             "recurring", "key", "auto", "edited", "archived", "notes", "done_ts", "source", "external_key", "ext_date", "rule", "url")
 MAIL_JSON = ("doc_ids", "attachments", "reasons")
 
 
@@ -125,8 +125,14 @@ class Store:
         return int(row[0]) if row else 0
 
     def documents(self, *, kind: str = "", issuer: str = "", year: str = "", state: str = "", text: str = "", series_id: str = "",
-                  source: str = "", exclude_archived: bool = False, limit: int = 100, offset: int = 0) -> list[dict[str, Any]]:
+                  source: str = "", exclude_archived: bool = False, doc_ids: Optional[list[str]] = None, limit: int = 100,
+                  offset: int = 0) -> list[dict[str, Any]]:
         sql, params = "SELECT * FROM documents WHERE 1=1", []
+        if doc_ids is not None:
+            if not doc_ids:
+                return []
+            sql += f" AND id IN ({', '.join('?' for _ in doc_ids)})"
+            params.extend(doc_ids)
         if kind:
             sql += " AND kind = ?"
             params.append(kind)
@@ -185,13 +191,17 @@ class Store:
         row = self.db.one("SELECT text FROM pages WHERE doc_id = ? AND page = ?", (did, page))
         return row["text"] if row else ""
 
-    def search(self, text: str, *, kind: str = "", issuer: str = "", state: str = "", year: str = "", limit: int = 20) -> list[dict[str, Any]]:
+    def search(self, text: str, *, kind: str = "", issuer: str = "", state: str = "", year: str = "", doc_ids: Optional[list[str]] = None,
+               limit: int = 20) -> list[dict[str, Any]]:
         query = fts_query(text)
-        if not query:
+        if not query or (doc_ids is not None and not doc_ids):
             return []
         sql = ("SELECT f.doc_id AS doc_id, f.page AS page, snippet(pages_fts, 2, ?, ?, '…', 14) AS snippet, bm25(pages_fts, 4.0, 2.0, 1.0) AS rank "
                "FROM pages_fts f JOIN documents d ON d.id = f.doc_id WHERE pages_fts MATCH ?")
         params: list[Any] = [HIT_OPEN, HIT_CLOSE, query]
+        if doc_ids is not None:
+            sql += f" AND d.id IN ({', '.join('?' for _ in doc_ids)})"
+            params.extend(doc_ids)
         if kind:
             sql += " AND d.kind = ?"
             params.append(kind)
@@ -201,7 +211,7 @@ class Store:
         if state:
             sql += " AND d.state = ?"
             params.append(state)
-        else:
+        elif doc_ids is None:
             sql += " AND d.state != 'archived'"
         if year:
             sql += " AND substr(d.issue_date, 1, 4) = ?"
@@ -274,8 +284,12 @@ class Store:
         return row
 
     def deadlines(self, *, states: Optional[Iterable[str]] = None, date_from: str = "", date_to: str = "", kind: str = "", text: str = "",
-                  doc_id: str = "", include_archived: bool = False, limit: int = 500, newest_first: bool = False) -> list[dict[str, Any]]:
+                  doc_id: str = "", source: str = "", include_archived: bool = False, limit: int = 500,
+                  newest_first: bool = False) -> list[dict[str, Any]]:
         sql, params = "SELECT * FROM deadlines WHERE 1=1", []
+        if source:
+            sql += " AND source = ?"
+            params.append(source)
         if states:
             states = list(states)
             sql += f" AND state IN ({', '.join('?' for _ in states)})"
@@ -300,6 +314,11 @@ class Store:
         sql += f" ORDER BY date {'DESC' if newest_first else 'ASC'}, created_ts LIMIT ?"
         params.append(max(1, min(int(limit), 5000)))
         return [_dl(r) for r in self.db.query(sql, params)]
+
+    def deadline_by_key(self, source: str, external_key: str) -> Optional[dict[str, Any]]:
+        if not source or not external_key:
+            return None
+        return _dl(self.db.one("SELECT * FROM deadlines WHERE source = ? AND external_key = ?", (source, external_key)))
 
     def doc_deadlines(self, did: str) -> list[dict[str, Any]]:
         return self.deadlines(doc_id=did, include_archived=True, limit=500)

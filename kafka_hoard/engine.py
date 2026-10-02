@@ -58,6 +58,18 @@ def _bad_date(value: Any) -> bool:
     return bool(value) and parse_iso(str(value)) is None
 
 
+SOURCE_RE = re.compile(r"^[a-z0-9][a-z0-9_.-]{0,39}$")
+
+
+def _check_external(source: str, external_key: str) -> tuple[str, str]:
+    source, external_key = (source or "").strip().lower(), (external_key or "").strip()
+    if not SOURCE_RE.match(source):
+        raise KafkaError("invalid", "source must be an app id (lowercase letters, digits, '-', '_' or '.').")
+    if not 1 <= len(external_key) <= 160:
+        raise KafkaError("invalid", "external_key must have 1 to 160 characters.")
+    return source, external_key
+
+
 class Engine:
     def __init__(self, store: Any, files: FileStore, notifier: Any, ocr: Any, *, settings_get: Callable[[str, Optional[str]], Optional[str]],
                  settings_set: Callable[[str, str], None], emit: Callable[[str, dict], None] = lambda t, d: None,
@@ -243,6 +255,21 @@ class Engine:
         if size > readers.MAX_FILE_BYTES:
             raise KafkaError("too_large", f"{p.name} is larger than {readers.MAX_FILE_BYTES // (1024 * 1024)} MB.")
         return self.ingest_bytes(p.read_bytes(), p.name, source=source, source_ref=source_ref or str(p), quiet=quiet)
+
+    def apply_given(self, result: dict[str, Any], *, kind: str = "", item: str = "") -> dict[str, Any]:
+        """Apply a kind or item stated by the caller (another app, the assistant) to what was just filed, like a user edit.
+        A document already on file keeps a kind or item the user corrected before."""
+        values = {k: v for k, v in (("kind", kind), ("item", item.strip())) if v}
+        if not values:
+            return result
+        docs = []
+        for doc in result.get("documents") or []:
+            if doc is None:
+                continue
+            edited = set((doc.get("facts") or {}).get("edited") or [])
+            todo = values if result.get("created") else {k: v for k, v in values.items() if k not in edited}
+            docs.append(self.update_document(doc["id"], todo) if todo else doc)
+        return {**result, "documents": docs, "document": docs[0] if docs else result.get("document")}
 
     def _probe_text(self, text: str, mail: dict[str, Any]) -> Extraction:
         meta = Meta(from_name=str(mail.get("from_name") or ""), from_address=str(mail.get("from_address") or ""), subject=str(mail.get("subject") or ""))
@@ -564,6 +591,93 @@ class Engine:
         return self.store.create_deadline(doc_id=doc_id or None, kind=kind, title=title[:160], date=day.isoformat(),
                                           basis=texts.tr(self.lang(), "custom_basis"), confidence=100, state=M.OPEN, remind=leads,
                                           notified=notified, amount=amount, recurring=recurring, key="manual", auto=False, edited=True, notes=notes[:2000])
+
+    # ------------------------------------------------------------------ deadlines kept for another app (source + external key)
+    def upsert_external(self, *, source: str, external_key: str, title: str, date_: str, kind: str = M.CUSTOM, remind: Optional[list[int]] = None,
+                        recurring: str = "none", notes: str = "", amount: Optional[float] = None, basis: str = "", rule: str = "",
+                        url: str = "", doc_id: str = "") -> dict[str, Any]:
+        """Add or update the deadline another app keeps here under (source, external_key); never a duplicate.
+
+        The owner app moves the occurrence (a new date reopens it); what the user changed here wins for the current occurrence:
+        an edited title, reminders or notes stay, a date the user moved stays until the app sends a new one, and a deadline the
+        user dismissed stays dismissed."""
+        source, external_key = _check_external(source, external_key)
+        day = parse_iso(date_)
+        if day is None or len(str(date_).strip()) < 10:
+            raise KafkaError("invalid", "date must be YYYY-MM-DD.")
+        if kind not in M.DEADLINE_KINDS:
+            raise KafkaError("invalid", f"Unknown kind {kind}.", f"Known: {', '.join(M.DEADLINE_KINDS)}.")
+        if recurring not in M.RECURRING:
+            raise KafkaError("invalid", f"recurring must be one of {', '.join(M.RECURRING)}.")
+        if doc_id:
+            self.store.document(doc_id)
+        title = (title or "").strip()[:160]
+        if not title:
+            raise KafkaError("invalid", "The deadline needs a title.")
+        leads = sorted({int(x) for x in remind}, reverse=True) if remind else self.lead_days(kind)
+        basis = (basis or "").strip()[:1500] or texts.tr(self.lang(), "external_basis", source=source)
+        rule, url = (rule or "").strip()[:120], (url or "").strip()[:500]
+        iso_day = day.isoformat()
+        past = ["overdue"] if day < self.today() else []
+        existing = self.store.deadline_by_key(source, external_key)
+        if existing is None:
+            t = self.store.create_deadline(doc_id=doc_id or None, kind=kind, title=title, date=iso_day, basis=basis, confidence=100, state=M.OPEN,
+                                           remind=leads, notified=past, amount=amount, recurring=recurring, key="external", auto=False, edited=False,
+                                           notes=notes[:2000], source=source, external_key=external_key, ext_date=iso_day, rule=rule, url=url)
+            return {"deadline": t, "action": "created"}
+        if existing["state"] == M.DISMISSED and existing["edited"]:
+            t = self.store.update_deadline(existing["id"], basis=basis, rule=rule, url=url)
+            return {"deadline": t, "action": "kept_user_dismissed"}
+        fields: dict[str, Any] = {"basis": basis, "rule": rule, "url": url, "kind": kind, "amount": amount, "doc_id": doc_id or existing["doc_id"]}
+        if not existing["edited"]:
+            fields.update(title=title, remind=leads, recurring=recurring, notes=notes[:2000])
+        action = "updated"
+        if iso_day != existing["ext_date"]:
+            fields.update(date=iso_day, ext_date=iso_day, state=M.OPEN, done_ts=None, notified=past)
+            action = "rescheduled"
+        elif existing["state"] != M.OPEN and not existing["edited"]:
+            fields.update(state=M.OPEN, done_ts=None, notified=past if existing["date"] == iso_day else existing["notified"])
+            action = "reopened"
+        elif existing["edited"]:
+            action = "kept_user_edits"
+        return {"deadline": self.store.update_deadline(existing["id"], **fields), "action": action}
+
+    def update_external(self, *, source: str, external_key: str, values: dict[str, Any]) -> dict[str, Any]:
+        """The owner app closes, reopens or reschedules its deadline. A deadline the user dismissed here stays dismissed."""
+        source, external_key = _check_external(source, external_key)
+        d = self.store.deadline_by_key(source, external_key)
+        if d is None:
+            raise KafkaError("not_found", f"No deadline from {source} with key {external_key}.", "Create it with deadline_add (source, external_key).")
+        if d["state"] == M.DISMISSED and d["edited"]:
+            return {"deadline": d, "action": "kept_user_dismissed"}
+        fields: dict[str, Any] = {}
+        action = "unchanged"
+        if values.get("date"):
+            day = parse_iso(values["date"])
+            if day is None:
+                raise KafkaError("invalid", "date must be YYYY-MM-DD.")
+            if day.isoformat() != d["ext_date"] or day.isoformat() != d["date"]:
+                fields.update(date=day.isoformat(), ext_date=day.isoformat(), state=M.OPEN, done_ts=None,
+                              notified=["overdue"] if day < self.today() else [])
+                action = "rescheduled"
+        if values.get("title") and not d["edited"]:
+            fields["title"] = str(values["title"]).strip()[:160]
+            action = "updated" if action == "unchanged" else action
+        if values.get("notes") is not None and not d["edited"]:
+            fields["notes"] = str(values["notes"])[:2000]
+            action = "updated" if action == "unchanged" else action
+        state = values.get("state")
+        if state:
+            if state not in M.DEADLINE_STATES:
+                raise KafkaError("invalid", f"state must be one of {', '.join(M.DEADLINE_STATES)}.")
+            fields["state"] = state
+            fields["done_ts"] = self.clock() if state in (M.DONE, M.DISMISSED) else None
+            if state == M.OPEN and "date" not in fields:
+                fields["notified"] = ["overdue"] if (parse_iso(d["date"]) or self.today()) < self.today() else []
+            action = {"done": "closed", "dismissed": "closed", "open": "reopened"}[state] if "date" not in fields or state != M.OPEN else action
+        if not fields:
+            return {"deadline": d, "action": action}
+        return {"deadline": self.store.update_deadline(d["id"], **fields), "action": action}
 
     def update_deadline(self, tid: str, values: dict[str, Any]) -> dict[str, Any]:
         d = self.store.deadline(tid)
@@ -1090,9 +1204,9 @@ class Engine:
         if doc:
             parts.append(f"«{doc['title']}»")
         event = {"id": dedupe, "type": type_, "severity": severity, "title": title[:200], "summary": " · ".join(p for p in parts if p),
-                 "url": self.link_to(doc["id"]) if doc else "", "bus": bus,
+                 "url": self.link_to(doc["id"]) if doc else (d.get("url") or ""), "bus": bus,
                  "data": {"deadline_id": d["id"], "title": d["title"], "date": d["date"], "days_left": days_left, "kind": d["kind"], "severity": severity,
-                          "doc_id": doc["id"] if doc else None}}
+                          "doc_id": doc["id"] if doc else None, "source": d.get("source") or None, "external_key": d.get("external_key") or None}}
         self._send(event, ["toast", "hub", "ntfy", "telegram", "email"], doc_id=doc["id"] if doc else None, deadline_id=d["id"], dedupe=dedupe)
 
     def _send(self, event: dict[str, Any], channels: list[str], *, doc_id: Optional[str], deadline_id: Optional[str], dedupe: str) -> bool:

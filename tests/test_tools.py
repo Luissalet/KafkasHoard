@@ -291,3 +291,93 @@ def test_a_workshop_tool_runs_through_the_bridge_and_writes_next_to_the_source(s
     r = tool(svc, "pdf_pages", action="extract", file=str(src), pages="2")
     assert Path(r["output"]) == src.parent / "cuenta_paginas.pdf" and r["pages"] == 1 and r["size_before"] == src.stat().st_size
     assert tool(svc, "pdf_pages", action="extract", file=str(src), pages="2")["output"].endswith("cuenta_paginas (2).pdf")
+
+
+def test_manual_kind_files_without_deadlines_and_is_searchable(svc, tmp_path):
+    path = tmp_path / "lavadora.txt"
+    path.write_text(docs.MANUAL, encoding="utf-8")
+    r = tool(svc, "doc_add_file", path=str(path), kind="manual", item="Lavadora Demo WX-100")
+    d = r["documents"][0]
+    assert d["kind"] == "manual" and d["deadlines"] == [] and d["state"] == "ok" and d["item"] == "Lavadora Demo WX-100"
+    hit = tool(svc, "doc_search", query="filtro bomba", doc_ids=[d["id"]])
+    assert hit["count"] >= 1 and hit["results"][0]["doc_id"] == d["id"] and hit["results"][0]["cite"].startswith(f"[{d['id']} · p.")
+    # the same manual pasted as text is recognised by its words, and a reprocess keeps it a manual
+    t = tool(svc, "doc_add_text", title="Manual pegado", text=docs.MANUAL + "\nModelo WX-100")["documents"][0]
+    assert t["kind"] == "manual" and t["deadlines"] == []
+    assert tool(svc, "doc_reprocess", doc=d["id"])["document"]["kind"] == "manual"
+    with pytest.raises(KafkaError) as e:
+        tool(svc, "doc_add_text", title="x", text=docs.RECEIPT, kind="folleto")
+    assert e.value.code == "invalid"
+
+
+def test_explicit_kind_does_not_override_a_user_correction_on_a_duplicate(svc):
+    first = tool(svc, "doc_add_text", title="Ticket", text=docs.RECEIPT)["documents"][0]
+    tool(svc, "doc_update", doc=first["id"], kind="invoice")
+    again = tool(svc, "doc_add_text", title="Ticket", text=docs.RECEIPT, kind="manual")
+    assert again["created"] is False and again["documents"][0]["kind"] == "invoice"
+
+
+def test_search_and_list_restricted_to_document_ids(svc):
+    seed(svc)
+    ids = {d["kind"]: d["id"] for d in tool(svc, "docs_list")["documents"]}
+    only = tool(svc, "doc_search", query="2026", doc_ids=[ids["insurance"]])
+    assert only["count"] >= 1 and {r["doc_id"] for r in only["results"]} == {ids["insurance"]}
+    assert tool(svc, "doc_search", query="velocidad", doc_ids=[ids["insurance"]])["count"] == 0
+    assert tool(svc, "doc_search", query="velocidad", doc_ids=[])["count"] == 0
+    listed = tool(svc, "docs_list", doc_ids=[ids["fine"], ids["receipt"], "d_missing"])
+    assert {d["id"] for d in listed["documents"]} == {ids["fine"], ids["receipt"]} and listed["missing"] == ["d_missing"]
+    tool(svc, "doc_update", doc=ids["receipt"], state="archived")
+    assert tool(svc, "docs_list", doc_ids=[ids["receipt"]])["count"] == 1
+
+
+def test_deadlines_from_another_app_upsert_by_external_key(svc, clock):
+    args = dict(title="Mantenimiento: revisión de la caldera (Caldera demo)", date="2026-11-15", source="homehoard", external_key="mt_1",
+                basis="Mantenimiento por empresa habilitada al menos cada 2 años (RITE, RD 1027/2007, IT 3.3).", rule="RITE IT 3.3",
+                remind=[30, 7, 0], url="http://127.0.0.1:5196/maintenance")
+    first = tool(svc, "deadline_add", **args)
+    assert first["action"] == "created" and first["deadline"]["source"] == "homehoard" and first["deadline"]["external_key"] == "mt_1"
+    again = tool(svc, "deadline_add", **{**args, "title": "Mantenimiento: caldera (Caldera demo)"})
+    assert again["action"] == "updated" and again["deadline"]["id"] == first["deadline"]["id"]
+    assert again["deadline"]["title"] == "Mantenimiento: caldera (Caldera demo)"
+    assert tool(svc, "deadlines_list", filter="all", source="homehoard")["count"] == 1
+    ex = tool(svc, "deadline_explain", deadline=first["deadline"]["id"])
+    assert ex["rule"]["name"] == "RITE IT 3.3" and "IT 3.3" in ex["basis"] and ex["source"] == "homehoard"
+    # done in the owner app: it sends the next occurrence and the deadline reopens with fresh reminders
+    moved = tool(svc, "deadline_add", **{**args, "date": "2028-11-15"})
+    assert moved["action"] == "rescheduled" and moved["deadline"]["date"] == "2028-11-15" and moved["deadline"]["state"] == "open"
+    closed = tool(svc, "deadline_update_by_key", source="homehoard", external_key="mt_1", state="done")
+    assert closed["action"] == "closed" and closed["deadline"]["state"] == "done"
+    reopened = tool(svc, "deadline_add", **{**args, "date": "2028-11-15"})
+    assert reopened["action"] == "reopened" and reopened["deadline"]["state"] == "open"
+    resched = tool(svc, "deadline_update_by_key", source="homehoard", external_key="mt_1", date="2029-01-10")
+    assert resched["action"] == "rescheduled" and resched["deadline"]["date"] == "2029-01-10"
+    with pytest.raises(KafkaError) as e:
+        tool(svc, "deadline_update_by_key", source="homehoard", external_key="nope", state="done")
+    assert e.value.code == "not_found"
+    with pytest.raises(KafkaError):
+        tool(svc, "deadline_add", title="x y", date="2026-12-01", source="homehoard")
+    with pytest.raises(KafkaError):
+        tool(svc, "deadline_add", title="x y", date="2026-12-01", source="Home Hoard!", external_key="k")
+
+
+def test_user_edits_win_over_the_owner_app(svc):
+    args = dict(title="Mantenimiento: purgar radiadores (Salón)", date="2026-10-20", source="homehoard", external_key="mt_2")
+    t = tool(svc, "deadline_add", **args)["deadline"]
+    tool(svc, "deadline_update", deadline=t["id"], title="Purgar radiadores yo mismo", date="2026-10-25")
+    same = tool(svc, "deadline_add", **{**args, "title": "Mantenimiento: otra cosa"})
+    assert same["action"] == "kept_user_edits"
+    assert same["deadline"]["title"] == "Purgar radiadores yo mismo" and same["deadline"]["date"] == "2026-10-25"
+    nxt = tool(svc, "deadline_add", **{**args, "date": "2027-10-20"})
+    assert nxt["action"] == "rescheduled" and nxt["deadline"]["date"] == "2027-10-20" and nxt["deadline"]["title"] == "Purgar radiadores yo mismo"
+    tool(svc, "deadline_update", deadline=t["id"], state="dismissed")
+    kept = tool(svc, "deadline_add", **{**args, "date": "2028-10-20"})
+    assert kept["action"] == "kept_user_dismissed" and kept["deadline"]["state"] == "dismissed"
+    assert tool(svc, "deadline_update_by_key", source="homehoard", external_key="mt_2", state="open")["action"] == "kept_user_dismissed"
+
+
+def test_reminders_of_an_external_deadline_link_back_to_the_owner_app(svc, clock):
+    tool(svc, "deadline_add", title="Mantenimiento: filtro de la campana (Cocina)", date="2026-10-02", source="homehoard", external_key="mt_3",
+         remind=[1, 0], url="http://127.0.0.1:5196/maintenance")
+    svc.engine.run_reminders()
+    event = next(e for e, _ in svc.notifier.sent if e["data"].get("external_key") == "mt_3")
+    assert event["url"] == "http://127.0.0.1:5196/maintenance" and event["data"]["source"] == "homehoard"

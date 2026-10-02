@@ -101,6 +101,8 @@ def _admin_period_draft(p: RelPeriod, ex: Extraction, ctx: Ctx, meta: Meta, kind
 
 def build_deadlines(ex: Extraction, ctx: Ctx, meta: Meta) -> list[DeadlineDraft]:
     out: list[DeadlineDraft] = []
+    if ex.kind == M.MANUAL:      # an instruction manual is kept for searching, it never sets a date
+        return out
     who = _who(ex, ctx)
     lang = ctx.lang
     dated = ex.dated

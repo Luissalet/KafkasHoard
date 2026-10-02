@@ -18,16 +18,17 @@ IDENTITY = "identity"
 SUBSCRIPTION = "subscription"
 PAYSLIP = "payslip"
 BANK = "bank"
+MANUAL = "manual"          # instruction manuals: searchable, never produce deadlines
 OTHER = "other"
-KINDS = (INVOICE, RECEIPT, BILL, CONTRACT, INSURANCE, WARRANTY, TAX, OFFICIAL, FINE, VEHICLE, IDENTITY, SUBSCRIPTION, PAYSLIP, BANK, OTHER)
+KINDS = (INVOICE, RECEIPT, BILL, CONTRACT, INSURANCE, WARRANTY, TAX, OFFICIAL, FINE, VEHICLE, IDENTITY, SUBSCRIPTION, PAYSLIP, BANK, MANUAL, OTHER)
 
 KIND_LABELS = {
     "es": {INVOICE: "Factura", RECEIPT: "Ticket / recibo de compra", BILL: "Recibo", CONTRACT: "Contrato", INSURANCE: "Seguro",
            WARRANTY: "Garantía", TAX: "Impuestos", OFFICIAL: "Notificación oficial", FINE: "Multa", VEHICLE: "Vehículo (ITV)",
-           IDENTITY: "Identidad", SUBSCRIPTION: "Suscripción", PAYSLIP: "Nómina", BANK: "Banco", OTHER: "Otro"},
+           IDENTITY: "Identidad", SUBSCRIPTION: "Suscripción", PAYSLIP: "Nómina", BANK: "Banco", MANUAL: "Manual", OTHER: "Otro"},
     "en": {INVOICE: "Invoice", RECEIPT: "Receipt", BILL: "Bill", CONTRACT: "Contract", INSURANCE: "Insurance", WARRANTY: "Warranty",
            TAX: "Tax", OFFICIAL: "Official notice", FINE: "Fine", VEHICLE: "Vehicle (ITV)", IDENTITY: "Identity",
-           SUBSCRIPTION: "Subscription", PAYSLIP: "Payslip", BANK: "Bank", OTHER: "Other"},
+           SUBSCRIPTION: "Subscription", PAYSLIP: "Payslip", BANK: "Bank", MANUAL: "Manual", OTHER: "Other"},
 }
 
 # ---- document states

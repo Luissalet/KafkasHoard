@@ -57,6 +57,10 @@ RULES: dict[str, list[tuple[str, int, int]]] = {
     M.BANK: [(r"extracto", 5, 1), (r"estado\s+de\s+cuenta", 5, 1), (r"\bsaldo\b", 3, 2), (r"movimientos", 3, 1), (r"\biban\b", 2, 1), (r"cuenta\s+corriente", 3, 1),
              (r"bank\s+statement|statement\s+of\s+account", 6, 1), (r"saldo\s+(?:anterior|final|disponible)", 4, 1), (r"prestamo|hipoteca", 3, 1), (r"transferencia", 2, 1)],
 }
+RULES[M.MANUAL] = [(r"manual\s+de\s+(?:instrucciones|usuario|uso)", 8, 1), (r"instrucciones\s+de\s+(?:uso|instalacion|montaje)", 5, 1),
+                   (r"(?:user|instruction|owner'?s)\s+manual|operating\s+instructions", 8, 1), (r"lea\s+(?:atentamente\s+)?(?:estas|las)\s+instrucciones", 4, 1),
+                   (r"instrucciones\s+de\s+seguridad|safety\s+instructions", 2, 1), (r"solucion\s+de\s+problemas|troubleshooting", 3, 1),
+                   (r"mantenimiento\s+y\s+limpieza|cleaning\s+and\s+maintenance", 3, 1)]
 COMPILED = {kind: [(re.compile(p), w, cap) for p, w, cap in rules] for kind, rules in RULES.items()}
 
 # issuer category -> (kind, bonus)
@@ -65,7 +69,7 @@ CATEGORY_NUDGE = {"insurer": [(M.INSURANCE, 3)], "utility": [(M.BILL, 3)], "telc
 ISSUER_NUDGE = {"Agencia Tributaria": [(M.TAX, 5)], "DGT": [(M.FINE, 3)], "Seguridad Social": [(M.OFFICIAL, 3)]}
 
 # when scores are close, the more specific kind wins
-PRIORITY = [M.FINE, M.TAX, M.INSURANCE, M.VEHICLE, M.IDENTITY, M.PAYSLIP, M.OFFICIAL, M.WARRANTY, M.CONTRACT, M.SUBSCRIPTION, M.BILL,
+PRIORITY = [M.FINE, M.TAX, M.INSURANCE, M.VEHICLE, M.IDENTITY, M.PAYSLIP, M.OFFICIAL, M.MANUAL, M.WARRANTY, M.CONTRACT, M.SUBSCRIPTION, M.BILL,
             M.INVOICE, M.RECEIPT, M.BANK]
 MIN_SCORE = 3
 CLOSE_MARGIN = 2

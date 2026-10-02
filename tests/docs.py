@@ -93,3 +93,13 @@ def insurance_renewal(amount: str, start: str, end: str, ref: str = "5550012345"
     """A later period of the same invented policy, with another premium."""
     return (f"MAPFRE SEGUROS DE HOGAR\nPóliza de seguro del hogar\nNúmero de póliza: {ref}\nTomador: Ana Ejemplo Prueba\n"
             f"Fecha de efecto: {start}\nVigencia desde las 00:00 horas del {start} hasta las 24:00 horas del {end}\nPrima total: {amount} €\n")
+
+MANUAL = """LAVADORA DEMO WX-100
+Manual de instrucciones
+Lea atentamente estas instrucciones antes de usar el aparato.
+Mantenimiento y limpieza
+Limpie el filtro de la bomba una vez al mes. Desenrosque la tapa inferior derecha y retire los restos.
+Página 2
+Solución de problemas
+Código E21: el agua no se evacua. Revise el filtro de la bomba y el tubo de desagüe.
+"""

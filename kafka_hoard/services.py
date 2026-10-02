@@ -269,7 +269,8 @@ class Services:
         if doc is None and t.get("doc_id"):
             doc = self.store.find_document(t["doc_id"])
         return {**{k: t.get(k) for k in ("id", "doc_id", "kind", "title", "date", "basis", "evidence", "page", "confidence", "state", "remind",
-                                         "notified", "amount", "recurring", "auto", "edited", "archived", "notes", "created_ts", "done_ts")},
+                                         "notified", "amount", "recurring", "auto", "edited", "archived", "notes", "created_ts", "done_ts",
+                                         "source", "external_key", "rule", "url")},
                 "kind_label": M.deadline_label(t["kind"], lang), "days_left": days_left,
                 "severity": M.severity_for(t["kind"], days_left) if days_left is not None and t["state"] == M.OPEN else "low",
                 "document": ({"id": doc["id"], "title": doc["title"], "issuer": doc["issuer"], "kind": doc["kind"], "kind_label": M.kind_label(doc["kind"], lang),

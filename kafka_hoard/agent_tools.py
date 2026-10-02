@@ -129,6 +129,7 @@ class DeadlinesArgs(BaseModel):
     days: int = Field(30, ge=1, le=730, description="For 'upcoming': how many days ahead.")
     kind: str = Field("", max_length=30, description=f"One of {', '.join(M.DEADLINE_KINDS)}.")
     text: str = Field("", max_length=80)
+    source: str = Field("", max_length=40, description="Only deadlines another app keeps here (e.g. homehoard).")
     limit: int = Field(100, ge=1, le=500)
 
 
@@ -141,6 +142,20 @@ class DeadlineAddArgs(BaseModel):
     recurring: Literal["none", "monthly", "yearly"] = "none"
     notes: str = Field("", max_length=2000)
     amount: Optional[float] = Field(None, ge=0)
+    source: str = Field("", max_length=40, description="App id that owns this deadline (e.g. homehoard). With external_key: adding again updates it.")
+    external_key: str = Field("", max_length=160, description="The owner app's stable key for this deadline; (source, external_key) never duplicates.")
+    basis: str = Field("", max_length=1500, description="Why this date: the rule or legal basis the owner app applied (shown by deadline_explain).")
+    rule: str = Field("", max_length=120, description="Short name of the rule or norm, e.g. «RITE IT 3.3» or «Recomendación».")
+    url: str = Field("", max_length=500, description="Link back to the thing in the owner app; used by notifications.")
+
+
+class DeadlineKeyArgs(BaseModel):
+    source: str = Field(..., min_length=1, max_length=40, description="App id that owns the deadline (e.g. homehoard).")
+    external_key: str = Field(..., min_length=1, max_length=160, description="The owner app's key for the deadline.")
+    date: Optional[str] = Field(None, description="YYYY-MM-DD: reschedule (a new occurrence: reopened, reminders start again).")
+    state: Optional[Literal["open", "done", "dismissed"]] = Field(None, description="Close (done, dismissed) or reopen.")
+    title: Optional[str] = Field(None, max_length=160)
+    notes: Optional[str] = Field(None, max_length=2000)
 
 
 class DeadlineUpdateArgs(BaseModel):
@@ -165,6 +180,7 @@ class DocsListArgs(BaseModel):
     year: str = Field("", max_length=4)
     state: str = Field("", max_length=12, description="review, ok or archived. Empty: everything but archived.")
     text: str = Field("", max_length=80, description="Matches title, issuer, reference, item, file name or mail subject.")
+    doc_ids: Optional[list[str]] = Field(None, max_length=100, description="Only these document ids (d_…), archived included; unknown ids are listed in missing.")
     limit: int = Field(50, ge=1, le=300)
 
 
@@ -174,17 +190,25 @@ class SearchArgs(BaseModel):
     issuer: str = Field("", max_length=80)
     year: str = Field("", max_length=4)
     state: str = Field("", max_length=12)
+    doc_ids: Optional[list[str]] = Field(None, max_length=100, description="Search only inside these documents (d_…), e.g. the manuals of one appliance.")
     limit: int = Field(10, ge=1, le=50)
     reveal: bool = Field(False, description="Show personal identifiers unmasked (only when the user asks for that exact number).")
 
 
+_KIND_ARG = f"Kind to file it as, when the caller knows it (e.g. manual for an instruction manual); kept like a user edit. One of {', '.join(M.KINDS)}."
+
+
 class AddFileArgs(BaseModel):
     path: str = Field(..., min_length=3, max_length=1000, description="Absolute path of a PDF, image, .eml, .txt, .html or .docx on this computer.")
+    kind: str = Field("", max_length=30, description=_KIND_ARG)
+    item: str = Field("", max_length=160, description="The product or thing the document is about (optional); kept like a user edit.")
 
 
 class AddTextArgs(BaseModel):
     title: str = Field("", max_length=160)
     text: str = Field(..., min_length=10, max_length=200_000, description="The document as plain text.")
+    kind: str = Field("", max_length=30, description=_KIND_ARG)
+    item: str = Field("", max_length=160, description="The product or thing the document is about (optional); kept like a user edit.")
 
 
 class DocUpdateArgs(BaseModel):
@@ -459,7 +483,7 @@ def run_status(svc: Services, _: Empty) -> dict[str, Any]:
 
 def run_deadlines(svc: Services, a: DeadlinesArgs) -> dict[str, Any]:
     today = svc.engine.today()
-    kw: dict[str, Any] = {"kind": a.kind, "text": a.text, "limit": a.limit}
+    kw: dict[str, Any] = {"kind": a.kind, "text": a.text, "source": a.source.strip().lower(), "limit": a.limit}
     if a.filter == "overdue":
         kw.update(states=[M.OPEN], date_to=(today - timedelta(days=1)).isoformat(), newest_first=False)
     elif a.filter == "upcoming":
@@ -477,7 +501,10 @@ def run_deadlines(svc: Services, a: DeadlinesArgs) -> dict[str, Any]:
 def _deadline_full(svc: Services, tid: str) -> dict[str, Any]:
     t = svc.store.deadline(tid)
     card = svc.deadline_card(t)
-    rule = RULES.get(t["key"]) or RULES.get(t["kind"]) or RULES["custom"]
+    if t.get("source") or t.get("rule"):
+        rule = (t.get("rule") or t.get("source"), t.get("basis") or "")
+    else:
+        rule = RULES.get(t["key"]) or RULES.get(t["kind"]) or RULES["custom"]
     return {**card, "cite": _doc_cite(t.get("doc_id"), t.get("page")), "rule": {"name": rule[0], "text": rule[1]}}
 
 
@@ -486,8 +513,21 @@ def run_deadline_get(svc: Services, a: DeadlineRef) -> dict[str, Any]:
 
 
 def run_deadline_add(svc: Services, a: DeadlineAddArgs) -> dict[str, Any]:
+    if a.source or a.external_key:
+        if not (a.source and a.external_key):
+            raise KafkaError("invalid", "source and external_key go together.")
+        r = svc.engine.upsert_external(source=a.source, external_key=a.external_key, title=a.title, date_=a.date, kind=a.kind, remind=a.remind,
+                                       recurring=a.recurring, notes=a.notes, amount=a.amount, basis=a.basis, rule=a.rule, url=a.url, doc_id=a.doc)
+        return {"deadline": svc.deadline_card(r["deadline"]), "action": r["action"]}
     t = svc.engine.add_deadline(title=a.title, date_=a.date, kind=a.kind, remind=a.remind, doc_id=a.doc, recurring=a.recurring, notes=a.notes, amount=a.amount)
-    return {"deadline": svc.deadline_card(t)}
+    if a.basis or a.rule or a.url:
+        t = svc.store.update_deadline(t["id"], **{k: v for k, v in (("basis", a.basis.strip()), ("rule", a.rule.strip()), ("url", a.url.strip())) if v})
+    return {"deadline": svc.deadline_card(t), "action": "created"}
+
+
+def run_deadline_by_key(svc: Services, a: DeadlineKeyArgs) -> dict[str, Any]:
+    r = svc.engine.update_external(source=a.source, external_key=a.external_key, values=a.model_dump(exclude={"source", "external_key"}, exclude_none=True))
+    return {"deadline": svc.deadline_card(r["deadline"]), "action": r["action"]}
 
 
 def run_deadline_update(svc: Services, a: DeadlineUpdateArgs) -> dict[str, Any]:
@@ -501,7 +541,9 @@ def run_deadline_explain(svc: Services, a: DeadlineRef) -> dict[str, Any]:
     doc = svc.store.find_document(full["doc_id"]) if full.get("doc_id") else None
     return {"deadline": {k: full[k] for k in ("id", "title", "date", "days_left", "kind", "kind_label", "state", "recurring", "remind", "confidence")},
             "basis": full["basis"], "rule": full["rule"], "evidence": full["evidence"], "page": full["page"], "cite": full["cite"],
-            "how_to_verify": ("Open the document at that page and check the quoted line." if doc else "Added by hand: no document."),
+            "how_to_verify": ("Open the document at that page and check the quoted line." if doc else
+                              f"Sent by {full['source']}: check it there." if full.get("source") else "Added by hand: no document."),
+            "source": full.get("source") or None, "external_key": full.get("external_key") or None, "url": full.get("url") or None,
             "document": {"id": doc["id"], "title": doc["title"], "issuer": doc["issuer"]} if doc else None,
             "note": "Kafka states the rule it applied; it does not give legal advice."}
 
@@ -514,8 +556,20 @@ def run_deadline_delete(svc: Services, a: DeleteDeadlineArgs) -> dict[str, Any]:
 
 
 def run_docs_list(svc: Services, a: DocsListArgs) -> dict[str, Any]:
-    rows = svc.store.documents(kind=a.kind, issuer=a.issuer, year=a.year, state=a.state, text=a.text, exclude_archived=not a.state, limit=a.limit)
-    return cap_result({"documents": [_slim_doc(svc.doc_card(d)) for d in rows], "count": len(rows)})
+    ids = _clean_ids(a.doc_ids)
+    rows = svc.store.documents(kind=a.kind, issuer=a.issuer, year=a.year, state=a.state, text=a.text, exclude_archived=not a.state and ids is None,
+                               doc_ids=ids, limit=a.limit)
+    out: dict[str, Any] = {"documents": [_slim_doc(svc.doc_card(d)) for d in rows], "count": len(rows)}
+    if ids is not None:
+        found = {d["id"] for d in rows}
+        out["missing"] = [i for i in ids if i not in found]
+    return cap_result(out)
+
+
+def _clean_ids(ids: Optional[list[str]]) -> Optional[list[str]]:
+    if ids is None:
+        return None
+    return list(dict.fromkeys(str(i).strip() for i in ids if str(i).strip()))[:100]
 
 
 def run_doc_get(svc: Services, a: DocGetArgs) -> dict[str, Any]:
@@ -535,7 +589,7 @@ def run_doc_get(svc: Services, a: DocGetArgs) -> dict[str, Any]:
 
 
 def run_doc_search(svc: Services, a: SearchArgs) -> dict[str, Any]:
-    hits = svc.store.search(a.query, kind=a.kind, issuer=a.issuer, state=a.state, year=a.year, limit=a.limit)
+    hits = svc.store.search(a.query, kind=a.kind, issuer=a.issuer, state=a.state, year=a.year, doc_ids=_clean_ids(a.doc_ids), limit=a.limit)
     docs: dict[str, Any] = {}
     out = []
     for h in hits:
@@ -550,8 +604,14 @@ def run_doc_search(svc: Services, a: SearchArgs) -> dict[str, Any]:
 
 
 def run_add_file(svc: Services, a: AddFileArgs) -> dict[str, Any]:
+    _check_kind(a.kind)
     r = svc.engine.ingest_path(a.path, source="manual")
-    return _ingest_result(svc, r)
+    return _ingest_result(svc, svc.engine.apply_given(r, kind=a.kind, item=a.item))
+
+
+def _check_kind(kind: str) -> None:
+    if kind and kind not in M.KINDS:
+        raise KafkaError("invalid", f"Unknown kind {kind}.", f"Known: {', '.join(M.KINDS)}.")
 
 
 def _ingest_result(svc: Services, r: dict[str, Any]) -> dict[str, Any]:
@@ -568,7 +628,9 @@ def _ingest_result(svc: Services, r: dict[str, Any]) -> dict[str, Any]:
 
 
 def run_add_text(svc: Services, a: AddTextArgs) -> dict[str, Any]:
-    return _ingest_result(svc, svc.engine.ingest_text(a.title, a.text, source="paste"))
+    _check_kind(a.kind)
+    r = svc.engine.ingest_text(a.title, a.text, source="paste")
+    return _ingest_result(svc, svc.engine.apply_given(r, kind=a.kind, item=a.item))
 
 
 def run_doc_update(svc: Services, a: DocUpdateArgs) -> dict[str, Any]:
@@ -844,8 +906,15 @@ TOOLS: list[Tool] = [
                               "qué vence este mes, plazos de pago, renovaciones, multas pendientes, garantías"), DeadlinesArgs, _ann(True), run_deadlines),
     Tool("deadline_get", _d("One deadline with its basis, rule, evidence and document. Detalle de un plazo.",
                             synonyms="cuándo vence, de dónde sale esta fecha, plazo concreto"), DeadlineRef, _ann(True), run_deadline_get),
-    Tool("deadline_add", _d("Add a deadline by hand (title, date, reminders, recurring). Añadir un plazo a mano.",
-                            synonyms="recuérdame, apunta una fecha, nuevo vencimiento, aviso"), DeadlineAddArgs, _ann(False, idempotent=False), run_deadline_add),
+    Tool("deadline_add", _d("Add a deadline by hand or for another app (source + external_key upserts). Añadir un plazo.",
+                            "With source and external_key (another app of the family, e.g. homehoard) adding again updates the same deadline: a new "
+                            "date reopens it; a title, reminders or date the user changed here and a deadline the user dismissed are kept. basis and "
+                            "rule are shown by deadline_explain.",
+                            "recuérdame, apunta una fecha, nuevo vencimiento, aviso, mantenimiento"), DeadlineAddArgs, _ann(False, idempotent=False), run_deadline_add),
+    Tool("deadline_update_by_key", _d("Close, reopen or reschedule a deadline another app keeps here, by its key. Plazo por clave externa.",
+                                      "For the owner app: state done/dismissed closes it, a new date reschedules it. A deadline the user dismissed stays.",
+                                      "cerrar plazo de otra app, mantenimiento hecho, reprogramar, mover fecha"),
+         DeadlineKeyArgs, _ann(False, idempotent=True), run_deadline_by_key),
     Tool("deadline_update", _d("Change a deadline: date, title, reminders, done, dismissed, snooze. Editar o cerrar un plazo.",
                                "Marking a recurring deadline done moves it to its next occurrence.",
                                "hecho, pagado, posponer, descartar, cambiar fecha, aplazar"), DeadlineUpdateArgs, _ann(False, idempotent=True), run_deadline_update),

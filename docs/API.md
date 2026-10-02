@@ -34,6 +34,7 @@ Annotations: readOnlyHint, idempotentHint.
 | `days` (integer) | no | For 'upcoming': how many days ahead. |
 | `kind` (string) | no | One of payment, renewal, cancel_by, warranty_end, permanence_end, appeal, fine_discount, expiry, itv, tax, custom. |
 | `text` (string) | no |  |
+| `source` (string) | no | Only deadlines another app keeps here (e.g. homehoard). |
 | `limit` (integer) | no |  |
 
 ## `deadline_get`
@@ -51,9 +52,10 @@ Annotations: readOnlyHint, idempotentHint.
 
 ## `deadline_add`
 
-Add a deadline by hand (title, date, reminders, recurring). Añadir un plazo a mano.
+Add a deadline by hand or for another app (source + external_key upserts). Añadir un plazo.
 
-Sinónimos: recuérdame, apunta una fecha, nuevo vencimiento, aviso
+With source and external_key (another app of the family, e.g. homehoard) adding again updates the same deadline: a new date reopens it; a title, reminders or date the user changed here and a deadline the user dismissed are kept. basis and rule are shown by deadline_explain.
+Sinónimos: recuérdame, apunta una fecha, nuevo vencimiento, aviso, mantenimiento
 
 Annotations: none.
 
@@ -67,6 +69,29 @@ Annotations: none.
 | `recurring` (none \| monthly \| yearly) | no |  |
 | `notes` (string) | no |  |
 | `amount` (number/null) | no |  |
+| `source` (string) | no | App id that owns this deadline (e.g. homehoard). With external_key: adding again updates it. |
+| `external_key` (string) | no | The owner app's stable key for this deadline; (source, external_key) never duplicates. |
+| `basis` (string) | no | Why this date: the rule or legal basis the owner app applied (shown by deadline_explain). |
+| `rule` (string) | no | Short name of the rule or norm, e.g. «RITE IT 3.3» or «Recomendación». |
+| `url` (string) | no | Link back to the thing in the owner app; used by notifications. |
+
+## `deadline_update_by_key`
+
+Close, reopen or reschedule a deadline another app keeps here, by its key. Plazo por clave externa.
+
+For the owner app: state done/dismissed closes it, a new date reschedules it. A deadline the user dismissed stays.
+Sinónimos: cerrar plazo de otra app, mantenimiento hecho, reprogramar, mover fecha
+
+Annotations: idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `source` (string) | yes | App id that owns the deadline (e.g. homehoard). |
+| `external_key` (string) | yes | The owner app's key for the deadline. |
+| `date` (string/null) | no | YYYY-MM-DD: reschedule (a new occurrence: reopened, reminders start again). |
+| `state` (string/null) | no | Close (done, dismissed) or reopen. |
+| `title` (string/null) | no |  |
+| `notes` (string/null) | no |  |
 
 ## `deadline_update`
 
@@ -125,11 +150,12 @@ Annotations: readOnlyHint, idempotentHint.
 
 | Argument | Required | Description |
 |---|---|---|
-| `kind` (string) | no | One of invoice, receipt, bill, contract, insurance, warranty, tax, official_notice, fine, vehicle, identity, subscription, payslip, bank, other. |
+| `kind` (string) | no | One of invoice, receipt, bill, contract, insurance, warranty, tax, official_notice, fine, vehicle, identity, subscription, payslip, bank, manual, other. |
 | `issuer` (string) | no |  |
 | `year` (string) | no |  |
 | `state` (string) | no | review, ok or archived. Empty: everything but archived. |
 | `text` (string) | no | Matches title, issuer, reference, item, file name or mail subject. |
+| `doc_ids` (array/null) | no | Only these document ids (d_…), archived included; unknown ids are listed in missing. |
 | `limit` (integer) | no |  |
 
 ## `doc_get`
@@ -164,6 +190,7 @@ Annotations: readOnlyHint, idempotentHint.
 | `issuer` (string) | no |  |
 | `year` (string) | no |  |
 | `state` (string) | no |  |
+| `doc_ids` (array/null) | no | Search only inside these documents (d_…), e.g. the manuals of one appliance. |
 | `limit` (integer) | no |  |
 | `reveal` (boolean) | no | Show personal identifiers unmasked (only when the user asks for that exact number). |
 
@@ -179,6 +206,8 @@ Annotations: idempotentHint.
 | Argument | Required | Description |
 |---|---|---|
 | `path` (string) | yes | Absolute path of a PDF, image, .eml, .txt, .html or .docx on this computer. |
+| `kind` (string) | no | Kind to file it as, when the caller knows it (e.g. manual for an instruction manual); kept like a user edit. One of invoice, receipt, bill, contract, insurance, warranty, tax, official_notice, fine, vehicle, identity, subscription, payslip, bank, manual, other. |
+| `item` (string) | no | The product or thing the document is about (optional); kept like a user edit. |
 
 ## `doc_add_text`
 
@@ -192,6 +221,8 @@ Annotations: idempotentHint.
 |---|---|---|
 | `title` (string) | no |  |
 | `text` (string) | yes | The document as plain text. |
+| `kind` (string) | no | Kind to file it as, when the caller knows it (e.g. manual for an instruction manual); kept like a user edit. One of invoice, receipt, bill, contract, insurance, warranty, tax, official_notice, fine, vehicle, identity, subscription, payslip, bank, manual, other. |
+| `item` (string) | no | The product or thing the document is about (optional); kept like a user edit. |
 
 ## `doc_update`
 

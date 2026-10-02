@@ -75,6 +75,7 @@ TEXTS: dict[str, tuple[str, str]] = {
     "doc_generic": ("un documento", "a document"),
     "vehicle_generic": ("tu vehículo", "your vehicle"),
     "custom_basis": ("Plazo añadido a mano.", "Deadline added by hand."),
+    "external_basis": ("Plazo enviado por {source}.", "Deadline sent by {source}."),
     "price_change": ("{issuer}: {noun} sube un {pct} % ({old} → {new})", "{issuer}: {noun} goes up {pct} % ({old} → {new})"),
     "price_change_down": ("{issuer}: {noun} baja un {pct} % ({old} → {new})", "{issuer}: {noun} goes down {pct} % ({old} → {new})"),
     "noun_insurance": ("la prima", "the premium"), "noun_subscription": ("la cuota", "the fee"), "noun_other": ("el importe", "the amount"),

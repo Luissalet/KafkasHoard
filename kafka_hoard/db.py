@@ -142,6 +142,15 @@ MIGRATIONS: list[str] = [
     );
     CREATE INDEX runs_ts ON runs(ts);
     """,
+    # 2: deadlines kept for another app of the family (source + external_key), with the basis and rule it sends
+    """
+    ALTER TABLE deadlines ADD COLUMN source TEXT NOT NULL DEFAULT '';
+    ALTER TABLE deadlines ADD COLUMN external_key TEXT NOT NULL DEFAULT '';
+    ALTER TABLE deadlines ADD COLUMN ext_date TEXT NOT NULL DEFAULT '';
+    ALTER TABLE deadlines ADD COLUMN rule TEXT NOT NULL DEFAULT '';
+    ALTER TABLE deadlines ADD COLUMN url TEXT NOT NULL DEFAULT '';
+    CREATE UNIQUE INDEX deadlines_external ON deadlines(source, external_key) WHERE external_key != '';
+    """,
 ]
 
 

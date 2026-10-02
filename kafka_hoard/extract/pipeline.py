@@ -229,7 +229,8 @@ def extract(pages: list[str], meta: Meta, ctx: Ctx, hints: Optional[Hints] = Non
         ex.notes.append("no_deadline_found")
     if ex.kind == M.OTHER:
         ex.notes.append("kind_unknown")
-    if not hits:
+    if not hits and ex.kind != M.MANUAL:
         ex.notes.append("no_dates")
-    ex.state = M.REVIEW if (ex.kind == M.OTHER or ex.confidence < REVIEW_BELOW or not hits or needs_one) else M.OK
+    dates_expected = ex.kind != M.MANUAL     # a manual is complete without any date
+    ex.state = M.REVIEW if (ex.kind == M.OTHER or ex.confidence < REVIEW_BELOW or (dates_expected and not hits) or needs_one) else M.OK
     return ex
