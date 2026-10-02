@@ -985,3 +985,18 @@ def test_single_string_arguments_are_accepted_as_lists(svc, ws, tmp_path):
     assert r["compressed"] == 1
     p = tool(svc, "pdf_from_images", images=str(img))
     assert p["pages"] == 1
+
+
+def test_run_process_captures_output_and_kills_a_program_that_hangs():
+    import subprocess
+    import sys
+    import time
+
+    from kafka_hoard.workshop.proc import run_process
+
+    done = run_process([sys.executable, "-c", "import sys; print('ñandú'); sys.stderr.write('aviso')"], timeout=30)
+    assert done.returncode == 0 and "ñandú" in done.stdout and done.stderr == "aviso"
+    t0 = time.monotonic()
+    with pytest.raises(subprocess.TimeoutExpired):
+        run_process([sys.executable, "-c", "import time; time.sleep(60)"], timeout=1.0)
+    assert time.monotonic() - t0 < 10

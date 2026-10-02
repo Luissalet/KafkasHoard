@@ -71,3 +71,12 @@ def test_the_system_temp_folder_counts_even_under_appdata(tmp_path, monkeypatch)
     monkeypatch.setattr(_tempfile, "gettempdir", lambda: str(temp))
     assert paths.unsafe_folder(temp / "papeles") == ""
     assert paths.unsafe_folder(tmp_path / "AppData" / "Roaming" / "app") != ""
+
+
+def test_a_path_pasted_with_quotes_is_cleaned_and_windows_paths_are_judged_on_any_platform(tmp_path, data):
+    f = tmp_path / "papeles"
+    f.mkdir()
+    assert paths.unsafe_folder(f'"{f}"', data) == ""                                   # Explorer's «Copiar como ruta» adds the quotes
+    for bad in ("C:\\", "C:\\Windows\\System32", "C:\\Users\\ana\\.ssh", "C:\\Program Files\\App"):
+        assert paths.unsafe_folder(bad, data), bad
+    assert "system" in paths.unsafe_file("C:\\Windows\\win.ini", data)

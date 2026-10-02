@@ -5,27 +5,22 @@ from __future__ import annotations
 
 import glob
 import os
-import shutil
-import subprocess
 from dataclasses import dataclass, field
 from typing import Any, Callable, Mapping, Optional
 
-CREATE_NO_WINDOW = 0x08000000
+from ..hoard_link import proc
 
 
 def run_process(cmd: list[str], *, timeout: float = 180.0, env: Optional[Mapping[str, str]] = None, cwd: Optional[str] = None) -> Any:
-    """``subprocess.run`` with no console window on Windows, no stdin and text output that never raises on odd bytes."""
-    kwargs: dict[str, Any] = {}
-    if os.name == "nt":
-        kwargs["creationflags"] = CREATE_NO_WINDOW
-    return subprocess.run(cmd, capture_output=True, text=True, errors="replace", timeout=timeout, env=dict(env) if env is not None else None,
-                          cwd=cwd, stdin=subprocess.DEVNULL, check=False, **kwargs)
+    """The family's bounded run: no console window on Windows, no stdin, UTF-8 text that never raises on odd bytes, and the whole process
+    tree killed when the timeout expires (a Ghostscript or LibreOffice that hangs leaves nothing running)."""
+    return proc.run(cmd, timeout=timeout, env=dict(env) if env is not None else None, cwd=cwd)
 
 
 @dataclass
 class Env:
     runner: Callable[..., Any] = run_process
-    which: Callable[[str], Optional[str]] = shutil.which
+    which: Callable[[str], Optional[str]] = proc.which
     windows: bool = field(default_factory=lambda: os.name == "nt")
     environ: Mapping[str, str] = field(default_factory=lambda: os.environ)
     glob: Callable[[str], list[str]] = glob.glob
