@@ -65,7 +65,9 @@ class Config:
     http_timeout_s: float = 25.0
     offline: bool = False  # never touch the network (tests): the mail source and the notification channels answer "offline"
     scheduler: bool = True  # background folder and mail scans and reminders; tests and the MCP-only mode switch it off
-    ocr: bool = True  # allow OCR of scanned pages and images (needs rapidocr; reported as unavailable when missing)
+    ocr: bool = True  # allow OCR of scanned pages and images (needs an engine; reported as unavailable when missing)
+    ocr_backend: str = "auto"  # auto (winocr, rapidocr, tesseract: the first available) or one of them (KAFKA_OCR_BACKEND)
+    ocr_lang: str = "es"  # the language OCR reads when the caller does not say (KAFKA_OCR_LANG)
     secrets: dict[str, str] = field(default_factory=dict)  # from .env (+ environment); never written back
 
     @property
@@ -126,5 +128,7 @@ class Config:
             offline=_env("KAFKA_OFFLINE") == "1",
             scheduler=_env("KAFKA_SCHEDULER", "1") != "0",
             ocr=_env("KAFKA_OCR", "1") != "0",
+            ocr_backend=(_env("KAFKA_OCR_BACKEND") or "auto").lower(),
+            ocr_lang=_env("KAFKA_OCR_LANG") or "es",
             secrets=load_dotenv(REPO_ROOT / ".env"),
         )

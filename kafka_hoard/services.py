@@ -25,6 +25,7 @@ from .files import FileStore
 from .mail.hub import SOURCES as MAIL_SOURCES
 from .mail.hub import MailRouter
 from .notify import CHANNELS, EMAIL_BACKENDS, VIA_MODES, Notifier
+from .docsvc import DocService
 from .ocr import Ocr
 from .scheduler import Scheduler
 from .store import Store
@@ -148,7 +149,8 @@ class Services:
         self.workshop = Workshop(config, self.store, self.files, self.setting)
         self.notifier = notifier or Notifier(config, self.db.get_setting, transport=http_transport, clock=clock_fn)
         self.mail = mail_source or MailRouter(self.setting, config.secret, runner=mail_runner, clock=clock_fn, offline=config.offline)
-        self.ocr = ocr or Ocr(config.ocr)
+        self.ocr = ocr or Ocr(config.ocr, backend=config.ocr_backend, lang=config.ocr_lang)
+        self.docsvc = DocService(self.ocr, config.data_dir)
         self.llm = llm if llm is not None else LlmPass(config.backend_json_path)
         self.engine = Engine(self.store, self.files, self.notifier, self.ocr, settings_get=self.db.get_setting, settings_set=self.db.set_setting,
                              emit=self._emit, clock=clock_fn, mail_source=self.mail, data_dir=config.data_dir, mail_cache_dir=config.mail_cache_dir,
@@ -190,6 +192,7 @@ class Services:
 
     def stop(self) -> None:
         self.scheduler.stop()
+        self.docsvc.stop()
         try:
             self.llm.close()
         except Exception:  # noqa: BLE001
@@ -411,7 +414,7 @@ class Services:
                 "notify": self._notify_via(),
                 "mail": {"source": self._mail_source(), "mode": self.setting("mail.source"), "faustus_dir": str(self.mail.faustus_dir() or ""), "last_scan_ts": float(self.setting("mail.last_scan_ts") or 0) or None,
                          "last_error": self.setting("mail.last_error"), "first_scan_done": self.setting("mail.first_scan_done") == "1"},
-                "ocr": {"available": ocr_ok, "detail": ocr_note},
+                "ocr": {"available": ocr_ok, "detail": ocr_note, "backend": ocr_note if ocr_ok else "", "backends": self.ocr.status()["backends"]},
                 "llm": {"mode": self.setting("extract.llm"), "available": self._llm_available()},
                 "phileas": {"enabled": self.setting("links.phileas") == "1", "last_sync_ts": float(self.setting("links.phileas.last_sync_ts") or 0) or None,
                             "last_error": self.setting("links.phileas.last_error")},

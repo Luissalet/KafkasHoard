@@ -30,6 +30,9 @@ from .workshop import redact
 
 MAX_RESULT_BYTES = 20_000
 DOC_TEXT_CAP = 6_000
+# The family service tools read a file the caller names and hand its text to another app (which indexes it): masking would corrupt the
+# data, and nothing stored in Kafka is involved. Every other tool that can carry text is masked for assistants.
+UNMASKED = frozenset({"doc_extract", "ocr_image", "ocr_pdf", "ocr_status"})
 
 AGENT_INSTRUCTIONS = """Kafka's Hoard is a local paperwork keeper. It reads invoices, contracts, insurance policies, receipts and warranties, letters from the tax office, the traffic authority or the town hall, fines, ITV and ID documents from uploads, watched folders and the mail account configured in Faustus, extracts who issued them, the amounts and every date that matters, and turns those dates into deadlines with the rule that produced each one.
 Start with kafka_overview (overdue, next 30 days, what needs review). For one deadline: deadline_get and deadline_explain (basis, rule, evidence, page). For documents: docs_list, doc_get and doc_search (full text with citations). To file something: doc_add_file (absolute path on this computer), doc_add_text, or mail_scan. To check a purchase: warranty_check.
@@ -449,6 +452,35 @@ class ImagesCompressArgs(BaseModel):
     out_dir: str = Field("", max_length=1000, description="Absolute output folder. Default: «<folder>_comprimidas» next to a folder, or «<name>_comprimida» next to a file. An existing file there is skipped.")
     time_limit_s: float = Field(70, ge=0, le=3600, description="Stop after this many seconds and say what is left (0: no limit); repeat with the same out_dir to continue.")
     sources_as_list = field_validator("sources", mode="before")(_listify)
+
+
+# ---- extraction and OCR for the other apps of the family (stateless: nothing is filed in Kafka)
+class DocExtractArgs(BaseModel):
+    path: str = Field(..., min_length=3, max_length=1000, description="Absolute path of the file to read: PDF, image, docx, odt, pptx, xlsx, epub, rtf, html, eml or text.")
+    ocr: Literal["auto", "off", "force"] = Field("auto", description="auto: OCR only the pages without a text layer. off: never. force: every page.")
+    max_pages: int = Field(400, ge=1, le=2000, description="Read at most this many pages.")
+    lang: str = Field("es", max_length=10, description="Language of the text for OCR (es, en, fr, pt, it, de, ca).")
+    wait_s: float = Field(150, ge=0, le=3600, description="Wait up to this many seconds (clamped to 150) for the result; past it the answer is the running job (job_id, status): follow it with ocr_status.")
+
+
+class OcrImageArgs(BaseModel):
+    path: str = Field(..., min_length=3, max_length=1000, description="Absolute path of the image (PNG, JPEG, WEBP, HEIC, BMP, TIFF, GIF).")
+    lang: str = Field("es", max_length=10, description="Language of the text (es, en, fr, pt, it, de, ca).")
+    blocks: bool = Field(False, description="Also return every recognised line with its box and confidence.")
+
+
+class OcrPdfArgs(BaseModel):
+    path: str = Field(..., min_length=3, max_length=1000, description="Absolute path of the PDF.")
+    pages: str = Field("", max_length=500, description="Pages to recognise, e.g. '1-5,9' (default: the first max_pages).")
+    dpi: int = Field(200, ge=72, le=400, description="Resolution the pages are rendered at before OCR.")
+    lang: str = Field("es", max_length=10, description="Language of the text (es, en, fr, pt, it, de, ca).")
+    max_pages: int = Field(40, ge=1, le=400, description="Recognise at most this many pages.")
+    wait_s: float = Field(150, ge=0, le=3600, description="Wait up to this many seconds (clamped to 150); past it the answer is the running job.")
+
+
+class OcrStatusArgs(BaseModel):
+    job_id: str = Field("", max_length=80, description="A doc_extract or ocr_pdf job. Empty: report the OCR engine instead.")
+    wait_s: float = Field(0, ge=0, le=3600, description="With a job_id: wait up to this many seconds (clamped to 150) for it to finish.")
 
 
 # ================================================================================ helpers
@@ -958,6 +990,23 @@ def run_images_compress(svc: Services, a: ImagesCompressArgs) -> dict[str, Any]:
                                                          lossless_only=a.lossless_only, skip_small=a.skip_small, out_dir=a.out_dir, time_limit_s=a.time_limit_s))
 
 
+# ---- extraction and OCR (the family service; section 5 of the Hoard Link services contract)
+def run_doc_extract(svc: Services, a: DocExtractArgs) -> dict[str, Any]:
+    return svc.docsvc.extract(a.path, ocr=a.ocr, max_pages=a.max_pages, lang=a.lang, wait_s=a.wait_s)
+
+
+def run_ocr_image(svc: Services, a: OcrImageArgs) -> dict[str, Any]:
+    return svc.docsvc.ocr_image(a.path, lang=a.lang, blocks=a.blocks)
+
+
+def run_ocr_pdf(svc: Services, a: OcrPdfArgs) -> dict[str, Any]:
+    return svc.docsvc.ocr_pdf(a.path, pages=a.pages, dpi=a.dpi, lang=a.lang, max_pages=a.max_pages, wait_s=a.wait_s)
+
+
+def run_ocr_status(svc: Services, a: OcrStatusArgs) -> dict[str, Any]:
+    return svc.docsvc.status(a.job_id, a.wait_s)
+
+
 # ================================================================================ catalogue
 TOOLS: list[Tool] = [
     Tool("kafka_overview", _d("Overdue and upcoming deadlines, documents to review, news. Mis papeles y plazos de un vistazo.",
@@ -1118,6 +1167,23 @@ TOOLS: list[Tool] = [
                                "A folder goes to «<folder>_comprimidas»; a file to «<name>_comprimida».",
                                "comprime las imágenes, que cada png pese menos de 5 MB, reduce el tamaño de las fotos, las fotos pesan mucho, optimiza los png"),
          ImagesCompressArgs, _ann(False, idempotent=False), run_images_compress),
+    Tool("doc_extract", _d("Text of a file, scans too: PDF, image, Office, html, eml. Leer un documento, con OCR si es escaneo.",
+                           "Stateless: nothing is filed in Kafka. Returns kind, title, text, units (page, section, slide, sheet), needs_ocr, notes and pages_ocr; "
+                           "pages without a text layer are read with OCR (ocr=auto|off|force). A long scan answers a job_id: follow it with ocr_status.",
+                           "extrae el texto, lee este pdf escaneado, OCR, leer una foto de un documento, texto de un word, contenido del fichero"),
+         DocExtractArgs, _ann(True, idempotent=True), run_doc_extract),
+    Tool("ocr_image", _d("OCR of one image: its text, and the lines with boxes on request. Leer el texto de una imagen.",
+                         "Spanish by default. 503 ocr_unavailable (with an install hint) when no engine is installed.",
+                         "reconocer texto, captura de pantalla, foto de un ticket, texto de una imagen, OCR"),
+         OcrImageArgs, _ann(True, idempotent=True), run_ocr_image),
+    Tool("ocr_pdf", _d("OCR of the pages of a PDF, without its text layer. Reconocer el texto de un PDF escaneado.",
+                       "Runs as a job: wait_s up to 150 s, then the running job comes back; follow it with ocr_status. pages is e.g. '1-5,9'.",
+                       "pdf escaneado, ocr de las páginas, texto de un escaneo, reconocimiento de texto"),
+         OcrPdfArgs, _ann(True, idempotent=True), run_ocr_pdf),
+    Tool("ocr_status", _d("The OCR engine, or a doc_extract / ocr_pdf job. Estado del OCR y de sus trabajos.",
+                          "Without job_id: {available, backend, languages, reason?}. With a job_id: that job, waiting up to wait_s (max 150 s) for it to finish.",
+                          "motor de OCR, ¿hay OCR instalado?, seguir un trabajo, cómo va el escaneo"),
+         OcrStatusArgs, _ann(True, idempotent=True), run_ocr_status),
 ]
 TOOLS_BY_NAME = {t.name: t for t in TOOLS}
 assert len(TOOLS_BY_NAME) == len(TOOLS)
@@ -1136,7 +1202,7 @@ def call_tool(services: Services, name: str, arguments: dict | None) -> Any:
     result = tool.run(services, args)
     if not isinstance(result, dict):
         result = {"result": result}
-    if not _UNCAPPED.get() and not getattr(args, "reveal", False):
+    if not _UNCAPPED.get() and not getattr(args, "reveal", False) and name not in UNMASKED:
         result = mask_obj(result)
     return result
 

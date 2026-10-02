@@ -818,6 +818,70 @@ Annotations: none.
 | `out_dir` (string) | no | Absolute output folder. Default: «<folder>_comprimidas» next to a folder, or «<name>_comprimida» next to a file. An existing file there is skipped. |
 | `time_limit_s` (number) | no | Stop after this many seconds and say what is left (0: no limit); repeat with the same out_dir to continue. |
 
+## `doc_extract`
+
+Text of a file, scans too: PDF, image, Office, html, eml. Leer un documento, con OCR si es escaneo.
+
+Stateless: nothing is filed in Kafka. Returns kind, title, text, units (page, section, slide, sheet), needs_ocr, notes and pages_ocr; pages without a text layer are read with OCR (ocr=auto|off|force). A long scan answers a job_id: follow it with ocr_status.
+Sinónimos: extrae el texto, lee este pdf escaneado, OCR, leer una foto de un documento, texto de un word, contenido del fichero
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `path` (string) | yes | Absolute path of the file to read: PDF, image, docx, odt, pptx, xlsx, epub, rtf, html, eml or text. |
+| `ocr` (auto \| off \| force) | no | auto: OCR only the pages without a text layer. off: never. force: every page. |
+| `max_pages` (integer) | no | Read at most this many pages. |
+| `lang` (string) | no | Language of the text for OCR (es, en, fr, pt, it, de, ca). |
+| `wait_s` (number) | no | Wait up to this many seconds (clamped to 150) for the result; past it the answer is the running job (job_id, status): follow it with ocr_status. |
+
+## `ocr_image`
+
+OCR of one image: its text, and the lines with boxes on request. Leer el texto de una imagen.
+
+Spanish by default. 503 ocr_unavailable (with an install hint) when no engine is installed.
+Sinónimos: reconocer texto, captura de pantalla, foto de un ticket, texto de una imagen, OCR
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `path` (string) | yes | Absolute path of the image (PNG, JPEG, WEBP, HEIC, BMP, TIFF, GIF). |
+| `lang` (string) | no | Language of the text (es, en, fr, pt, it, de, ca). |
+| `blocks` (boolean) | no | Also return every recognised line with its box and confidence. |
+
+## `ocr_pdf`
+
+OCR of the pages of a PDF, without its text layer. Reconocer el texto de un PDF escaneado.
+
+Runs as a job: wait_s up to 150 s, then the running job comes back; follow it with ocr_status. pages is e.g. '1-5,9'.
+Sinónimos: pdf escaneado, ocr de las páginas, texto de un escaneo, reconocimiento de texto
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `path` (string) | yes | Absolute path of the PDF. |
+| `pages` (string) | no | Pages to recognise, e.g. '1-5,9' (default: the first max_pages). |
+| `dpi` (integer) | no | Resolution the pages are rendered at before OCR. |
+| `lang` (string) | no | Language of the text (es, en, fr, pt, it, de, ca). |
+| `max_pages` (integer) | no | Recognise at most this many pages. |
+| `wait_s` (number) | no | Wait up to this many seconds (clamped to 150); past it the answer is the running job. |
+
+## `ocr_status`
+
+The OCR engine, or a doc_extract / ocr_pdf job. Estado del OCR y de sus trabajos.
+
+Without job_id: {available, backend, languages, reason?}. With a job_id: that job, waiting up to wait_s (max 150 s) for it to finish.
+Sinónimos: motor de OCR, ¿hay OCR instalado?, seguir un trabajo, cómo va el escaneo
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `job_id` (string) | no | A doc_extract or ocr_pdf job. Empty: report the OCR engine instead. |
+| `wait_s` (number) | no | With a job_id: wait up to this many seconds (clamped to 150) for it to finish. |
+
 ## REST routes for the UI
 
 - `GET /api/health`, `GET /api/status`

@@ -55,9 +55,19 @@ Entorno: `KAFKA_PORT` (5200), `KAFKA_DATA_DIR`, `PORT_STRICT=1`, `KAFKA_SCHEDULE
 
 `mcp_server.py` es un puente MCP por stdio llamado `kafka-hoard`. No abre nunca la base de datos: reenvía cada llamada a la app en marcha con el token de `data/mcp-token` y arranca la app si no responde. `faustus-plugin.json` describe la app, su comprobación de salud y el puente para Faustus y el Hoard Hub.
 
-Herramientas (55): `kafka_overview`, `kafka_status`, `deadlines_list`, `deadline_get`, `deadline_add`, `deadlines_from_minutes`, `deadline_update_by_key`, `deadline_update`, `deadline_explain`, `deadline_delete`, `docs_list`, `doc_get`, `doc_search`, `doc_add_file`, `doc_add_text`, `doc_update`, `doc_reprocess`, `doc_delete`, `document_link_tx`, `extract_preview`, `warranty_check`, `series_list`, `price_history`, `mail_scan`, `mail_list`, `mail_accept`, `mail_ignore`, `mail_status`, `folders_list`, `folder_add`, `folder_remove`, `folder_scan`, `phileas_sync`, `notifications_list`, `notify_status`, `notify_test`, `telegram_find_chat_id`, `settings_set`, `secret_set`, `scheduler_status`, `runs_list`, `housekeeping_run`, `pdf_merge`, `pdf_split`, `pdf_pages`, `pdf_compress`, `pdf_protect`, `pdf_watermark`, `pdf_info`, `pdf_metadata_set`, `pdf_from_images`, `pdf_from_office`, `pdf_to_images`, `images_compress`, `tax_pack`. Argumentos en [docs/API.md](docs/API.md).
+Herramientas (59): `kafka_overview`, `kafka_status`, `deadlines_list`, `deadline_get`, `deadline_add`, `deadlines_from_minutes`, `deadline_update_by_key`, `deadline_update`, `deadline_explain`, `deadline_delete`, `docs_list`, `doc_get`, `doc_search`, `doc_add_file`, `doc_add_text`, `doc_update`, `doc_reprocess`, `doc_delete`, `document_link_tx`, `extract_preview`, `warranty_check`, `series_list`, `price_history`, `mail_scan`, `mail_list`, `mail_accept`, `mail_ignore`, `mail_status`, `folders_list`, `folder_add`, `folder_remove`, `folder_scan`, `phileas_sync`, `notifications_list`, `notify_status`, `notify_test`, `telegram_find_chat_id`, `settings_set`, `secret_set`, `scheduler_status`, `runs_list`, `housekeeping_run`, `pdf_merge`, `pdf_split`, `pdf_pages`, `pdf_compress`, `pdf_protect`, `pdf_watermark`, `pdf_info`, `pdf_metadata_set`, `pdf_from_images`, `pdf_from_office`, `pdf_to_images`, `images_compress`, `tax_pack`, `doc_extract`, `ocr_image`, `ocr_pdf`, `ocr_status`. Argumentos en [docs/API.md](docs/API.md).
 
 Eventos en el bus de la familia: `kafka.document.added`, `kafka.price.change`, `kafka.deadline.soon` y `kafka.deadline.overdue`. `phileas_sync` pide a Phileas's Hoard (por el enlace de la familia) las compras entregadas y crea sus plazos de garantía.
+
+## Lectura de documentos para la familia
+
+Kafka es el dueño de la lectura de documentos y del OCR de la familia (contrato: `HoardLink/docs/commons/services.md`, sección 5). Las demás apps lo llaman a través del hub y pasan rutas, nunca bytes:
+
+- `doc_extract(path, mode?, max_pages?, lang?, wait_s?)`: texto por página de PDF, imágenes, `.docx`, `.eml`, HTML, texto, hojas de cálculo y archivos comprimidos, con OCR en las páginas sin capa de texto. Devuelve `{kind, title, text, units, needs_ocr, notes, mime, pages_ocr}` o la vista de un trabajo si tarda más de `wait_s`.
+- `ocr_image(path, lang?, wait_s?)` y `ocr_pdf(path, pages?, dpi?, lang?, mode?, wait_s?)`: texto con bloques (caja y confianza) por página; `ocr_pdf` aplica OCR a las páginas elegidas aunque tengan capa de texto.
+- `ocr_status(job_id?, wait_s?)`: el informe del motor (cuál de `winocr`, `rapidocr` y `tesseract` está instalado y elegido) o la vista de un trabajo; `wait_s` se limita a 150 s.
+
+El idioma por defecto es el español. `KAFKA_OCR_BACKEND` (`auto`, `winocr`, `rapidocr`, `tesseract`) fuerza un motor y `KAFKA_OCR_LANG` cambia el idioma por defecto. Se rechazan los ficheros de más de 200 MB.
 
 ## El taller
 

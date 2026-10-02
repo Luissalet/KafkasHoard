@@ -5,7 +5,7 @@
  watched folders ───┼──► engine.ingest ──► files.py (content-addressed store, SHA-256, original never modified)
  mail attachments ──┤        │
  pasted text ───────┘        ▼
- mail/faustus_mail.py   readers.py  PDF text layer (pypdfium2) · OCR (ocr.py, optional rapidocr) · images · .eml · .docx · HTML · text
+ mail/faustus_mail.py   readers.py  PDF text layer (pypdfium2) · OCR (ocr/, optional rapidocr, winocr or tesseract) · images · .eml · .docx · HTML · text
  (Faustus's Python,          │ pages
   stdlib only)               ▼
                      extract/pipeline.py ── texts · kinds · issuers · refs · amounts · dates · periods · deadlines · rules
@@ -17,7 +17,7 @@
  services.py (wiring,        └──► series + price alerts · recurring roll · Phileas sync · housekeeping
  dashboard, settings)
         ▲
- agent_tools.py: one catalogue (55 tools) ──► api/agent.py (Bearer token, masked) · api/ui.py (local, unmasked) · mcp_server.py (stdio)
+ agent_tools.py: one catalogue (59 tools) ──► api/agent.py (Bearer token, masked) · api/ui.py (local, unmasked) · mcp_server.py (stdio)
  scheduler.py: lane "ingest" (folder and mail scans) · lane "reminders" (reminder run every 10 min, housekeeping hourly)
 ```
 
@@ -30,7 +30,8 @@
 | `kafka_hoard/db.py`, `store.py` | Schema and migrations; every query. WAL, FTS5 `pages_fts` (unicode61, accent-insensitive) |
 | `kafka_hoard/files.py` | Content-addressed originals: `files/<sha[:2]>/<sha256>.<ext>`; the same bytes are stored once |
 | `kafka_hoard/readers.py` | Bytes to text per page; page splitting; notes when a page could not be read |
-| `kafka_hoard/ocr.py` | Optional OCR with rapidocr; reports unavailable instead of failing |
+| `kafka_hoard/ocr/` | Optional OCR behind one `Ocr` class: backends `winocr`, `rapidocr`, `tesseract` chosen by `select_ocr`; blocks with confidence; reports unavailable instead of failing |
+| `kafka_hoard/docsvc.py` | The family document services (`doc_extract`, `ocr_image`, `ocr_pdf`, `ocr_status`) and their in-memory job table |
 | `kafka_hoard/extract/` | Pure functions from text to an `Extraction`; see below |
 | `kafka_hoard/bizdays.py` | Spanish working days, holidays, regions, extra holidays |
 | `kafka_hoard/engine.py` | Ingestion, reprocessing, deadlines, reminders, series, price alerts, mail, folders, Phileas, housekeeping |
