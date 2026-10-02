@@ -31,6 +31,10 @@ export const ICONS = {
   clock: "M12 21a9 9 0 100-18 9 9 0 000 18zM12 7v5l3 2",
   search: "M11 4a7 7 0 100 14 7 7 0 000-14zM21 21l-5-5",
   folder: "M3 6h6l2 2h10v11H3z",
+  tools: "M14 6a4 4 0 005 5l-9 9a2.1 2.1 0 01-3-3l9-9a4 4 0 00-2-2zM14 6l3-3 4 4-3 3",
+  down: "M12 4v12M7 11l5 5 5-5M4 20h16",
+  up: "M12 20V8M7 13l5-5 5 5",
+  x: "M6 6l12 12M18 6L6 18",
 };
 
 export function Spinner() {

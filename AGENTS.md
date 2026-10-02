@@ -24,6 +24,7 @@ Run Python from the repository root or with absolute paths: running a script fro
 - Identifiers (DNI/NIE, IBAN, cards, phones) are masked for assistants in `privacy.py`; the local UI shows everything. New tool results that can carry text must go through the mask.
 - The mail helper `mail/faustus_mail.py` is stdlib-only and imports nothing from Kafka, because it runs under another interpreter. `hoard_link/` is vendored and byte-identical to upstream: never edit it here.
 - User-facing text goes in `client/src/i18n.js` (Spanish first, English second) and in `extract/texts.py` for deadline explanations. Spanish is castellano de España. Keep the UI and the docs plain: no marketing lines.
+- The workshop never overwrites or edits a file in place, never logs, returns or stores a password, and reaches Ghostscript, Word and LibreOffice only through `workshop/proc.py`'s `Env`, so tests fake them.
 - Tests build their documents from invented data (`tests/docs.py`, `tests/pdfmaker.py`); never add real names, ID numbers, accounts or addresses. Time is injected (`clock` fixture); do not depend on the real date.
 
 ## Where things are
@@ -35,11 +36,12 @@ Run Python from the repository root or with absolute paths: running a script fro
 | A reminder did not fire | `engine.run_reminders`, the `notify.*` and `remind.*` settings, `notify/__init__.py` |
 | A mail was not filed | `mail/classify.py`, `engine.scan_mail`, `mail/faustus_mail.py` |
 | A tool or its masking | `agent_tools.py`, `privacy.py` |
+| A PDF or image operation, where its result went, a workshop upload | `workshop/service.py`, `workshop/pdfops.py`, `workshop/imagetools.py`, `api/workshop.py` |
 | The UI | `client/src/pages/*.jsx`, `client/src/components/*`, `client/src/i18n.js` |
 
 ## Before finishing a change
 
 1. `python -m pytest -q` is green.
 2. `python scripts/gen_api_doc.py` leaves `docs/API.md` unchanged.
-3. If the UI changed: `npx vite build`, then open the running app and look at Plazos, Documentos, Detalle, Revisión and Ajustes in Spanish and English, at desktop and phone width.
+3. If the UI changed: `npx vite build`, then open the running app and look at Plazos, Documentos, Detalle, Revisión, Taller and Ajustes in Spanish and English, at desktop and phone width.
 4. README.md, README.es.md, docs/RULES.md and docs/ARCHITECTURE.md say what the app can and cannot do now.

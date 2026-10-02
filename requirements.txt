@@ -8,6 +8,7 @@ mcp==1.27.0
 tzdata==2025.2
 python-multipart==0.0.26
 pypdfium2==5.7.1
+pypdf[crypto]==6.19.0
 pillow==12.2.0
 # OCR for scanned pages and photos (optional: without it the app reports OCR as unavailable and keeps working).
 # rapidocr pulls antlr4-python3-runtime, which builds from source on some Linux setups; install it with

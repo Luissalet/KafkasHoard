@@ -15,6 +15,7 @@ Part of the Hoard family of local apps: it runs on your PC, keeps its data in `d
 - **Follows recurring papers.** Bills, insurance and subscriptions from the same issuer and reference form a series. A price change of 5 % or more (configurable) raises a notification; the history is shown per series. Recurring deadlines (monthly, yearly) roll to the next occurrence when you mark them done.
 - **Answers with citations.** Full-text search (SQLite FTS5, accent-insensitive) across every page returns snippets with document and page; `warranty_check` tells whether a purchase is still under warranty and until when.
 - **Quiet history.** The first mail scan and old files are filed without notifications and their past deadlines are created as done, so you only hear about what is still ahead.
+- **Works on the files themselves (Taller).** Merge PDFs (with the pages you pick from each), split them (one file per page, by ranges such as `1-3,4-6`, or every N pages), extract, delete, rotate or reorder pages, compress (Ghostscript when it is installed, otherwise a built-in compressor that recompresses the embedded images; optionally down to a target size in MB), set or remove a password (AES-256), stamp a diagonal text watermark, read or edit title, author, subject and keywords, turn photos into a PDF (A4, Letter or fit, EXIF orientation honoured), turn Word, ODT and RTF into PDF (Microsoft Word on Windows, otherwise LibreOffice), render PDF pages as PNG or JPG, and shrink PNG, JPEG and WEBP images under a size limit, one file or a whole folder. Every result is a new file: nothing is overwritten (a taken name becomes «name (2)») and the originals are not touched. Passwords are used in memory only and never logged, returned or stored.
 - **Private to the assistant.** Spanish ID numbers, IBAN, card and phone numbers are masked in what MCP and the agent route return unless you explicitly ask for that number. The local UI shows everything.
 
 ## Screens
@@ -25,7 +26,8 @@ Spanish by default, English with one click, dark.
 - **Documentos** — upload by dragging files anywhere, list with filters by kind and state, full-text search with snippets.
 - **Detalle** — page preview with the original file, extracted facts with their evidence, deadlines with «why this date?», series and price history, edit any field (your edit always wins on re-reading).
 - **Revisión** — documents the rules were not sure about and mails that may be paperwork: accept, change, ignore.
-- **Ajustes** — watched folders, mail, calendar region and extra holidays, reminder lead days, notification channels with a test button, OCR and model status, language, recent activity.
+- **Taller** — a grid of the operations above; each one has a drop zone or a path field, its options, a result card with sizes before and after, a download button and «File in Kafka» for PDF results. Detalle has an «Open in the workshop» button for PDF documents.
+- **Ajustes** — workshop folder, watched folders, mail, calendar region and extra holidays, reminder lead days, notification channels with a test button, OCR and model status, language, recent activity.
 
 ## Run it
 
@@ -47,9 +49,19 @@ Environment: `KAFKA_PORT` (5200), `KAFKA_DATA_DIR`, `PORT_STRICT=1`, `KAFKA_SCHE
 
 `mcp_server.py` is a stdio MCP bridge named `kafka-hoard`. It never opens the database: it proxies every call to the running app with the token in `data/mcp-token`, and starts the app when it is not answering. `faustus-plugin.json` describes the app, its health check and the bridge for Faustus and the Hoard Hub.
 
-Tools (39): `kafka_overview`, `kafka_status`, `deadlines_list`, `deadline_get`, `deadline_add`, `deadline_update`, `deadline_explain`, `deadline_delete`, `docs_list`, `doc_get`, `doc_search`, `doc_add_file`, `doc_add_text`, `doc_update`, `doc_reprocess`, `doc_delete`, `extract_preview`, `warranty_check`, `series_list`, `price_history`, `mail_scan`, `mail_list`, `mail_accept`, `mail_ignore`, `mail_status`, `folders_list`, `folder_add`, `folder_remove`, `folder_scan`, `phileas_sync`, `notifications_list`, `notify_status`, `notify_test`, `telegram_find_chat_id`, `settings_set`, `secret_set`, `scheduler_status`, `runs_list`, `housekeeping_run`. Arguments in [docs/API.md](docs/API.md).
+Tools (51): `kafka_overview`, `kafka_status`, `deadlines_list`, `deadline_get`, `deadline_add`, `deadline_update`, `deadline_explain`, `deadline_delete`, `docs_list`, `doc_get`, `doc_search`, `doc_add_file`, `doc_add_text`, `doc_update`, `doc_reprocess`, `doc_delete`, `extract_preview`, `warranty_check`, `series_list`, `price_history`, `mail_scan`, `mail_list`, `mail_accept`, `mail_ignore`, `mail_status`, `folders_list`, `folder_add`, `folder_remove`, `folder_scan`, `phileas_sync`, `notifications_list`, `notify_status`, `notify_test`, `telegram_find_chat_id`, `settings_set`, `secret_set`, `scheduler_status`, `runs_list`, `housekeeping_run`, `pdf_merge`, `pdf_split`, `pdf_pages`, `pdf_compress`, `pdf_protect`, `pdf_watermark`, `pdf_info`, `pdf_metadata_set`, `pdf_from_images`, `pdf_from_office`, `pdf_to_images`, `images_compress`. Arguments in [docs/API.md](docs/API.md).
 
 Events on the family bus: `kafka.document.added`, `kafka.price.change`, `kafka.deadline.soon` and `kafka.deadline.overdue`. `phileas_sync` asks Phileas's Hoard (through the family link) for delivered purchases and creates their warranty deadlines.
+
+## The workshop
+
+The twelve workshop tools (`pdf_*` and `images_compress`) accept an absolute path or the id of a filed document (`d_…`) and return the paths, page counts and sizes before and after of what they wrote. Where the result goes:
+
+- A file you uploaded in the Taller page: `data/workshop/out/<job>/`. Uploads live in `data/workshop/in/<job>/`; job folders older than 7 days are deleted by the hourly housekeeping.
+- A filed document given by id: the folder in the `workshop.dir` setting (default `Documents\Kafka's Hoard\Taller`).
+- A path: next to the source, with a suffix (`_unido`, `_paginas`, `_rotado`, `_comprimido`, `_protegido`, `_sin_clave`, `_marca`, `_dividido`, `_imagenes`, `_comprimida`). `output` or `out_dir` choose another place. System, hidden and Kafka's own data folders are refused.
+
+`file_result: true` also files each resulting PDF in Kafka and returns its `doc_ids`. REST for the page: `POST /api/workshop/upload` (multipart, field `files`, optional `job`), `GET /api/workshop/file?path=` (only files the workshop produced or that live under `data/workshop/`, same-origin, download headers) and `GET /api/workshop/status` (which of Ghostscript, Word and LibreOffice were found).
 
 ## How it is built
 
@@ -59,6 +71,7 @@ Tests: `python -m pytest -q` (no network, documents and PDFs are generated by th
 
 ## Limits
 
+- The workshop never edits a file in place and does not read scanned pages (no OCR in the workshop). Compression without Ghostscript only reduces images, so a PDF made of text and vector drawings barely shrinks; encrypted inputs need their password; HEIC photos need the optional `pillow-heif`; Word and LibreOffice conversion needs one of them installed; a watermark is plain Latin text in Helvetica.
 - Dates are read with rules for Spanish and English text. An unusual layout may land in the review list instead of becoming a deadline.
 - Without the optional OCR package, scanned documents are stored but their text is not read.
 - Working-day calendars cover national holidays and the regions Madrid, Catalonia, Andalusia, Valencia, Galicia and the Basque Country; add other local holidays in Settings.

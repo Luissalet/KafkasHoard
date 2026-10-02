@@ -36,6 +36,7 @@ from .extract.types import Ctx, Extraction, Hints, Meta
 from .files import FileStore, sha256_of
 from .mail.classify import MailClass, classify_mail
 from .util import add_months, clamp_text, human_day, issuer_key, money_text, parse_iso, ts_date
+from .workshop import jobs as workshop_jobs
 
 log = logging.getLogger("kafka.engine")
 
@@ -1149,7 +1150,9 @@ class Engine:
                             purged += 1
                     except OSError:
                         continue
-        return {"archived_deadlines": archived, "rolled_recurring": rolled, "series_relinked": relinked, "cache_files_purged": purged}
+        jobs_purged = workshop_jobs.purge(self.data_dir / "workshop", now) if self.data_dir else 0
+        return {"archived_deadlines": archived, "rolled_recurring": rolled, "series_relinked": relinked, "cache_files_purged": purged,
+                "workshop_jobs_purged": jobs_purged}
 
 
 def _format_sender(mail: dict[str, Any]) -> str:

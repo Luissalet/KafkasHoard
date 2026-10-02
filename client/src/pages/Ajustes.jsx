@@ -380,6 +380,14 @@ export default function Ajustes() {
       <Section id="sec-reading" title={t("set_reading")}><Reading status={data} settings={settings} reload={reload} /></Section>
       <Section id="sec-reminders" title={t("set_reminders")}><Reminders settings={settings} reload={reload} /></Section>
 
+      <Section id="sec-workshop" title={t("set_workshop")}>
+        <div className="panel">
+          <SettingsForm settings={settings} onSaved={reload} fields={[
+            { key: "workshop.dir", type: "text", label: t("tl_workshop_dir"), hint: t("tl_workshop_dir_hint"), wide: true },
+          ]} />
+        </div>
+      </Section>
+
       <Section id="sec-notify" title={t("set_notify")}>
         <p className="help">{t("set_notify_help")}</p>
         <ErrorBox error={notifyStatus.error} />

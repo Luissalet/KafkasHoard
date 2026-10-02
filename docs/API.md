@@ -508,6 +508,240 @@ Sinónimos: limpiar, ordenar, archivar plazos hechos
 
 Annotations: idempotentHint.
 
+## `pdf_merge`
+
+Merge PDFs into one, optionally only some pages of each. Unir PDF en uno solo.
+
+Inputs are absolute paths or document ids (d_…); order matters. Writes «<first>_unido.pdf» next to the first file (never overwrites). file_result=true also files the result in Kafka.
+Sinónimos: une estos pdf, junta los pdf, juntar documentos, combinar pdf, unir facturas en un solo pdf
+
+Annotations: none.
+
+| Argument | Required | Description |
+|---|---|---|
+| `output` (string) | no | Absolute path of the result file. Default: next to the source with a suffix, or in the workshop folder for stored documents. |
+| `out_dir` (string) | no | Absolute folder for the result instead of the default one. |
+| `file_result` (boolean) | no | Also file each resulting PDF in Kafka as a new document and return its id (doc_ids). |
+| `files` (array) | yes | PDFs to join, in order: absolute paths or document ids (d_…). |
+| `ranges` (array/null) | no | Optional, same length as files: pages to take from each, e.g. ['', '1-3', '2,5-']. Empty string: all pages. |
+| `password` (string) | no | Password for protected inputs (used in memory only). |
+
+## `pdf_split`
+
+Split a PDF: one file per page, per range or every N pages. Dividir un PDF en varios.
+
+Writes the parts into a new folder «<name>_dividido» next to the source.
+Sinónimos: divide el pdf, sepáralo por páginas, trocea el pdf, un pdf por página, parte el documento en dos
+
+Annotations: none.
+
+| Argument | Required | Description |
+|---|---|---|
+| `file` (string) | yes | PDF: absolute path or document id (d_…). |
+| `mode` (pages \| ranges \| every) | no | pages: one file per page. ranges: one file per comma-separated range. every: one file per N pages. |
+| `ranges` (string) | no | For mode=ranges, e.g. '1-3,4-6,7-' (also last, -1, odd, even). |
+| `every` (integer) | no | For mode=every: pages per file. |
+| `password` (string) | no | Password of the PDF if it is protected. |
+| `out_dir` (string) | no | Absolute folder for the files. Default: a new folder «<name>_dividido» next to the source. |
+| `file_result` (boolean) | no | Also file each part in Kafka as a new document (doc_ids). |
+
+## `pdf_pages`
+
+Extract, delete, rotate or reorder the pages of a PDF. Extraer, quitar, girar o reordenar páginas.
+
+action=extract keeps the given pages; delete removes them; rotate turns them (default all) 90, 180 or 270 degrees clockwise; reorder takes the full new order. Pages: '1-3,5,8-', 'last', '-1', 'odd', 'even'.
+Sinónimos: quita la página 3, borra páginas del pdf, saca las páginas 2 a 5, gira el pdf, rota la página, pon las páginas en otro orden, invierte el pdf
+
+Annotations: none.
+
+| Argument | Required | Description |
+|---|---|---|
+| `output` (string) | no | Absolute path of the result file. Default: next to the source with a suffix, or in the workshop folder for stored documents. |
+| `out_dir` (string) | no | Absolute folder for the result instead of the default one. |
+| `file_result` (boolean) | no | Also file each resulting PDF in Kafka as a new document and return its id (doc_ids). |
+| `action` (extract \| delete \| rotate \| reorder) | yes | extract: keep only these pages. delete: remove these pages. rotate: turn these pages (default all). reorder: new order of all pages. |
+| `file` (string) | yes | PDF: absolute path or document id (d_…). |
+| `pages` (string) | no | Pages as '1-3,5,8-', 'last', '-1' (the last), 'odd', 'even'. Needed for extract and delete. |
+| `degrees` (integer) | no | For rotate: 90, 180 or 270 clockwise (-90 turns left). |
+| `order` (string) | no | For reorder: every page once in the new order, e.g. '3,1,2,4-6', or 'reverse'. |
+| `password` (string) | no | Password of the PDF if it is protected. |
+
+## `pdf_compress`
+
+Shrink a PDF (Ghostscript if installed, else built-in), optionally under a size. Comprimir PDF.
+
+target_mb tries stronger settings until the file fits and says when it cannot. Presets: screen, ebook, printer, prepress. Writes «<name>_comprimido.pdf».
+Sinónimos: comprime el pdf, que pese menos de 2 MB, reduce el tamaño del pdf, el pdf es muy grande, aligera el documento, para enviarlo por correo
+
+Annotations: none.
+
+| Argument | Required | Description |
+|---|---|---|
+| `output` (string) | no | Absolute path of the result file. Default: next to the source with a suffix, or in the workshop folder for stored documents. |
+| `out_dir` (string) | no | Absolute folder for the result instead of the default one. |
+| `file_result` (boolean) | no | Also file each resulting PDF in Kafka as a new document and return its id (doc_ids). |
+| `file` (string) | yes | PDF: absolute path or document id (d_…). |
+| `preset` (screen \| ebook \| printer \| prepress) | no | Strength: screen (smallest) < ebook < printer < prepress (best quality). |
+| `target_mb` (number/null) | no | Try stronger settings until the file is at most this many MB; reports when that is impossible. |
+| `engine` (auto \| ghostscript \| pypdf) | no | auto: Ghostscript when installed, else the built-in compressor. |
+| `password` (string) | no | Password of the PDF if it is protected. |
+
+## `pdf_protect`
+
+Put a password on a PDF (AES-256) or remove it. Proteger con contraseña o quitársela a un PDF.
+
+The password is never returned or stored. unprotect needs the current password. Writes «_protegido» or «_sin_clave».
+Sinónimos: ponle contraseña, protege el pdf, cifra el documento, quítale la contraseña, desbloquea el pdf, quita la clave
+
+Annotations: none.
+
+| Argument | Required | Description |
+|---|---|---|
+| `output` (string) | no | Absolute path of the result file. Default: next to the source with a suffix, or in the workshop folder for stored documents. |
+| `out_dir` (string) | no | Absolute folder for the result instead of the default one. |
+| `file_result` (boolean) | no | Also file each resulting PDF in Kafka as a new document and return its id (doc_ids). |
+| `action` (protect \| unprotect) | yes | protect: encrypt with AES-256. unprotect: remove the password (needs the current one). |
+| `file` (string) | yes | PDF: absolute path or document id (d_…). |
+| `password` (string) | yes | protect: the password to set. unprotect: the current password. Never repeated back. |
+| `owner_password` (string) | no | protect: optional separate owner password (default: the same). |
+| `current_password` (string) | no | protect: password the input already has, if any. |
+| `allow_print` (boolean) | no | protect: allow printing. |
+| `allow_copy` (boolean) | no | protect: allow copying text. |
+| `allow_modify` (boolean) | no | protect: allow editing. |
+
+## `pdf_watermark`
+
+Stamp a text watermark on the pages of a PDF. Marca de agua de texto en un PDF.
+
+Diagonal by default; opacity, angle, size, colour and pages are adjustable. Writes «<name>_marca.pdf».
+Sinónimos: marca de agua, ponle CONFIDENCIAL, sello de borrador, texto diagonal en cada página
+
+Annotations: none.
+
+| Argument | Required | Description |
+|---|---|---|
+| `output` (string) | no | Absolute path of the result file. Default: next to the source with a suffix, or in the workshop folder for stored documents. |
+| `out_dir` (string) | no | Absolute folder for the result instead of the default one. |
+| `file_result` (boolean) | no | Also file each resulting PDF in Kafka as a new document and return its id (doc_ids). |
+| `file` (string) | yes | PDF: absolute path or document id (d_…). |
+| `text` (string) | yes | Watermark text, e.g. CONFIDENCIAL. |
+| `opacity` (number) | no | 0.02 to 1 (default 0.3). |
+| `angle` (number) | no | Degrees counter-clockwise (default 45, diagonal; 0 is horizontal). |
+| `font_size` (number) | no | Size in points; long texts are shrunk to fit the page. |
+| `color` (string) | no | gris, rojo, azul, negro, verde, naranja or a code like #808080. |
+| `pages` (string) | no | Pages to mark (default all), e.g. '1-3,last'. |
+| `password` (string) | no | Password of the PDF if it is protected. |
+
+## `pdf_info`
+
+Pages, sizes, password, metadata and whether a PDF has text. Información y metadatos de un PDF.
+
+Read-only. Tells if it is scanned (no text layer) and if it needs a password.
+Sinónimos: cuántas páginas tiene, qué tamaño tiene, quién es el autor, está protegido, es un escaneo, propiedades del pdf
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `file` (string) | yes | PDF: absolute path or document id (d_…). |
+| `password` (string) | no | Password of the PDF if it is protected. |
+
+## `pdf_metadata_set`
+
+Set the title, author, subject or keywords of a PDF. Cambiar metadatos de un PDF.
+
+Omit a field to keep it; an empty string clears it. Writes «<name>_metadatos.pdf».
+Sinónimos: cámbiale el título al pdf, pon el autor, edita las propiedades, palabras clave
+
+Annotations: none.
+
+| Argument | Required | Description |
+|---|---|---|
+| `output` (string) | no | Absolute path of the result file. Default: next to the source with a suffix, or in the workshop folder for stored documents. |
+| `out_dir` (string) | no | Absolute folder for the result instead of the default one. |
+| `file_result` (boolean) | no | Also file each resulting PDF in Kafka as a new document and return its id (doc_ids). |
+| `file` (string) | yes | PDF: absolute path or document id (d_…). |
+| `title` (string/null) | no | New title (empty string clears it; omit to keep). |
+| `author` (string/null) | no | New author (empty string clears it; omit to keep). |
+| `subject` (string/null) | no | New subject (empty string clears it; omit to keep). |
+| `keywords` (string/null) | no | New keywords, comma separated (empty string clears them; omit to keep). |
+| `password` (string) | no | Password of the PDF if it is protected. |
+
+## `pdf_from_images`
+
+Make a PDF from images (JPG, PNG, WEBP, HEIC), one per page. Pasar fotos a PDF.
+
+Page size A4, Letter or fit; margin; photo orientation is honoured. A folder means all its images in name order.
+Sinónimos: pasa estas fotos a pdf, junta las imágenes en un pdf, escaneos a pdf, hazme un pdf con estas capturas
+
+Annotations: none.
+
+| Argument | Required | Description |
+|---|---|---|
+| `output` (string) | no | Absolute path of the result file. Default: next to the source with a suffix, or in the workshop folder for stored documents. |
+| `out_dir` (string) | no | Absolute folder for the result instead of the default one. |
+| `file_result` (boolean) | no | Also file each resulting PDF in Kafka as a new document and return its id (doc_ids). |
+| `images` (array) | yes | Images in page order: absolute paths, document ids or a folder (its images, in natural name order). |
+| `page_size` (A4 \| Letter \| fit) | no | Page size, or fit: each page takes its image's size. |
+| `margin_mm` (number) | no | Margin around each image in millimetres. |
+| `orientation` (auto \| portrait \| landscape) | no | auto: landscape for wide images. |
+
+## `pdf_from_office`
+
+Convert Word, ODT or RTF documents to PDF (Word or LibreOffice). Convertir un Word a PDF.
+
+Uses Microsoft Word on Windows when installed, otherwise LibreOffice; says clearly when neither exists. Writes «<name>.pdf» next to the source.
+Sinónimos: convierte el word a pdf, pasa el docx a pdf, guarda el documento como pdf, de doc a pdf
+
+Annotations: none.
+
+| Argument | Required | Description |
+|---|---|---|
+| `output` (string) | no | Absolute path of the result file. Default: next to the source with a suffix, or in the workshop folder for stored documents. |
+| `out_dir` (string) | no | Absolute folder for the result instead of the default one. |
+| `file_result` (boolean) | no | Also file each resulting PDF in Kafka as a new document and return its id (doc_ids). |
+| `file` (string) | yes | A .docx, .doc, .odt or .rtf file: absolute path or document id (d_…). |
+| `engine` (auto \| word \| libreoffice) | no | auto: Word on Windows when installed, else LibreOffice. |
+
+## `pdf_to_images`
+
+Render PDF pages as PNG or JPG images. Pasar páginas de un PDF a imágenes.
+
+Writes into a new folder «<name>_imagenes». dpi 36-600 (default 150).
+Sinónimos: pdf a png, pdf a jpg, exporta las páginas como imágenes, saca una foto de cada página
+
+Annotations: none.
+
+| Argument | Required | Description |
+|---|---|---|
+| `file` (string) | yes | PDF: absolute path or document id (d_…). |
+| `pages` (string) | no | Pages to render (default all), e.g. '1-3'. |
+| `format` (png \| jpg) | no | Image format of each page. |
+| `dpi` (integer) | no | Resolution (default 150). |
+| `quality` (integer) | no | JPEG quality. |
+| `password` (string) | no | Password of the PDF if it is protected. |
+| `out_dir` (string) | no | Absolute folder. Default: a new folder «<name>_imagenes» next to the source. |
+
+## `images_compress`
+
+Compress PNG, JPEG and WEBP images under a size limit, single or folder. Comprimir imágenes.
+
+Copies, never touches the originals: lossless first, then fewer colours or lower quality, then smaller size. lossless_only reports what cannot fit. A folder goes to «<folder>_comprimidas»; a file to «<name>_comprimida».
+Sinónimos: comprime las imágenes, que cada png pese menos de 5 MB, reduce el tamaño de las fotos, las fotos pesan mucho, optimiza los png
+
+Annotations: none.
+
+| Argument | Required | Description |
+|---|---|---|
+| `sources` (array) | yes | Image files (PNG, JPEG, WEBP), document ids or folders: absolute paths. |
+| `limit_mb` (number/null) | no | Maximum size of each image in MB (1 MB = 1024 KB). |
+| `limit_kb` (number/null) | no | Maximum size of each image in KB (use this or limit_mb). |
+| `recursive` (boolean) | no | Folders: include subfolders. |
+| `lossless_only` (boolean) | no | Never lower quality or size: images that stay above the limit are reported as failed. |
+| `skip_small` (boolean) | no | Leave images already under the limit alone (not copied). |
+| `out_dir` (string) | no | Absolute output folder. Default: «<folder>_comprimidas» next to a folder, or «<name>_comprimida» next to a file. An existing file there is skipped. |
+| `time_limit_s` (number) | no | Stop after this many seconds and say what is left (0: no limit); repeat with the same out_dir to continue. |
+
 ## REST routes for the UI
 
 - `GET /api/health`, `GET /api/status`
@@ -517,4 +751,7 @@ Annotations: idempotentHint.
 - `GET /api/documents/{id}` — one document with facts and evidence, deadlines, series and price history, page text.
 - `GET /api/documents/{id}/file` — the stored original, inline with its real type (HTML and mail are served as plain text); same-origin only.
 - `GET /api/documents/{id}/page/{n}.png` — page preview of a PDF or the picture of an image document (cached in `data/cache/pages`).
+- `POST /api/workshop/upload` — multipart `files` (PDF, images, Word/ODT/RTF; up to 60 files, 400 MB each) and an optional `job`; stores them in `data/workshop/in/<job>/` and returns the job id and each file's path (pages and whether it is protected, for PDFs). The UI then calls the `pdf_*` tools and `images_compress` with those paths; results of uploaded files go to `data/workshop/out/<job>/`.
+- `GET /api/workshop/file?path=` — downloads a file under `data/workshop/` or one the workshop wrote in this run (attachment; `inline=1` shows a PDF or image); any other path is refused with 403; same-origin only.
+- `GET /api/workshop/status` — workshop folder, pypdf version and whether Ghostscript, LibreOffice, Word and HEIC support were found.
 - `POST /api/ui/call` `{name, arguments}` — any tool above, uncapped and unmasked (the UI is local).

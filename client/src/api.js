@@ -63,6 +63,28 @@ export const api = {
     }
     return data;
   },
+  workshopStatus: () => request("GET", "/api/workshop/status"),
+  workshopUpload: async (files, job) => {
+    const form = new FormData();
+    if (job) form.append("job", job);
+    for (const f of files) form.append("files", f, f.name);
+    let response;
+    try {
+      response = await fetch("/api/workshop/upload", { method: "POST", body: form });
+    } catch (cause) {
+      const error = new Error(cause && cause.message ? cause.message : "Network error");
+      error.code = "network";
+      throw error;
+    }
+    const data = await response.json().catch(() => null);
+    if (!response.ok) {
+      const error = new Error((data && (data.error || data.detail)) || `Error ${response.status}`);
+      error.hint = data && data.hint;
+      throw error;
+    }
+    return data;
+  },
+  workshopFileUrl: (path, inline = false) => `/api/workshop/file?path=${encodeURIComponent(path)}${inline ? "&inline=true" : ""}`,
   call,
 };
 

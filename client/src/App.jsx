@@ -6,6 +6,7 @@ import { ConfirmDialog, Icon, ICONS } from "./components/ui.jsx";
 import Plazos from "./pages/Plazos.jsx";
 import Documentos from "./pages/Documentos.jsx";
 import Revision from "./pages/Revision.jsx";
+import Taller from "./pages/Taller.jsx";
 import Ajustes from "./pages/Ajustes.jsx";
 
 export { useApp } from "./context.js";
@@ -14,6 +15,7 @@ const PAGES = [
   { path: "", key: "nav_deadlines", icon: ICONS.clock, component: Plazos, badge: "overdue" },
   { path: "documentos", key: "nav_documents", icon: ICONS.doc, component: Documentos },
   { path: "revision", key: "nav_review", icon: "M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6zM9 12l2 2 4-4", component: Revision, badge: "review" },
+  { path: "taller", key: "nav_workshop", icon: ICONS.tools, component: Taller },
   { path: "ajustes", key: "nav_settings", icon: "M12 15a3 3 0 100-6 3 3 0 000 6zM19 12l2-1-1-3-2 .3-1.4-1.4.3-2-3-1-1 2h-2l-1-2-3 1 .3 2L6.8 7.3 5 7 4 10l2 1v2l-2 1 1 3 2-.3 1.4 1.4-.3 2 3 1 1-2h2l1 2 3-1-.3-2 1.4-1.4 2 .3 1-3-2-1z", component: Ajustes },
 ];
 
@@ -149,8 +151,10 @@ export default function App() {
 
   // Dropping files anywhere on the window files them.
   useEffect(() => {
+    // The workshop has its own drop zone (data-own-drop): files dropped there are not filed in Kafka.
     const hasFiles = (e) => Array.from(e.dataTransfer?.types || []).includes("Files");
-    const enter = (e) => { if (!hasFiles(e)) return; e.preventDefault(); dragDepth.current += 1; setDragging(true); };
+    const own = (e) => e.target instanceof Element && !!e.target.closest("[data-own-drop]");
+    const enter = (e) => { if (!hasFiles(e)) return; e.preventDefault(); dragDepth.current += 1; setDragging(!own(e)); };
     const over = (e) => { if (hasFiles(e)) e.preventDefault(); };
     const leave = (e) => { if (!hasFiles(e)) return; dragDepth.current = Math.max(0, dragDepth.current - 1); if (!dragDepth.current) setDragging(false); };
     const drop = (e) => {
@@ -158,6 +162,7 @@ export default function App() {
       e.preventDefault();
       dragDepth.current = 0;
       setDragging(false);
+      if (own(e)) return;
       upload(Array.from(e.dataTransfer.files));
     };
     window.addEventListener("dragenter", enter);

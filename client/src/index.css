@@ -160,3 +160,17 @@ mark { background: var(--hoard-accent-soft); color: var(--hoard-text); border-ra
 blockquote { overflow-wrap: anywhere; }
 main { overflow-x: clip; }
 @media (max-width: 767px) { main h1 { font-size: 24px; } }
+
+/* ---- Taller (document workshop) ---- */
+.tl-grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr)); }
+.tl-tile { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 14px; text-align: left; font: inherit; color: var(--hoard-text); background: var(--hoard-surface); border: 1px solid var(--hoard-border); border-radius: var(--hoard-radius-lg); cursor: pointer; transition: border-color 0.14s, background 0.14s; }
+.tl-tile:hover { border-color: var(--hoard-accent); background: var(--hoard-elevated); }
+.tl-tile:focus-visible { outline: 2px solid var(--hoard-accent); outline-offset: 2px; }
+.tl-tile-icon { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: var(--hoard-radius); background: var(--hoard-accent-soft); color: var(--hoard-accent); }
+.tl-drop { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 18px 14px; text-align: center; border: 1px dashed var(--hoard-border-hover); border-radius: var(--hoard-radius-lg); background: var(--hoard-sunken); color: var(--hoard-text-muted); }
+.tl-drop-over { border-color: var(--hoard-accent); background: var(--hoard-accent-soft); }
+.tl-file { min-width: 0; }
+.tl-facts { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); margin: 0; }
+.tl-facts dt { font-size: 11.5px; font-weight: 600; color: var(--hoard-text-dim); }
+.tl-facts dd { margin: 0; overflow-wrap: anywhere; }
+.tl-facts-wide { grid-column: 1 / -1; }

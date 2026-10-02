@@ -17,7 +17,7 @@
  services.py (wiring,        └──► series + price alerts · recurring roll · Phileas sync · housekeeping
  dashboard, settings)
         ▲
- agent_tools.py: one catalogue (39 tools) ──► api/agent.py (Bearer token, masked) · api/ui.py (local, unmasked) · mcp_server.py (stdio)
+ agent_tools.py: one catalogue (51 tools) ──► api/agent.py (Bearer token, masked) · api/ui.py (local, unmasked) · mcp_server.py (stdio)
  scheduler.py: lane "ingest" (folder and mail scans) · lane "reminders" (reminder run every 10 min, housekeeping hourly)
 ```
 
@@ -36,7 +36,8 @@
 | `kafka_hoard/engine.py` | Ingestion, reprocessing, deadlines, reminders, series, price alerts, mail, folders, Phileas, housekeeping |
 | `kafka_hoard/services.py` | Wires everything from a `Config`; settings and secrets; dashboard and detail views |
 | `kafka_hoard/agent_tools.py` | The tool catalogue: name, description, pydantic arguments, annotations, handler |
-| `kafka_hoard/api/` | REST: `agent.py` (tools for assistants), `ui.py` (dashboard, UI calls), `documents.py` (upload, file, page image), `health.py`, `pwa.py` |
+| `kafka_hoard/api/` | REST: `agent.py` (tools for assistants), `ui.py` (dashboard, UI calls), `documents.py` (upload, file, page image), `workshop.py` (upload, download, status), `health.py`, `pwa.py` |
+| `kafka_hoard/workshop/` | The document workshop: `service.py` (the operations and where results go), `pdfops.py` (pypdf), `imagetools.py` (Pillow ladders), `external.py` (Ghostscript, Word, LibreOffice), `ranges.py`, `names.py` (never-overwrite naming), `jobs.py` (upload jobs, 7-day purge), `proc.py` (injectable `Env`) |
 | `kafka_hoard/privacy.py` | Masking of DNI/NIE, IBAN, cards and phones for assistants |
 | `kafka_hoard/guard.py` | Same-origin request guard shared by every Hoard app |
 | `kafka_hoard/scheduler.py` | Two lanes, one worker each; jobs deduplicated; pause and run-now |
@@ -87,10 +88,16 @@ Insurance, subscriptions and optionally utility bills with the same issuer and s
 
 `agent_tools.TOOLS` is the single catalogue. `GET /api/agent/tools` and `POST /api/agent/call` serve it to assistants with the bearer token from `data/mcp-token`: results are capped and personal identifiers are masked unless `reveal` is set. `POST /api/ui/call` serves the same handlers to the bundled UI uncapped and unmasked (the app only listens on 127.0.0.1 and the guard rejects cross-site requests). `mcp_server.py` exposes the catalogue over stdio as the `kafka-hoard` server and proxies to the running app. `docs/API.md` is generated from the catalogue by `scripts/gen_api_doc.py`; a test fails when it is out of date.
 
+## Workshop
+
+`kafka_hoard/workshop/service.py` holds the operations as plain methods with keyword-only arguments; `agent_tools.py` wraps them in twelve tools (`pdf_merge`, `pdf_split`, `pdf_pages`, `pdf_compress`, `pdf_protect`, `pdf_watermark`, `pdf_info`, `pdf_metadata_set`, `pdf_from_images`, `pdf_from_office`, `pdf_to_images`, `images_compress`), so the UI, the agent route and MCP run the same code. Everything that touches the machine (Ghostscript, Word through PowerShell, LibreOffice, `PATH`, the environment) goes through an injectable `Env`, which is how the tests fake those programs.
+
+Inputs are an absolute path or a document id. Results never overwrite: files are created exclusively and a taken name gets « (2)». The output folder depends on the source: an upload goes to `data/workshop/out/<job>`, a stored document to the `workshop.dir` setting, a path next to itself; `paths.unsafe_output_dir` refuses system, hidden and data folders. Produced files are remembered in a registry for `GET /api/workshop/file`, which serves only those and the files under `data/workshop/`. Passwords exist only in memory for the duration of a call and are redacted from the echoed options. `engine.housekeeping` deletes job folders older than 7 days. Compression uses Ghostscript when found, otherwise pypdf with images re-encoded through a quality and size ladder, and with `target_mb` it climbs the ladder until the file fits or reports that it cannot. The text watermark is a one-page overlay written as a raw content stream (Helvetica, rotation matrix, an ExtGState for opacity) merged onto each page. Long image batches stop after `time_limit_s` and report what is left; repeating with the same output folder continues.
+
 ## Client
 
-Hash routing (`#/plazos`, `#/documentos`, `#/documentos/<id>?p=2`, `#/revision`, `#/ajustes`). Strings are in `client/src/i18n.js` as `[español, English]` pairs. Colours come from the shared `hoard-theme.css` (vendored unchanged from the family) selected by `data-hoard-app="kafka"`. A shared `version` counter, bumped by `changed()`, refreshes every page after any change. Files can be dropped anywhere on the window.
+Hash routing (`#/plazos`, `#/documentos`, `#/documentos/<id>?p=2`, `#/revision`, `#/taller`, `#/ajustes`). Strings are in `client/src/i18n.js` as `[español, English]` pairs. Colours come from the shared `hoard-theme.css` (vendored unchanged from the family) selected by `data-hoard-app="kafka"`. A shared `version` counter, bumped by `changed()`, refreshes every page after any change. Files can be dropped anywhere on the window.
 
 ## Data
 
-Everything lives in `data/` (or `KAFKA_DATA_DIR`): `kafka.db`, `files/` (originals), `cache/` (page images, mail attachments awaiting filing), `inbox/` (default watched folder), `mcp-token`, `url`, `logs/`. Back up the folder to back up the app.
+Everything lives in `data/` (or `KAFKA_DATA_DIR`): `kafka.db`, `files/` (originals), `cache/` (page images, mail attachments awaiting filing), `inbox/` (default watched folder), `workshop/` (`in/<job>` uploads, `out/<job>` results, purged after 7 days), `mcp-token`, `url`, `logs/`. Back up the folder to back up the app.

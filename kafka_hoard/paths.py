@@ -97,8 +97,35 @@ def unsafe_file(path: str | Path, data_dir: Optional[Path] = None) -> str:
         if p.parts[1].lower() != "var" or len(p.parts) < 3 or p.parts[2].lower() not in ("tmp", "folders"):
             if not (data_dir and _inside(p, data_dir)):
                 return "system folders are not allowed"
-    if data_dir is not None and _inside(p, data_dir) and not _inside(p, Path(data_dir) / "inbox"):
-        return "Kafka's own data folder is off limits (except its inbox)"
+    if data_dir is not None and _inside(p, data_dir) and not _inside(p, Path(data_dir) / "inbox") and not _inside(p, Path(data_dir) / "workshop"):
+        return "Kafka's own data folder is off limits (except its inbox and the workshop folder)"
     if _hidden_parts(p, p.parts[:-1]):
+        return "configuration and hidden folders are not allowed"
+    return ""
+
+
+def unsafe_output_dir(path: str | Path, data_dir: Optional[Path] = None) -> str:
+    """Empty when the workshop may write files into this folder (it need not exist yet); otherwise the reason it must not."""
+    try:
+        p = Path(path).expanduser()
+    except (OSError, ValueError, RuntimeError):
+        return "not a valid path"
+    if not p.is_absolute():
+        return "the path must be absolute"
+    try:
+        p = p.resolve()
+    except OSError:
+        return "the path cannot be resolved"
+    if p.exists() and not p.is_dir():
+        return "that path is a file, not a folder"
+    parts = {x.lower() for x in p.parts}
+    if parts & SYSTEM_PARTS_WIN and (p.drive or os.name == "nt"):
+        return "system folders are not allowed"
+    if os.name != "nt" and len(p.parts) > 1 and p.parts[1].lower() in SYSTEM_PARTS_POSIX and not (data_dir and _inside(p, data_dir)):
+        if p.parts[1].lower() != "var" or len(p.parts) < 3 or p.parts[2].lower() not in ("tmp", "folders"):
+            return "system folders are not allowed"
+    if data_dir is not None and _inside(p, data_dir) and not _inside(p, Path(data_dir) / "workshop") and not _inside(p, Path(data_dir) / "inbox"):
+        return "Kafka's own data folder is off limits (except its inbox and the workshop folder)"
+    if _hidden_parts(p, p.parts):
         return "configuration and hidden folders are not allowed"
     return ""

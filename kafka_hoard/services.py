@@ -27,6 +27,7 @@ from .ocr import Ocr
 from .scheduler import Scheduler
 from .store import Store
 from .util import parse_iso
+from .workshop import Workshop
 
 log = logging.getLogger("kafka")
 
@@ -50,6 +51,7 @@ UI_SETTINGS: dict[str, Optional[tuple[str, ...]]] = {
     "prices.alert_pct": None,
     "prices.bills": ("0", "1"),
     "links.phileas": ("1", "0"),
+    "workshop.dir": None,
     "notify.night_from": None,
     "notify.night_to": None,
     "notify.night_high": ("0", "1"),
@@ -115,6 +117,7 @@ class Services:
         self.store = Store(self.db, clock_fn)
         self._load_secrets()
         self.files = FileStore(config.files_dir)
+        self.workshop = Workshop(config, self.store, self.files, self.setting)
         self.notifier = notifier or Notifier(config, self.db.get_setting, transport=http_transport, clock=clock_fn)
         self.mail = mail_source or FaustusMail(self.setting, config.secret, runner=mail_runner, clock=clock_fn)
         self.ocr = ocr or Ocr(config.ocr)
@@ -190,6 +193,11 @@ class Services:
                 if not lo <= number <= hi:
                     raise KafkaError("invalid", f"{key} must be between {lo} and {hi}.")
                 value = str(number)
+            if key == "workshop.dir" and value:
+                from . import paths as _paths
+                bad = _paths.unsafe_output_dir(value, self.config.data_dir)
+                if bad:
+                    raise KafkaError("invalid", f"workshop.dir: {self.workshop._es(bad)}.", "Escribe la ruta absoluta de una carpeta normal (o déjalo vacío).")
             if key == "calendar.extra_holidays" and value:
                 for chunk in value.replace(";", ",").split(","):
                     if parse_iso(chunk.strip()) is None or len(chunk.strip()) != 10:

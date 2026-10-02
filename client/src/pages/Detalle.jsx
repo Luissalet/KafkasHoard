@@ -32,6 +32,7 @@ function Preview({ doc, pages, initialPage }) {
           </div>
         )}
         {doc.has_file && <a className="btn btn-sm" href={api.fileUrl(doc.id)} target="_blank" rel="noopener noreferrer"><Icon d={ICONS.external} size={13} />{t("open_original")}</a>}
+        {doc.has_file && doc.mime === "application/pdf" && <a className="btn btn-sm" href={`#/taller?doc=${encodeURIComponent(doc.id)}`}><Icon d={ICONS.tools} size={13} />{t("tl_open_in_workshop")}</a>}
       </div>
       {visual && !failed ? (
         <img src={api.pageUrl(doc.id, page)} alt={t("page_alt", { n: page })} className="rounded-md border" style={{ borderColor: "var(--line)", background: "#fff", width: "100%" }} onError={() => setFailed(true)} />

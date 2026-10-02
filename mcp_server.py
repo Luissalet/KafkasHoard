@@ -69,7 +69,9 @@ class KafkaBridge(FastMCP):
 
     async def _call(self, name: str, arguments: dict[str, Any], retry: bool) -> Sequence[TextContent]:
         try:
-            async with httpx.AsyncClient(timeout=90, trust_env=False) as client:
+            # Workshop tools (PDF and image work) may run Ghostscript or Word: give them most of the assistant's 180 s.
+            timeout = 175 if name.startswith(("pdf_", "images_")) else 90
+            async with httpx.AsyncClient(timeout=timeout, trust_env=False) as client:
                 response = await client.post(
                     f"{BASE_URL}/api/agent/call",
                     json={"name": name, "arguments": arguments or {}},

@@ -21,7 +21,7 @@ def seed(svc):
 
 def test_the_catalogue_has_unique_names_and_valid_schemas():
     names = [t.name for t in TOOLS]
-    assert len(names) == len(set(names)) >= 39
+    assert len(names) == len(set(names)) >= 51
     for t in TOOLS:
         schema = t.input_model.model_json_schema()
         assert schema["type"] == "object"
@@ -265,3 +265,29 @@ def test_assistant_results_are_capped_but_the_ui_is_not(svc):
     with uncapped():
         full = tool(svc, "deadlines_list", filter="open", limit=500)
     assert "truncated" not in full and len(full["deadlines"]) == 260
+
+
+# ------------------------------------------------------------------ workshop tools in the catalogue
+def test_the_workshop_tools_are_in_the_catalogue_and_documented():
+    wanted = {"pdf_merge", "pdf_split", "pdf_pages", "pdf_compress", "pdf_protect", "pdf_watermark", "pdf_info", "pdf_metadata_set", "pdf_from_images",
+              "pdf_from_office", "pdf_to_images", "images_compress"}
+    names = {t.name for t in TOOLS}
+    assert wanted <= names and len(names) == 51
+    from pathlib import Path
+    api = (Path(__file__).resolve().parent.parent / "docs" / "API.md").read_text(encoding="utf-8")
+    for name in wanted:
+        assert f"## `{name}`" in api
+    assert "/api/workshop/upload" in api and "/api/workshop/file" in api
+
+
+def test_a_workshop_tool_runs_through_the_bridge_and_writes_next_to_the_source(svc, tmp_path):
+    from pathlib import Path
+    from pdfmaker import make_pdf
+    src = tmp_path / "papeles" / "cuenta.pdf"
+    src.parent.mkdir()
+    src.write_bytes(make_pdf(["Página uno", "Página dos"]))
+    info = tool(svc, "pdf_info", file=str(src))
+    assert info["pages"] == 2 and info["has_text"] is True
+    r = tool(svc, "pdf_pages", action="extract", file=str(src), pages="2")
+    assert Path(r["output"]) == src.parent / "cuenta_paginas.pdf" and r["pages"] == 1 and r["size_before"] == src.stat().st_size
+    assert tool(svc, "pdf_pages", action="extract", file=str(src), pages="2")["output"].endswith("cuenta_paginas (2).pdf")
