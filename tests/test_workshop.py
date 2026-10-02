@@ -127,7 +127,7 @@ def test_never_overwrite_adds_a_number(tmp_path):
 
 
 def test_names_are_safe_on_windows():
-    assert safe_stem('a<b>:c"d/e\\f|g?h*') == "a_b__c_d_e_f_g_h_"
+    assert safe_stem('a<b>:c"d/e\\f|g?h*') == "a_b_c_d_e_f_g_h_"
     assert safe_stem("CON") == "_CON" and safe_stem("   ") == "documento" and safe_stem("fin. ") == "fin"
     assert safe_filename("..\\..\\evil name.PDF") == "evil name.pdf"
 

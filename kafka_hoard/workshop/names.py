@@ -1,4 +1,7 @@
-"""Output files of the workshop: Spanish suffixes, never overwrite (« (2)», « (3)»), safe names on Windows and Linux."""
+"""Output files of the workshop: Spanish suffixes, never overwrite (« (2)», « (3)»), safe names on Windows and Linux.
+
+Safe names and the exclusive, never-overwrite write are the shared ones of Hoard Link (``hoard_link.docs.archives``); what stays
+here is the workshop's naming convention (``<stem><suffix>.<ext>``, Spanish defaults) and its folder helpers."""
 
 from __future__ import annotations
 
@@ -7,24 +10,20 @@ import re
 from pathlib import Path
 from typing import Optional
 
-_BAD = re.compile(r'[<>:"/\\|?*\x00-\x1f]')
-_RESERVED = {"con", "prn", "aux", "nul", *(f"com{i}" for i in range(1, 10)), *(f"lpt{i}" for i in range(1, 10))}
-MAX_STEM = 110
+from ..hoard_link import text as _text
+from ..hoard_link.docs import archives
+
+MAX_STEM = archives.MAX_STEM
 
 
 def safe_stem(name: str, default: str = "documento") -> str:
     """A file name part that is valid on Windows: no reserved characters, no trailing dots or spaces, no device names."""
-    stem = _BAD.sub("_", str(name or "")).strip().strip(".").strip()
-    stem = re.sub(r"\s+", " ", stem)[:MAX_STEM].strip().rstrip(".")
-    if not stem:
-        return default
-    if stem.split(".")[0].lower() in _RESERVED:
-        stem = "_" + stem
-    return stem
+    # ``text.safe_filename`` (not ``archives.safe_stem``): a title such as «Seguro 1/2» must become «Seguro 1_2», not «2».
+    return _text.safe_filename(name, max_len=MAX_STEM, fallback=default, keep_extension=False)
 
 
 def safe_filename(name: str, default: str = "fichero") -> str:
-    """A whole file name (stem and extension) made safe; keeps the extension."""
+    """A whole file name (stem and extension) made safe; keeps the extension (lower-cased, letters and digits only)."""
     base = os.path.basename(str(name or "").replace("\\", "/"))
     stem, ext = os.path.splitext(base)
     ext = re.sub(r"[^A-Za-z0-9]", "", ext)[:8]
@@ -40,25 +39,7 @@ def write_unique(directory: Path, stem: str, suffix: str, ext: str, data: bytes)
     """Write ``data`` to ``<stem><suffix>.<ext>``, or ``<stem><suffix> (2).<ext>`` and so on when that name is taken.
 
     The file is created exclusively, so nothing that exists can be overwritten even when two jobs race."""
-    directory.mkdir(parents=True, exist_ok=True)
-    ext = ext.lstrip(".")
-    for n in range(1, 10_000):
-        target = candidate(directory, stem, suffix, ext, n)
-        try:
-            handle = open(target, "xb")
-        except FileExistsError:
-            continue
-        try:
-            with handle:
-                handle.write(data)
-        except BaseException:
-            try:
-                target.unlink()
-            except OSError:
-                pass
-            raise
-        return target
-    raise OSError(f"No free name for {stem}{suffix}.{ext} in {directory}")
+    return archives.write_unique(directory, f"{stem}{suffix}.{ext.lstrip('.')}", data)
 
 
 def unique_dir(parent: Path, name: str) -> Path:
