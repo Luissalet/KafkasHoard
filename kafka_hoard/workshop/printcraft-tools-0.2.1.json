@@ -1,0 +1,4801 @@
+{
+  "engine": "PrintCraft",
+  "release": "0.2.1",
+  "cli_sha256": "DDD8C330C4C9CB5C57F7671FFBD44BEEB5D992122177D9F15542A775E02A519E",
+  "tools": [
+    {
+      "command": "file.open",
+      "description": "Open a PDF file and return its document id, page count and whether it can be edited.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "password": {
+            "description": "User or owner password for encrypted files.",
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "path"
+        ],
+        "type": "object"
+      },
+      "name": "doc_open",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "List the open documents with their ids, page counts and unsaved state.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {},
+        "required": [],
+        "type": "object"
+      },
+      "name": "doc_list",
+      "read_only": true
+    },
+    {
+      "command": "file.properties",
+      "description": "Metadata, page sizes and labels, bookmarks, annotations, form fields, links, layers, attachments, fonts, security and repair notes.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "doc_info",
+      "read_only": true
+    },
+    {
+      "command": "file.close",
+      "description": "Close a document. Fails if it has unsaved changes unless discard_changes is true.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "discard_changes": {
+            "type": "boolean"
+          },
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "doc_close",
+      "read_only": false
+    },
+    {
+      "command": "file.save",
+      "description": "Save to its own file (an incremental update, which keeps signatures valid) or to a new path (a full rewrite). The write is atomic.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "full": {
+            "description": "Force a full rewrite (or, with false, an incremental update).",
+            "type": "boolean"
+          },
+          "path": {
+            "description": "Save as this file. Omit to save in place.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "doc_save",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Set a document information entry such as Title, Author, Subject or Keywords. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "key": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "doc",
+          "key",
+          "value"
+        ],
+        "type": "object"
+      },
+      "name": "doc_set_info",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Render one page to a PNG image (default 96 dpi, at most 600).",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "dpi": {
+            "maximum": 600,
+            "minimum": 1,
+            "type": "number"
+          },
+          "page": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "doc",
+          "page"
+        ],
+        "type": "object"
+      },
+      "name": "page_render",
+      "read_only": true
+    },
+    {
+      "command": null,
+      "description": "Extract the text of some or all pages, in reading order.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "pages": {
+            "description": "1-based page numbers to extract (default: all).",
+            "items": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "text_extract",
+      "read_only": true
+    },
+    {
+      "command": "edit.find",
+      "description": "Find a phrase (case-insensitive, whitespace-normalised) and return each match with its page and line rectangles in points (origin top-left).",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "limit": {
+            "description": "Maximum matches (default 500).",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "query": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "doc",
+          "query"
+        ],
+        "type": "object"
+      },
+      "name": "text_find",
+      "read_only": true
+    },
+    {
+      "command": "page.rotate",
+      "description": "Rotate pages by a multiple of 90 degrees (positive is clockwise): the listed pages (default all), filtered like Acrobat's Rotate Pages by subset (all, even, odd page numbers) and orientation (all, landscape, portrait). Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "degrees": {
+            "type": "integer"
+          },
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "orientation": {
+            "enum": [
+              "all",
+              "landscape",
+              "portrait"
+            ],
+            "type": "string"
+          },
+          "pages": {
+            "description": "1-based page numbers to rotate (default: all).",
+            "items": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "subset": {
+            "enum": [
+              "all",
+              "even",
+              "odd"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "doc",
+          "degrees"
+        ],
+        "type": "object"
+      },
+      "name": "page_rotate",
+      "read_only": false
+    },
+    {
+      "command": "page.delete",
+      "description": "Delete pages. Undoable until saved.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "pages": {
+            "description": "1-based page numbers to delete.",
+            "items": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "doc",
+          "pages"
+        ],
+        "type": "object"
+      },
+      "name": "page_delete",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Move pages so the first of them lands at position `to` (1-based, counted before the move). Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "pages": {
+            "description": "1-based page numbers to move.",
+            "items": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "to": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "doc",
+          "pages",
+          "to"
+        ],
+        "type": "object"
+      },
+      "name": "page_move",
+      "read_only": false
+    },
+    {
+      "command": "page.insert_blank",
+      "description": "Insert a blank page so it becomes page `at`. Size defaults to the neighbouring page. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "at": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "height": {
+            "description": "Points.",
+            "type": "number"
+          },
+          "width": {
+            "description": "Points.",
+            "type": "number"
+          }
+        },
+        "required": [
+          "doc",
+          "at"
+        ],
+        "type": "object"
+      },
+      "name": "page_insert_blank",
+      "read_only": false
+    },
+    {
+      "command": "page.insert",
+      "description": "Insert pages of another PDF so the first becomes page `at`. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "at": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "pages": {
+            "description": "1-based page numbers of the source file (default: all).",
+            "items": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "path": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "doc",
+          "path",
+          "at"
+        ],
+        "type": "object"
+      },
+      "name": "page_insert_file",
+      "read_only": false
+    },
+    {
+      "command": "page.extract",
+      "description": "Copy pages into a new PDF (links, bookmarks, fields and layers that belong to them come along). separate: true writes each page as its own file into out_dir; delete: true removes the pages from this document afterwards (undoable).",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "delete": {
+            "type": "boolean"
+          },
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "open": {
+            "description": "Also open the result as a new document (default: only when out is omitted).",
+            "type": "boolean"
+          },
+          "out": {
+            "description": "File to write. Omit to open the result as a new unsaved document instead.",
+            "type": "string"
+          },
+          "out_dir": {
+            "type": "string"
+          },
+          "pages": {
+            "description": "1-based page numbers to extract.",
+            "items": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "separate": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "doc",
+          "pages"
+        ],
+        "type": "object"
+      },
+      "name": "page_extract",
+      "read_only": false
+    },
+    {
+      "command": "page.combine",
+      "description": "Combine PDFs, in order, into one (bookmarks are kept under one entry per file). pages optionally chooses each file's pages, in step with paths: a range such as \"1-3, 6\" or null for all pages.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "open": {
+            "description": "Also open the result as a new document (default: only when out is omitted).",
+            "type": "boolean"
+          },
+          "out": {
+            "description": "File to write. Omit to open the result as a new unsaved document instead.",
+            "type": "string"
+          },
+          "pages": {
+            "items": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "type": "array"
+          },
+          "paths": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 2,
+            "type": "array"
+          }
+        },
+        "required": [
+          "paths"
+        ],
+        "type": "object"
+      },
+      "name": "doc_combine",
+      "read_only": false
+    },
+    {
+      "command": "page.split",
+      "description": "Split into several files written to out_dir: every N pages, before given pages, at top-level bookmarks (bookmarks: true; files named after them), or by file size (max_mb). Files are <name>-partK.pdf.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "before": {
+            "description": "1-based page numbers that start a new part.",
+            "items": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "bookmarks": {
+            "type": "boolean"
+          },
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "every": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "max_mb": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "out_dir": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "doc",
+          "out_dir"
+        ],
+        "type": "object"
+      },
+      "name": "doc_split",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "The bookmark tree with each bookmark's path, title, target page and open state.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "bookmark_list",
+      "read_only": true
+    },
+    {
+      "command": null,
+      "description": "Add a bookmark that goes to a page, under a parent bookmark (or at the top level), at a position. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "page": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "parent": {
+            "description": "Parent bookmark (omit for the top level): 1-based positions from the top level, e.g. [2, 1] = the first child of the second bookmark.",
+            "items": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "type": "array"
+          },
+          "position": {
+            "description": "1-based position among the parent's children (default: last).",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "title": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "doc",
+          "title",
+          "page"
+        ],
+        "type": "object"
+      },
+      "name": "bookmark_add",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Change a bookmark's title. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "path": {
+            "description": "The bookmark: 1-based positions from the top level, e.g. [2, 1] = the first child of the second bookmark.",
+            "items": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "type": "array"
+          },
+          "title": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "doc",
+          "path",
+          "title"
+        ],
+        "type": "object"
+      },
+      "name": "bookmark_rename",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Delete a bookmark and the bookmarks under it. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "path": {
+            "description": "The bookmark: 1-based positions from the top level, e.g. [2, 1] = the first child of the second bookmark.",
+            "items": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "doc",
+          "path"
+        ],
+        "type": "object"
+      },
+      "name": "bookmark_delete",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Move a bookmark (with its children) under another parent, or within its level. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "parent": {
+            "description": "New parent (omit for the top level): 1-based positions from the top level, e.g. [2, 1] = the first child of the second bookmark.",
+            "items": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "type": "array"
+          },
+          "path": {
+            "description": "The bookmark to move: 1-based positions from the top level, e.g. [2, 1] = the first child of the second bookmark.",
+            "items": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "type": "array"
+          },
+          "position": {
+            "description": "1-based position among the new parent's children, counted after the bookmark is removed (default: last).",
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "doc",
+          "path"
+        ],
+        "type": "object"
+      },
+      "name": "bookmark_move",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Point a bookmark at another page. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "page": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "path": {
+            "description": "The bookmark: 1-based positions from the top level, e.g. [2, 1] = the first child of the second bookmark.",
+            "items": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "doc",
+          "path",
+          "page"
+        ],
+        "type": "object"
+      },
+      "name": "bookmark_set_page",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Label a range of pages (e.g. i, ii, iii for front matter, or A-1, A-2 for an appendix). Later pages keep their labels. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "from": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "prefix": {
+            "type": "string"
+          },
+          "start": {
+            "description": "Number of the first page in the range (default 1).",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "style": {
+            "description": "Numbering style (default decimal; none = prefix only).",
+            "enum": [
+              "decimal",
+              "upper-roman",
+              "lower-roman",
+              "upper-alpha",
+              "lower-alpha",
+              "none"
+            ],
+            "type": "string"
+          },
+          "to": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "doc",
+          "from",
+          "to"
+        ],
+        "type": "object"
+      },
+      "name": "page_number",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Every interactive form field: name, type (text, checkbox, radio, combo, list, button, signature), value, options, page and rect (top-left-origin points), read-only and required flags.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "form_fields",
+      "read_only": true
+    },
+    {
+      "command": null,
+      "description": "Set several fields at once (one undo step). values maps field names (from form_fields) to: a string for text fields, combo boxes and radio groups (an option), true/false for check boxes, an array of strings for multi-select lists. Appearances are regenerated so every viewer shows the values.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "values": {
+            "description": "Field name → value.",
+            "type": "object"
+          }
+        },
+        "required": [
+          "doc",
+          "values"
+        ],
+        "type": "object"
+      },
+      "name": "form_fill",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Reset fields to their default values: all of them, or only those listed. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "fields": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "form_reset",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Add a form field on a page. type: text, date, checkbox, radio, combo, list, button, image (a picture placeholder; fill it with form_set_image), signature. rect in points from the top-left of the displayed page [x0, y0, x1, y1]. name defaults to Acrobat's next free name (Text1, Check Box1, Group1, Dropdown1, List Box1, Button1, Image1, Signature1, Date1). Radio buttons join the radio group named by group (a new group otherwise) with the export value export. Returns the field's name. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "caption": {
+            "description": "Button label.",
+            "type": "string"
+          },
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "editable": {
+            "description": "Combo box accepts typed text.",
+            "type": "boolean"
+          },
+          "export": {
+            "description": "Radio button export value (default Choice1).",
+            "type": "string"
+          },
+          "group": {
+            "description": "Radio group to join.",
+            "type": "string"
+          },
+          "multi_select": {
+            "type": "boolean"
+          },
+          "multiline": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "options": {
+            "description": "Combo box / list box items.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "page": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "rect": {
+            "items": {
+              "type": "number"
+            },
+            "maxItems": 4,
+            "minItems": 4,
+            "type": "array"
+          },
+          "type": {
+            "enum": [
+              "text",
+              "date",
+              "checkbox",
+              "radio",
+              "combo",
+              "list",
+              "button",
+              "image",
+              "signature"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "doc",
+          "page",
+          "type",
+          "rect"
+        ],
+        "type": "object"
+      },
+      "name": "form_add_field",
+      "read_only": false
+    },
+    {
+      "command": "comment.stamp",
+      "description": "Stamp a picture: a PDF page (file_page, default 1) or an image file, centred at at [x, y] (points from the top-left of the displayed page) at its natural size, at most 200 pt. name labels it (default: the file name). Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "at": {
+            "items": {
+              "type": "number"
+            },
+            "maxItems": 2,
+            "minItems": 2,
+            "type": "array"
+          },
+          "author": {
+            "type": "string"
+          },
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "file_page": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "page": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "path": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "doc",
+          "page",
+          "path",
+          "at"
+        ],
+        "type": "object"
+      },
+      "name": "stamp_custom",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Show an image file (PNG, JPEG, TIFF, GIF or BMP) in an image field or button, scaled to fit and centred (what clicking an image field does). Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "field": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "doc",
+          "field",
+          "path"
+        ],
+        "type": "object"
+      },
+      "name": "form_set_image",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Change a field's properties (General and Options tabs): name (renames it), tooltip, read_only, required, multiline, max_length (0 = no limit), options (combo/list items), font_size (0 = auto), rect (position), format, validate, calculate (Acrobat's Format/Validate/Calculate tabs, run natively: values are checked, formatted and recalculated as in Acrobat). Options tab: align (left, center, right), default (the value Reset form restores; for check boxes and radio buttons their on state, \"\" for off), flags { scroll, rich_text, password, file_select, spell_check, comb (needs max_length), sort, editable, multi_select, commit_immediately }. Only the given ones change. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "align": {
+            "enum": [
+              "left",
+              "center",
+              "right"
+            ],
+            "type": "string"
+          },
+          "appearance": {
+            "description": "Appearance tab: border, fill, text_color (#RRGGBB, a name or \"none\"), width (1 thin, 2 medium, 3 thick), style (solid, dashed, beveled, inset, underline), font (helvetica, times, courier).",
+            "type": "object"
+          },
+          "calculate": {
+            "description": "Calculate tab: {\"op\": \"sum\"|\"product\"|\"average\"|\"min\"|\"max\", \"fields\": [\"a\", \"b\"]}, {\"notation\": \"Price * Qty\"} (simplified field notation), or \"none\"."
+          },
+          "default": {
+            "type": "string"
+          },
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "field": {
+            "description": "The field's current name.",
+            "type": "string"
+          },
+          "flags": {
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "type": "object"
+          },
+          "font_size": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "format": {
+            "description": "Format tab: {\"type\": \"number\", \"decimals\": 2, \"currency\": \"$\", \"separator\": 0-4, \"negative\": 0-3}, {\"type\": \"percent\"}, {\"type\": \"date\"|\"time\", \"pattern\": \"mm/dd/yyyy\"}, {\"type\": \"zip\"|\"zip4\"|\"phone\"|\"ssn\"}, {\"type\": \"mask\", \"mask\": \"AA-9999\"}, or \"none\"."
+          },
+          "locked": {
+            "description": "Lock the field's properties (only unlocking is accepted while locked).",
+            "type": "boolean"
+          },
+          "max_length": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "multiline": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "options": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "read_only": {
+            "type": "boolean"
+          },
+          "rect": {
+            "description": "Move/resize: points from the top-left of the displayed page.",
+            "items": {
+              "type": "number"
+            },
+            "maxItems": 4,
+            "minItems": 4,
+            "type": "array"
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "tooltip": {
+            "type": "string"
+          },
+          "validate": {
+            "description": "Validate tab: {\"min\": 0, \"max\": 100} (either may be left out) or \"none\"."
+          }
+        },
+        "required": [
+          "doc",
+          "field"
+        ],
+        "type": "object"
+      },
+      "name": "form_set_props",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Set the tab order of pages (default all): row (top to bottom, left to right), column, structure, or annotations (unspecified). Or order tabs manually: `field` with `move` earlier|later moves that field one place on its page. Returns the resulting order of fields. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "field": {
+            "type": "string"
+          },
+          "move": {
+            "enum": [
+              "earlier",
+              "later"
+            ],
+            "type": "string"
+          },
+          "order": {
+            "enum": [
+              "row",
+              "column",
+              "structure",
+              "annotations"
+            ],
+            "type": "string"
+          },
+          "pages": {
+            "description": "1-based page numbers to set (default: all).",
+            "items": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "form_tab_order",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Write comments and/or form data to path; the extension picks the format: .xfdf or .fdf (comments and/or fields), .xml, .csv or .txt (form data). what: all (default), comments, fields.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "path": {
+            "type": "string"
+          },
+          "what": {
+            "enum": [
+              "all",
+              "comments",
+              "fields"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "doc",
+          "path"
+        ],
+        "type": "object"
+      },
+      "name": "doc_export_data",
+      "read_only": true
+    },
+    {
+      "command": null,
+      "description": "Import comments and/or field values from an XFDF, FDF, XML, CSV or tab-delimited text file (detected from its content). Comments with the same name are replaced; values go through the form's formats and validation. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "path": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "doc",
+          "path"
+        ],
+        "type": "object"
+      },
+      "name": "doc_import_data",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Delete a form field and all its widgets. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "field": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "doc",
+          "field"
+        ],
+        "type": "object"
+      },
+      "name": "form_delete_field",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Mark content for redaction (nothing is removed until redact_apply). One of: rect [x0, y0, x1, y1] (points from the top-left of the displayed page) with page; find (text, every match); pattern (phone, email, credit-card, ssn, date: every match, Acrobat's Search & Redact patterns); whole_pages: true. find, pattern and whole_pages work on pages (default all). overlay: text shown on the box once applied; fill: box colour (default black). Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "author": {
+            "type": "string"
+          },
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "fill": {
+            "description": "#RRGGBB or a colour name.",
+            "type": "string"
+          },
+          "find": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "overlay": {
+            "type": "string"
+          },
+          "page": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "pages": {
+            "description": "1-based page numbers to search or mark (default: all).",
+            "items": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "pattern": {
+            "enum": [
+              "phone",
+              "email",
+              "credit-card",
+              "ssn",
+              "date"
+            ],
+            "type": "string"
+          },
+          "rect": {
+            "items": {
+              "type": "number"
+            },
+            "maxItems": 4,
+            "minItems": 4,
+            "type": "array"
+          },
+          "whole_pages": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "redact_mark",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Apply the redaction marks (all, or those on pages): text, images, vectors, comments and form fields under them are removed for good and boxes are drawn in their place. A verification pass fails the operation if anything readable remains. Undoable until saved; the saved file no longer contains the content.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "pages": {
+            "description": "1-based page numbers whose marks to apply (default: all).",
+            "items": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "redact_apply",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Remove every redaction mark without applying it. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "redact_clear",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "What Remove Hidden Information would remove, by category (metadata, attachments, comments, form-fields, hidden-text, hidden-layers, bookmarks, links-actions-scripts, private-data) with counts.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "doc_hidden_info",
+      "read_only": true
+    },
+    {
+      "command": null,
+      "description": "Remove the listed categories (see doc_hidden_info), or every category when none are listed (Sanitize Document). Form fields are flattened so their values stay visible. The next save rewrites the whole file. Undoable until saved.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "categories": {
+            "items": {
+              "enum": [
+                "metadata",
+                "attachments",
+                "comments",
+                "form-fields",
+                "hidden-text",
+                "hidden-layers",
+                "bookmarks",
+                "links-actions-scripts",
+                "private-data"
+              ],
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "doc_remove_hidden",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "The printers the system's print spooler knows (CUPS on macOS and Linux), with the default marked.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {},
+        "required": [],
+        "type": "object"
+      },
+      "name": "printers",
+      "read_only": true
+    },
+    {
+      "command": null,
+      "description": "Print with Acrobat's Print dialog options, or save the print-ready PDF. pages: a range such as \"1-3, 6, 9-\" (page labels allowed; default all); subset odd/even; reverse. layout: fit (default), actual, shrink, custom (scale %), multiple (per_sheet 2/4/6/9/16, order, border, auto_rotate), booklet (booklet_subset both/front/back, binding left/right), poster (scale %, overlap pt, cut_marks). orientation auto/portrait/landscape; comments_forms document / document-and-markups (default) / document-and-stamps / form-fields-only; paper Letter/Legal/Tabloid/A3/A4/A5. Then path (save) or printer (a name or \"default\") with copies, collate, duplex off/long-edge/short-edge, grayscale.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "auto_rotate": {
+            "type": "boolean"
+          },
+          "binding": {
+            "enum": [
+              "left",
+              "right"
+            ],
+            "type": "string"
+          },
+          "booklet_subset": {
+            "enum": [
+              "both",
+              "front",
+              "back"
+            ],
+            "type": "string"
+          },
+          "border": {
+            "type": "boolean"
+          },
+          "collate": {
+            "type": "boolean"
+          },
+          "comments_forms": {
+            "enum": [
+              "document",
+              "document-and-markups",
+              "document-and-stamps",
+              "form-fields-only"
+            ],
+            "type": "string"
+          },
+          "copies": {
+            "maximum": 999,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "cut_marks": {
+            "type": "boolean"
+          },
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "duplex": {
+            "enum": [
+              "off",
+              "long-edge",
+              "short-edge"
+            ],
+            "type": "string"
+          },
+          "grayscale": {
+            "type": "boolean"
+          },
+          "layout": {
+            "enum": [
+              "fit",
+              "actual",
+              "shrink",
+              "custom",
+              "multiple",
+              "booklet",
+              "poster"
+            ],
+            "type": "string"
+          },
+          "order": {
+            "enum": [
+              "horizontal",
+              "horizontal-reversed",
+              "vertical",
+              "vertical-reversed"
+            ],
+            "type": "string"
+          },
+          "orientation": {
+            "enum": [
+              "auto",
+              "portrait",
+              "landscape"
+            ],
+            "type": "string"
+          },
+          "overlap": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "pages": {
+            "type": "string"
+          },
+          "paper": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "per_sheet": {
+            "maximum": 256,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "printer": {
+            "type": "string"
+          },
+          "reverse": {
+            "type": "boolean"
+          },
+          "scale": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "subset": {
+            "enum": [
+              "all",
+              "odd",
+              "even"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "doc_print",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Text and images added with page_add_text/page_add_image (or Edit a PDF ▸ Add content), per page with a 1-based index, rect (points from the top-left of the page), and text style.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "content_list",
+      "read_only": true
+    },
+    {
+      "command": "edit.text",
+      "description": "Add text as page content (not a comment). Place it with at [x, y] (top-left, points from the top-left of the displayed page) and width (wrap width, default 200), or rect. Newlines start new lines; long lines wrap. Style: font helvetica/times/courier, size, bold, italic, color (#RRGGBB or a name), align left/center/right. It stays editable with content_update. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "align": {
+            "enum": [
+              "left",
+              "center",
+              "right",
+              "justify"
+            ],
+            "type": "string"
+          },
+          "at": {
+            "items": {
+              "type": "number"
+            },
+            "maxItems": 2,
+            "minItems": 2,
+            "type": "array"
+          },
+          "bold": {
+            "type": "boolean"
+          },
+          "color": {
+            "type": "string"
+          },
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "font": {
+            "enum": [
+              "helvetica",
+              "times",
+              "courier"
+            ],
+            "type": "string"
+          },
+          "italic": {
+            "type": "boolean"
+          },
+          "page": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "rect": {
+            "items": {
+              "type": "number"
+            },
+            "maxItems": 4,
+            "minItems": 4,
+            "type": "array"
+          },
+          "size": {
+            "maximum": 500,
+            "minimum": 1,
+            "type": "number"
+          },
+          "text": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "width": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "doc",
+          "page",
+          "text"
+        ],
+        "type": "object"
+      },
+      "name": "page_add_text",
+      "read_only": false
+    },
+    {
+      "command": "edit.image",
+      "description": "Add an image file (PNG, JPEG, TIFF, GIF, BMP) as page content: in rect (points from the top-left of the page), or centred at its natural size (shrunk to fit). Undoable; movable with content_update.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "page": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "path": {
+            "type": "string"
+          },
+          "rect": {
+            "items": {
+              "type": "number"
+            },
+            "maxItems": 4,
+            "minItems": 4,
+            "type": "array"
+          }
+        },
+        "required": [
+          "doc",
+          "page",
+          "path"
+        ],
+        "type": "object"
+      },
+      "name": "page_add_image",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Move/resize (rect), retype (text) or restyle (font, size, bold, italic, color, align) an added item (page, index from content_list). Images: rotate (degrees, multiple of 90, counter-clockwise), flip_h / flip_v (toggle), crop [left, bottom, right, top] as fractions trimmed, image (a file that replaces the picture). Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "align": {
+            "enum": [
+              "left",
+              "center",
+              "right",
+              "justify"
+            ],
+            "type": "string"
+          },
+          "bold": {
+            "type": "boolean"
+          },
+          "color": {
+            "type": "string"
+          },
+          "crop": {
+            "items": {
+              "maximum": 0.49,
+              "minimum": 0,
+              "type": "number"
+            },
+            "maxItems": 4,
+            "minItems": 4,
+            "type": "array"
+          },
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "flip_h": {
+            "type": "boolean"
+          },
+          "flip_v": {
+            "type": "boolean"
+          },
+          "font": {
+            "enum": [
+              "helvetica",
+              "times",
+              "courier"
+            ],
+            "type": "string"
+          },
+          "image": {
+            "description": "Replace the picture with this file.",
+            "type": "string"
+          },
+          "index": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "italic": {
+            "type": "boolean"
+          },
+          "page": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "rect": {
+            "items": {
+              "type": "number"
+            },
+            "maxItems": 4,
+            "minItems": 4,
+            "type": "array"
+          },
+          "rotate": {
+            "type": "integer"
+          },
+          "size": {
+            "maximum": 500,
+            "minimum": 1,
+            "type": "number"
+          },
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "doc",
+          "page",
+          "index"
+        ],
+        "type": "object"
+      },
+      "name": "content_update",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Delete an added item (page, index from content_list). Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "index": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "page": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "doc",
+          "page",
+          "index"
+        ],
+        "type": "object"
+      },
+      "name": "content_delete",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Every link: page, 1-based index (for link_edit/link_delete), rect (points from the top-left of the page), and where it goes (url or to_page).",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "link_list",
+      "read_only": true
+    },
+    {
+      "command": "edit.link",
+      "description": "Add a link over rect on page that opens url or goes to to_page. Appearance: visible (rectangle), color, width 1-3, highlight none/invert/outline/inset. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "color": {
+            "type": "string"
+          },
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "highlight": {
+            "enum": [
+              "none",
+              "invert",
+              "outline",
+              "inset"
+            ],
+            "type": "string"
+          },
+          "page": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "rect": {
+            "items": {
+              "type": "number"
+            },
+            "maxItems": 4,
+            "minItems": 4,
+            "type": "array"
+          },
+          "to_page": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "url": {
+            "type": "string"
+          },
+          "visible": {
+            "type": "boolean"
+          },
+          "width": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "doc",
+          "page",
+          "rect"
+        ],
+        "type": "object"
+      },
+      "name": "link_add",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Change a link's rect, destination (url or to_page) or appearance. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "color": {
+            "type": "string"
+          },
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "highlight": {
+            "enum": [
+              "none",
+              "invert",
+              "outline",
+              "inset"
+            ],
+            "type": "string"
+          },
+          "index": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "page": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "rect": {
+            "items": {
+              "type": "number"
+            },
+            "maxItems": 4,
+            "minItems": 4,
+            "type": "array"
+          },
+          "to_page": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "url": {
+            "type": "string"
+          },
+          "visible": {
+            "type": "boolean"
+          },
+          "width": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "doc",
+          "page",
+          "index"
+        ],
+        "type": "object"
+      },
+      "name": "link_edit",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Delete one link (page, index from link_list). Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "index": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "page": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "doc",
+          "page",
+          "index"
+        ],
+        "type": "object"
+      },
+      "name": "link_delete",
+      "read_only": false
+    },
+    {
+      "command": "edit.links_from_urls",
+      "description": "Find web addresses (http://, https://, www.) in the text of every page and make them clickable links. Returns the URLs. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "links_from_urls",
+      "read_only": false
+    },
+    {
+      "command": "edit.remove_links",
+      "description": "Remove every link in the document. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "links_remove",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Every comment (annotation other than links, form widgets and pop-ups) with its page, index, id, type, author, text, date, rectangle, colour, review status and replies.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "page": {
+            "description": "Only this page.",
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "comment_list",
+      "read_only": true
+    },
+    {
+      "command": null,
+      "description": "Add a comment as Acrobat's commenting tools do. Geometry is in points with the origin at the top-left of the displayed page, y down (as in page_render images at 72 dpi and text_find rects). note: `at` [x, y] (icon top-left). stamp: `at` [x, y] (its centre) and `stamp`: approved, completed, confidential, draft, final, for comment, for public release, information only, not approved, not for public release, preliminary results, void, accepted, initial here, rejected, sign here, witness; dynamic: true for the dynamic approved/confidential/received/reviewed/revised stamps with a By … at … line. highlight/underline/strikeout/squiggly: `find` (text on the page to mark; every match with all: true) or `quads`. rectangle/oval/textbox: `rect` [x0, y0, x1, y1]. line/arrow: `from`, `to`. ink: `strokes` [[[x, y], …], …]. polygon/cloud/polyline (connected lines): `points` [[x, y], …]. callout: `rect` (its text box), `to` (the point the arrow touches), optional `knee`. caret (inserted text): `at`, the insertion point on the baseline. replace (Replace Text): `find` or `quads` like highlight, `contents` the replacement. attachment: `path` (the file), `at`, optional `icon` (PushPin, Paperclip, Graph, Tag). Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "all": {
+            "description": "Mark every match of `find` on the page, not just the first.",
+            "type": "boolean"
+          },
+          "at": {
+            "description": "[x, y] in points from the top-left of the displayed page.",
+            "items": {
+              "type": "number"
+            },
+            "maxItems": 2,
+            "minItems": 2,
+            "type": "array"
+          },
+          "author": {
+            "type": "string"
+          },
+          "color": {
+            "description": "#RRGGBB or a name: yellow, red, orange, green, blue, purple, pink, black, gray, white.",
+            "type": "string"
+          },
+          "contents": {
+            "description": "The comment text (what a text box shows).",
+            "type": "string"
+          },
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "dynamic": {
+            "type": "boolean"
+          },
+          "fill": {
+            "description": "#RRGGBB or a name: yellow, red, orange, green, blue, purple, pink, black, gray, white.",
+            "type": "string"
+          },
+          "find": {
+            "description": "Text on the page to mark up (case-insensitive).",
+            "type": "string"
+          },
+          "font_size": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "from": {
+            "description": "[x, y] in points from the top-left of the displayed page.",
+            "items": {
+              "type": "number"
+            },
+            "maxItems": 2,
+            "minItems": 2,
+            "type": "array"
+          },
+          "icon": {
+            "description": "note: Comment, Note, Help, Insert, Key, NewParagraph, Paragraph; attachment: PushPin, Paperclip, Graph, Tag.",
+            "type": "string"
+          },
+          "knee": {
+            "description": "[x, y] in points from the top-left of the displayed page.",
+            "items": {
+              "type": "number"
+            },
+            "maxItems": 2,
+            "minItems": 2,
+            "type": "array"
+          },
+          "opacity": {
+            "maximum": 1,
+            "minimum": 0,
+            "type": "number"
+          },
+          "page": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "path": {
+            "description": "attachment: the file to attach.",
+            "type": "string"
+          },
+          "points": {
+            "items": {
+              "description": "[x, y] in points from the top-left of the displayed page.",
+              "items": {
+                "type": "number"
+              },
+              "maxItems": 2,
+              "minItems": 2,
+              "type": "array"
+            },
+            "minItems": 2,
+            "type": "array"
+          },
+          "quads": {
+            "items": {
+              "items": {
+                "type": "number"
+              },
+              "maxItems": 8,
+              "minItems": 8,
+              "type": "array"
+            },
+            "type": "array"
+          },
+          "rect": {
+            "items": {
+              "type": "number"
+            },
+            "maxItems": 4,
+            "minItems": 4,
+            "type": "array"
+          },
+          "stamp": {
+            "type": "string"
+          },
+          "strokes": {
+            "items": {
+              "items": {
+                "description": "[x, y] in points from the top-left of the displayed page.",
+                "items": {
+                  "type": "number"
+                },
+                "maxItems": 2,
+                "minItems": 2,
+                "type": "array"
+              },
+              "type": "array"
+            },
+            "type": "array"
+          },
+          "to": {
+            "description": "[x, y] in points from the top-left of the displayed page.",
+            "items": {
+              "type": "number"
+            },
+            "maxItems": 2,
+            "minItems": 2,
+            "type": "array"
+          },
+          "type": {
+            "enum": [
+              "note",
+              "highlight",
+              "underline",
+              "strikeout",
+              "squiggly",
+              "replace",
+              "rectangle",
+              "oval",
+              "line",
+              "arrow",
+              "ink",
+              "textbox",
+              "stamp",
+              "polygon",
+              "cloud",
+              "polyline",
+              "callout",
+              "caret",
+              "attachment"
+            ],
+            "type": "string"
+          },
+          "width": {
+            "description": "Line width in points.",
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "doc",
+          "page",
+          "type"
+        ],
+        "type": "object"
+      },
+      "name": "comment_add",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Add a reply to a comment's thread. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "author": {
+            "type": "string"
+          },
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "id": {
+            "description": "The comment's id (from comment_list).",
+            "type": "string"
+          },
+          "index": {
+            "description": "1-based position on the page, as comment_list reports.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "page": {
+            "description": "With `index`, instead of `id`.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "text": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "doc",
+          "text"
+        ],
+        "type": "object"
+      },
+      "name": "comment_reply",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Set a comment's review status (Acrobat: Set status), recorded as a status reply. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "author": {
+            "type": "string"
+          },
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "id": {
+            "description": "The comment's id (from comment_list).",
+            "type": "string"
+          },
+          "index": {
+            "description": "1-based position on the page, as comment_list reports.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "page": {
+            "description": "With `index`, instead of `id`.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "status": {
+            "enum": [
+              "none",
+              "accepted",
+              "rejected",
+              "cancelled",
+              "completed"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "doc",
+          "status"
+        ],
+        "type": "object"
+      },
+      "name": "comment_set_status",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Every signature field with its validation: status (valid, unknown = intact but the signer isn't trusted, invalid, unsigned), signer and certificate, date, reason, location, certification level, page and rect, the revision it covers and changes made after signing (none, allowed, disallowed), with Acrobat-style explanations.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "sign_list",
+      "read_only": true
+    },
+    {
+      "command": null,
+      "description": "Create a self-signed digital ID and save it as a password-protected .p12 file (Acrobat: Configure a new digital ID ▸ Create a new digital ID ▸ Save to file). Default key: 2048-bit RSA, valid 5 years.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "country": {
+            "description": "Two-letter country code.",
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "key": {
+            "enum": [
+              "rsa2048",
+              "rsa3072",
+              "rsa4096",
+              "p256"
+            ],
+            "type": "string"
+          },
+          "name": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "organization": {
+            "type": "string"
+          },
+          "password": {
+            "minLength": 6,
+            "type": "string"
+          },
+          "path": {
+            "description": "The .p12 file to write.",
+            "type": "string"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "years": {
+            "maximum": 50,
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "password",
+          "path"
+        ],
+        "type": "object"
+      },
+      "name": "sign_id_create",
+      "read_only": false
+    },
+    {
+      "command": "sign.digital",
+      "description": "macOS: the signing identities in the user's keychains (certificate details and the keychain: reference sign_document takes). The private keys stay in the Keychain, which may ask the user to allow their use.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {},
+        "required": [],
+        "type": "object"
+      },
+      "name": "sign_keychain_ids",
+      "read_only": true
+    },
+    {
+      "command": "sign.digital",
+      "description": "Sign with a digital ID (a .p12/.pfx path, or on macOS a Keychain identity: \"keychain:<common name or fingerprint>\" from sign_keychain_ids) and save the signed file to `out` (signing always saves, as in Acrobat; the document then shows the signed file). Sign an existing empty signature field (`field`), or a new one on `page` at `rect` (omit rect for an invisible signature). certify: no_changes, form_fill or comments makes a certification signature. PAdES B-B, SHA-256 (SHA-384 for P-384 keys).",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "certify": {
+            "enum": [
+              "no_changes",
+              "form_fill",
+              "comments"
+            ],
+            "type": "string"
+          },
+          "contact": {
+            "type": "string"
+          },
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "field": {
+            "type": "string"
+          },
+          "id": {
+            "description": "Path of the digital ID (.p12 / .pfx).",
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "out": {
+            "description": "Where to save the signed document.",
+            "type": "string"
+          },
+          "page": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "password": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "rect": {
+            "items": {
+              "type": "number"
+            },
+            "maxItems": 4,
+            "minItems": 4,
+            "type": "array"
+          }
+        },
+        "required": [
+          "doc",
+          "id",
+          "out"
+        ],
+        "type": "object"
+      },
+      "name": "sign_document",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Add certificates (.cer/.crt/.pem/.der, or the certificates in a .p12 with `password`) to the trusted certificates used to validate signatures, or clear the list (clear: true). Every open document is revalidated. Returns the trusted list.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "clear": {
+            "type": "boolean"
+          },
+          "password": {
+            "type": "string"
+          },
+          "paths": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "sign_trust",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Mark or unmark a comment with a checkmark (Acrobat: Mark with checkmark), recorded as a private reply. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "author": {
+            "type": "string"
+          },
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "id": {
+            "description": "The comment's id (from comment_list).",
+            "type": "string"
+          },
+          "index": {
+            "description": "1-based position on the page, as comment_list reports.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "marked": {
+            "description": "Default true.",
+            "type": "boolean"
+          },
+          "page": {
+            "description": "With `index`, instead of `id`.",
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "comment_mark",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Lock or unlock a comment (Properties ▸ Locked). Locked comments can't be moved, resized, restyled or deleted; their text stays editable. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "id": {
+            "description": "The comment's id (from comment_list).",
+            "type": "string"
+          },
+          "index": {
+            "description": "1-based position on the page, as comment_list reports.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "locked": {
+            "description": "Default true.",
+            "type": "boolean"
+          },
+          "page": {
+            "description": "With `index`, instead of `id`.",
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "comment_lock",
+      "read_only": false
+    },
+    {
+      "command": "comment.hide_all",
+      "description": "Hide or show every comment on the page (fields and links still draw). A view setting: the file doesn't change.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "hidden": {
+            "description": "Default true.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "comments_hide",
+      "read_only": false
+    },
+    {
+      "command": "comment.summarize",
+      "description": "Make a PDF summarising every comment (number, author, type, date, text, replies), sorted by page, author, date or type.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "open": {
+            "description": "Also open the result as a new document (default: only when out is omitted).",
+            "type": "boolean"
+          },
+          "out": {
+            "description": "File to write. Omit to open the result as a new unsaved document instead.",
+            "type": "string"
+          },
+          "sort": {
+            "enum": [
+              "page",
+              "author",
+              "date",
+              "type"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "comments_summarize",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Change a comment's text, colour, opacity, line width, rectangle (rectangle/oval/text box) or position (`move` [dx, dy] in points). One undo step.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "color": {
+            "description": "#RRGGBB or a name: yellow, red, orange, green, blue, purple, pink, black, gray, white.",
+            "type": "string"
+          },
+          "contents": {
+            "type": "string"
+          },
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "id": {
+            "description": "The comment's id (from comment_list).",
+            "type": "string"
+          },
+          "index": {
+            "description": "1-based position on the page, as comment_list reports.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "move": {
+            "description": "[x, y] in points from the top-left of the displayed page.",
+            "items": {
+              "type": "number"
+            },
+            "maxItems": 2,
+            "minItems": 2,
+            "type": "array"
+          },
+          "opacity": {
+            "maximum": 1,
+            "minimum": 0,
+            "type": "number"
+          },
+          "page": {
+            "description": "With `index`, instead of `id`.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "rect": {
+            "items": {
+              "type": "number"
+            },
+            "maxItems": 4,
+            "minItems": 4,
+            "type": "array"
+          },
+          "width": {
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "comment_edit",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Delete a comment with its pop-up and replies. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "id": {
+            "description": "The comment's id (from comment_list).",
+            "type": "string"
+          },
+          "index": {
+            "description": "1-based position on the page, as comment_list reports.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "page": {
+            "description": "With `index`, instead of `id`.",
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "comment_delete",
+      "read_only": false
+    },
+    {
+      "command": "protect.password",
+      "description": "Encrypt the document (applied by the next doc_save, a full rewrite). open_password is needed to open it; permissions_password is needed to change security and lifts the restrictions given by printing/changes/copy. Passwords are never echoed back. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "accessibility": {
+            "description": "Allow screen readers to read the text (default true).",
+            "type": "boolean"
+          },
+          "changes": {
+            "description": "Default none.",
+            "enum": [
+              "none",
+              "pages",
+              "fill-sign",
+              "comment-fill-sign",
+              "any-except-extract"
+            ],
+            "type": "string"
+          },
+          "compatibility": {
+            "description": "Default aes-256 (Acrobat X and later).",
+            "enum": [
+              "aes-256",
+              "aes-128",
+              "rc4-128",
+              "rc4-40"
+            ],
+            "type": "string"
+          },
+          "copy": {
+            "description": "Allow copying text and images (default false).",
+            "type": "boolean"
+          },
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "encrypt_metadata": {
+            "description": "Default true.",
+            "type": "boolean"
+          },
+          "open_password": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "permissions_password": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "printing": {
+            "description": "Default high.",
+            "enum": [
+              "none",
+              "low",
+              "high"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "doc_protect",
+      "read_only": false
+    },
+    {
+      "command": "protect.remove",
+      "description": "Remove password security (the document must have been opened with its permissions password, or have none). Applied by the next doc_save. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "doc_unprotect",
+      "read_only": false
+    },
+    {
+      "command": "page.replace",
+      "description": "Replace the content of pages with pages of another PDF (same count). Links, comments, form fields and bookmarks on the original pages stay, as in Acrobat. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "from_pages": {
+            "description": "1-based page numbers of the other file, in order (default: its first pages).",
+            "items": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "pages": {
+            "description": "1-based page numbers to replace.",
+            "items": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "path": {
+            "description": "A file path (relative to --root when set).",
+            "type": "string"
+          }
+        },
+        "required": [
+          "doc",
+          "pages",
+          "path"
+        ],
+        "type": "object"
+      },
+      "name": "page_replace",
+      "read_only": false
+    },
+    {
+      "command": "page.duplicate",
+      "description": "Insert copies of pages after the last of them (fonts and images are shared, not copied). Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "pages": {
+            "description": "1-based page numbers to duplicate.",
+            "items": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "doc",
+          "pages"
+        ],
+        "type": "object"
+      },
+      "name": "page_duplicate",
+      "read_only": false
+    },
+    {
+      "command": "page.boxes",
+      "description": "Set a page box (crop by default; also trim, bleed, art, media) on pages: either margins in points from the media box [left, bottom, right, top], or an absolute rect in points from the top-left of the displayed page. Omit both to reset the box to its default. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "box": {
+            "enum": [
+              "crop",
+              "trim",
+              "bleed",
+              "art",
+              "media"
+            ],
+            "type": "string"
+          },
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "margins": {
+            "items": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "maxItems": 4,
+            "minItems": 4,
+            "type": "array"
+          },
+          "pages": {
+            "description": "1-based page numbers to change (default: all).",
+            "items": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "rect": {
+            "items": {
+              "type": "number"
+            },
+            "maxItems": 4,
+            "minItems": 4,
+            "type": "array"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "page_set_box",
+      "read_only": false
+    },
+    {
+      "command": "edit.header_footer",
+      "description": "Add a header and/or footer to pages. Text boxes: header_left/center/right, footer_left/center/right. Tokens: <<1>> page number, <<n>> page count, <<1 of n>>, <<Page 1 of n>>, <<1/n>>, dates <<m/d/yyyy>> <<yyyy-mm-dd>> <<mmmm d, yyyy>> (and more), Bates <<Bates Number#6#1#PREFIX#SUFFIX>>. replace: true swaps out existing ones (Update). Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "color": {
+            "description": "#RRGGBB or a colour name.",
+            "type": "string"
+          },
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "font_size": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "footer_center": {
+            "type": "string"
+          },
+          "footer_left": {
+            "type": "string"
+          },
+          "footer_right": {
+            "type": "string"
+          },
+          "header_center": {
+            "type": "string"
+          },
+          "header_left": {
+            "type": "string"
+          },
+          "header_right": {
+            "type": "string"
+          },
+          "margins": {
+            "description": "Top, bottom, left, right in points (default 36, 36, 72, 72).",
+            "items": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "maxItems": 4,
+            "minItems": 4,
+            "type": "array"
+          },
+          "pages": {
+            "description": "1-based page numbers to mark (default: all).",
+            "items": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "replace": {
+            "type": "boolean"
+          },
+          "start_number": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "doc_header_footer",
+      "read_only": false
+    },
+    {
+      "command": "edit.watermark",
+      "description": "Add a watermark to pages: text, or a picture from `file` (an image, or page `file_page` of a PDF) at `scale` of the page (default 0.5); rotated (degrees counter-clockwise, default 45), semi-transparent (opacity 0–1, default 0.5), text fitted to the page unless font_size is given, on top unless behind: true. replace: true swaps out existing ones. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "behind": {
+            "type": "boolean"
+          },
+          "color": {
+            "type": "string"
+          },
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "file": {
+            "type": "string"
+          },
+          "file_page": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "font_size": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "opacity": {
+            "maximum": 1,
+            "minimum": 0,
+            "type": "number"
+          },
+          "pages": {
+            "description": "1-based page numbers to mark (default: all).",
+            "items": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "replace": {
+            "type": "boolean"
+          },
+          "rotation": {
+            "type": "number"
+          },
+          "scale": {
+            "exclusiveMinimum": 0,
+            "maximum": 1,
+            "type": "number"
+          },
+          "text": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "doc_watermark",
+      "read_only": false
+    },
+    {
+      "command": "edit.background",
+      "description": "Fill page backgrounds with a colour, or a picture from `file` (an image, or page `file_page` of a PDF) fitted at `scale` (default 1), behind the content. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "color": {
+            "type": "string"
+          },
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "file": {
+            "type": "string"
+          },
+          "file_page": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "opacity": {
+            "maximum": 1,
+            "minimum": 0,
+            "type": "number"
+          },
+          "pages": {
+            "description": "1-based page numbers to fill (default: all).",
+            "items": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "replace": {
+            "type": "boolean"
+          },
+          "scale": {
+            "exclusiveMinimum": 0,
+            "maximum": 1,
+            "type": "number"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "doc_background",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Remove every header and footer, watermark or background PrintCraft (or a compatible tool) added. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "kind": {
+            "enum": [
+              "header_footer",
+              "watermark",
+              "background"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "doc",
+          "kind"
+        ],
+        "type": "object"
+      },
+      "name": "doc_remove_marks",
+      "read_only": false
+    },
+    {
+      "command": "export.image",
+      "description": "Write pages as PNG, JPEG or TIFF files (`<name>_page_<n>.png|jpg|tif`) into a folder, at a resolution (default 150 dpi). JPEG and TIFF are flattened onto white paper. Includes unsaved edits.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "dpi": {
+            "maximum": 1200,
+            "minimum": 18,
+            "type": "number"
+          },
+          "folder": {
+            "type": "string"
+          },
+          "format": {
+            "enum": [
+              "png",
+              "jpeg",
+              "tiff"
+            ],
+            "type": "string"
+          },
+          "pages": {
+            "description": "1-based page numbers to export (default: all).",
+            "items": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "quality": {
+            "description": "JPEG quality (default 85).",
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "doc",
+          "folder"
+        ],
+        "type": "object"
+      },
+      "name": "doc_export_images",
+      "read_only": false
+    },
+    {
+      "command": "a11y.check",
+      "description": "Run the Accessibility Checker's full check (32 rules in 7 categories: document, page_content, forms, alternate_text, tables, lists, headings). Each rule is passed, failed (with findings and pages), manual (needs a person) or skipped. Colour contrast is off unless all is true; rules (ids such as tagged-pdf, figures-alt-text) or categories narrow the check; pages limit the page rules.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "all": {
+            "description": "Include rules that are off by default (colour contrast).",
+            "type": "boolean"
+          },
+          "categories": {
+            "items": {
+              "enum": [
+                "document",
+                "page_content",
+                "forms",
+                "alternate_text",
+                "tables",
+                "lists",
+                "headings"
+              ],
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "pages": {
+            "description": "1-based page numbers for the page rules (default: all).",
+            "items": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "rules": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "accessibility_check",
+      "read_only": true
+    },
+    {
+      "command": "a11y.report",
+      "description": "Run the full check and write the accessibility report (HTML) to path; returns the results too. Takes the same options as accessibility_check.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "all": {
+            "type": "boolean"
+          },
+          "categories": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "pages": {
+            "description": "1-based page numbers for the page rules (default: all).",
+            "items": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "path": {
+            "type": "string"
+          },
+          "rules": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "doc",
+          "path"
+        ],
+        "type": "object"
+      },
+      "name": "accessibility_report",
+      "read_only": true
+    },
+    {
+      "command": null,
+      "description": "Apply the checker's automatic fix for a rule: primary-language (value: the language, e.g. en-US), title (value: the title; default the current title or file name; also shows it in the title bar) or tab-order (every page tabs in structure order). Returns the rule's new status. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "rule": {
+            "enum": [
+              "primary-language",
+              "title",
+              "tab-order"
+            ],
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "doc",
+          "rule"
+        ],
+        "type": "object"
+      },
+      "name": "accessibility_fix",
+      "read_only": false
+    },
+    {
+      "command": "a11y.alt_text",
+      "description": "The tagged figures (Figure elements, through the role map) in document order: figure number, page, alternate text and where the figure is drawn (top-left-origin points).",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "accessibility_figures",
+      "read_only": true
+    },
+    {
+      "command": "a11y.alt_text",
+      "description": "Set a figure's alternate text (alt; empty or omitted clears it), or mark it decorative (decorative: true: its content becomes an artifact and the figure leaves the tags). figure is a number from accessibility_figures. Returns the figures. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "alt": {
+            "type": "string"
+          },
+          "decorative": {
+            "type": "boolean"
+          },
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "figure": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "doc",
+          "figure"
+        ],
+        "type": "object"
+      },
+      "name": "accessibility_set_alt",
+      "read_only": false
+    },
+    {
+      "command": "form.merge_data",
+      "description": "Collect the field values of form data files (FDF, XFDF) or filled-in PDF forms into one CSV file at path: a column per field name, a row per file. Returns the row and column counts.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "paths": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "paths",
+          "path"
+        ],
+        "type": "object"
+      },
+      "name": "form_merge_data",
+      "read_only": false
+    },
+    {
+      "command": "tools.js_console",
+      "description": "Run Acrobat JavaScript in the document, as the JavaScript console does (or as push button `field`'s Mouse Up script when field is given). The form object model is available: this/getField, event, app, util, console, display, color, and the document-level scripts. Field changes and resetForm are applied as one undoable step; returns the script's alerts, console output, requests (print, page, url, submit) and error.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "field": {
+            "description": "Run as this button's Mouse Up event.",
+            "type": "string"
+          },
+          "script": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "doc",
+          "script"
+        ],
+        "type": "object"
+      },
+      "name": "js_run",
+      "read_only": false
+    },
+    {
+      "command": "tools.document_js",
+      "description": "List the document-level JavaScripts (name and source), which define functions field scripts use.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "js_document_scripts",
+      "read_only": true
+    },
+    {
+      "command": "tools.document_js",
+      "description": "Add or replace the document-level JavaScript `name` with `script`, or delete it (script omitted). Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "name": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "script": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "doc",
+          "name"
+        ],
+        "type": "object"
+      },
+      "name": "js_set_document_script",
+      "read_only": false
+    },
+    {
+      "command": "form.prepare",
+      "description": "Field Properties ▸ Run custom script: set field's JavaScript for event keystroke, format, validate or calculate (the field's actions; calculated fields join the calculation order) or mouse_up (a button's action). Omit script to remove it. The scripts use Acrobat's object model (event.value, event.rc, getField, util.printf, …) and run when the field changes. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "event": {
+            "enum": [
+              "keystroke",
+              "format",
+              "validate",
+              "calculate",
+              "mouse_up"
+            ],
+            "type": "string"
+          },
+          "field": {
+            "type": "string"
+          },
+          "script": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "doc",
+          "field",
+          "event"
+        ],
+        "type": "object"
+      },
+      "name": "form_set_script",
+      "read_only": false
+    },
+    {
+      "command": "export.docx",
+      "description": "Export a PDF ▸ Word (.docx), HTML (.html, one file with images inline) or RTF (.rtf), chosen by path's extension: paragraphs in reading order, headings from larger text, bold and italic, images where they fall, a page break between pages.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "path": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "doc",
+          "path"
+        ],
+        "type": "object"
+      },
+      "name": "doc_export_office",
+      "read_only": false
+    },
+    {
+      "command": "standards.pdfa",
+      "description": "Standards ▸ Verify PDF/A compliance: the PDF/A-2b or 3b rules the document breaks (ISO 19005 clause, message, page, whether Save as PDF/A can fix it), plus what it declares.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "level": {
+            "description": "Default 2b.",
+            "enum": [
+              "2b",
+              "3b"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "pdfa_verify",
+      "read_only": true
+    },
+    {
+      "command": "standards.pdfa",
+      "description": "Standards ▸ Save as PDF/A: fix what can be fixed for PDF/A-2b or 3b (XMP identification and metadata, an sRGB output intent, forbidden actions and JavaScript, annotation print flags, image interpolation, encryption). Returns what was fixed and what remains (e.g. fonts that aren't embedded). Undoable; save the document to keep it.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "level": {
+            "enum": [
+              "2b",
+              "3b"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "pdfa_convert",
+      "read_only": false
+    },
+    {
+      "command": "actions.wizard",
+      "description": "Action Wizard: the built-in actions (name, description, steps) and every step an action can use (id, label, whether it takes a text argument).",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {},
+        "required": [],
+        "type": "object"
+      },
+      "name": "action_list",
+      "read_only": true
+    },
+    {
+      "command": "actions.wizard",
+      "description": "Action Wizard: run a built-in action (action: its name) or a list of steps ([{step, arg}], ids from action_list) on each PDF in paths, writing the results into folder under the same names. Returns each file's step log or error.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "folder": {
+            "type": "string"
+          },
+          "paths": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "steps": {
+            "items": {
+              "properties": {
+                "arg": {
+                  "type": "string"
+                },
+                "step": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "step"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "paths",
+          "folder"
+        ],
+        "type": "object"
+      },
+      "name": "action_run",
+      "read_only": false
+    },
+    {
+      "command": "doc.compare",
+      "description": "Compare the text of two open documents: other is the older version, doc the newer. Returns counts and each change (replaced, inserted, deleted) with the old and new text, pages (1-based) and rectangles (points, origin bottom-left).",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "limit": {
+            "description": "List at most this many changes (default 500).",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "other": {
+            "description": "The older document (from doc_open).",
+            "type": "integer"
+          },
+          "visual": {
+            "description": "Also compare how pages look (page n with page n): regions that differ visually.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "doc",
+          "other"
+        ],
+        "type": "object"
+      },
+      "name": "doc_compare",
+      "read_only": true
+    },
+    {
+      "command": "doc.compare",
+      "description": "Write the compare summary report (a PDF listing every change) to path.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "other": {
+            "type": "integer"
+          },
+          "path": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "doc",
+          "other",
+          "path"
+        ],
+        "type": "object"
+      },
+      "name": "doc_compare_report",
+      "read_only": false
+    },
+    {
+      "command": "doc.compare",
+      "description": "Add the differences from other (older) to doc (newer) as comments in doc: highlights over replaced (blue) and inserted (green) text, notes where text was deleted (red), authored Compare. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "other": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "doc",
+          "other"
+        ],
+        "type": "object"
+      },
+      "name": "doc_compare_mark",
+      "read_only": false
+    },
+    {
+      "command": "form.detect",
+      "description": "Prepare a form ▸ automatic field detection: find the blanks a printed form asks to be filled (underscore runs, lines, empty boxes, small squares for check boxes) and name each field from its label. With add (default true) the fields are created as one undoable step; otherwise they are only proposed. Returns page (1-based), kind, name and rect (points, origin bottom-left).",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "add": {
+            "type": "boolean"
+          },
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "pages": {
+            "description": "1-based page numbers to look at (default: all).",
+            "items": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "form_detect_fields",
+      "read_only": false
+    },
+    {
+      "command": "form.prepare",
+      "description": "Field Properties ▸ Actions: the field's action for each trigger (mouse_up, mouse_down, mouse_enter, mouse_exit, on_focus, on_blur).",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "field": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "doc",
+          "field"
+        ],
+        "type": "object"
+      },
+      "name": "form_actions",
+      "read_only": true
+    },
+    {
+      "command": "form.prepare",
+      "description": "Field Properties ▸ Actions: replace the field's actions. Each item: trigger (mouse_up, mouse_down, mouse_enter, mouse_exit, on_focus, on_blur) and one of javascript (source), url, reset (field names; [] for all), menu (Print, NextPage, PrevPage, FirstPage, LastPage), page (1-based), show / hide (field names), submit (URL). Triggers not listed lose their action. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "actions": {
+            "items": {
+              "properties": {
+                "hide": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "javascript": {
+                  "type": "string"
+                },
+                "menu": {
+                  "type": "string"
+                },
+                "page": {
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                "reset": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "show": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "submit": {
+                  "type": "string"
+                },
+                "trigger": {
+                  "enum": [
+                    "mouse_up",
+                    "mouse_down",
+                    "mouse_enter",
+                    "mouse_exit",
+                    "on_focus",
+                    "on_blur"
+                  ],
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "trigger"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "field": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "doc",
+          "field",
+          "actions"
+        ],
+        "type": "object"
+      },
+      "name": "form_set_actions",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Preferences ▸ JavaScript ▸ Enable Acrobat JavaScript: set it with `enabled`, or read it. With JavaScript off, field scripts other than Acrobat's AF calls don't run.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "js_enabled",
+      "read_only": false
+    },
+    {
+      "command": "ocr.recognize",
+      "description": "Scan & OCR ▸ Recognize text: render pages, read the words in them and add them as invisible text over the page image, so scanned pages become searchable and selectable (a searchable image; the image is not changed). Pages that already have text are skipped unless skip_text_pages is false. Returns each page's recognised text, word count or why it was skipped. Needs the OCR models (ocr_status). Undoable as one step.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "dpi": {
+            "description": "Resolution pages are read at (default 300; a scanned page is read at most at its own resolution).",
+            "maximum": 600,
+            "minimum": 72,
+            "type": "number"
+          },
+          "language": {
+            "description": "Document language (default en).",
+            "enum": [
+              "en"
+            ],
+            "type": "string"
+          },
+          "pages": {
+            "description": "1-based page numbers to recognise (default: all).",
+            "items": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "skip_text_pages": {
+            "description": "Leave pages that already contain text alone (default true).",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "ocr_recognize",
+      "read_only": false
+    },
+    {
+      "command": "ocr.recognize_batch",
+      "description": "Scan & OCR ▸ Recognize text ▸ In multiple files: read every page of each PDF in paths and write the searchable result into folder under the same name (pages that already have text are left alone). Returns, per file, the output path, word count and skipped pages, or the error.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "dpi": {
+            "maximum": 600,
+            "minimum": 72,
+            "type": "number"
+          },
+          "folder": {
+            "type": "string"
+          },
+          "language": {
+            "enum": [
+              "en"
+            ],
+            "type": "string"
+          },
+          "paths": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "paths",
+          "folder"
+        ],
+        "type": "object"
+      },
+      "name": "ocr_recognize_files",
+      "read_only": false
+    },
+    {
+      "command": "ocr.recognize",
+      "description": "Whether text recognition is available (its models are installed: run `cargo xtask models` or set PRINTCRAFT_MODELS), where it looks for them, and the languages it reads.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {},
+        "required": [],
+        "type": "object"
+      },
+      "name": "ocr_status",
+      "read_only": true
+    },
+    {
+      "command": "export.all_images",
+      "description": "Write the images that pages use into a folder (`<name>_Page_<n>_Image_<k>.jpg|png`), each once: JPEG images unchanged, others as PNG with their soft mask as alpha. min_size skips images with fewer pixels on their shorter side. Images that can't be decoded yet (JPEG 2000, JBIG2, CCITT, separations) are listed under skipped. Includes unsaved edits.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "folder": {
+            "type": "string"
+          },
+          "min_size": {
+            "description": "Skip images smaller than this many pixels on their shorter side (default 0).",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "pages": {
+            "description": "1-based page numbers whose images to export (default: all).",
+            "items": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "doc",
+          "folder"
+        ],
+        "type": "object"
+      },
+      "name": "doc_export_all_images",
+      "read_only": false
+    },
+    {
+      "command": "export.text",
+      "description": "Write the reading-order text of pages to a .txt file (pages separated by form feeds).",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "pages": {
+            "description": "1-based page numbers to export (default: all).",
+            "items": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "path": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "doc",
+          "path"
+        ],
+        "type": "object"
+      },
+      "name": "doc_export_text",
+      "read_only": false
+    },
+    {
+      "command": "sign.fill.text",
+      "description": "Fill in a form that has no fields, as Acrobat's Fill & Sign does: type text (`text`, 10 pt), place a check, cross, dot or line, today's date, or a typed signature or initials (`text` drawn in a script font as filled outlines; at is its left edge, centred vertically), at `at` [x, y] in points from the top-left of the page (the text's top-left; a mark's centre). Creates movable, undoable annotations.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "at": {
+            "description": "[x, y] in points from the top-left of the displayed page.",
+            "items": {
+              "type": "number"
+            },
+            "maxItems": 2,
+            "minItems": 2,
+            "type": "array"
+          },
+          "author": {
+            "type": "string"
+          },
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "page": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "text": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "text",
+              "check",
+              "cross",
+              "dot",
+              "line",
+              "date",
+              "signature",
+              "initials"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "doc",
+          "page",
+          "type",
+          "at"
+        ],
+        "type": "object"
+      },
+      "name": "fill_sign_add",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Create a new, unsaved document and return it like doc_open: `blank` (pages, width, height in points; default 1 US Letter page), `images` (paths of PNG, JPEG, TIFF (every page), GIF or BMP files, one page each at the image's resolution) or `text` (a .txt path, or `text` directly). Save it with doc_save and a path.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "from": {
+            "enum": [
+              "blank",
+              "images",
+              "text"
+            ],
+            "type": "string"
+          },
+          "height": {
+            "minimum": 3,
+            "type": "number"
+          },
+          "name": {
+            "description": "Name for the new document (default derived from the source).",
+            "type": "string"
+          },
+          "pages": {
+            "maximum": 10000,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "path": {
+            "type": "string"
+          },
+          "paths": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "text": {
+            "type": "string"
+          },
+          "width": {
+            "minimum": 3,
+            "type": "number"
+          }
+        },
+        "required": [
+          "from"
+        ],
+        "type": "object"
+      },
+      "name": "doc_create",
+      "read_only": false
+    },
+    {
+      "command": "optimize.reduce",
+      "description": "Write a smaller copy of the document to `path` with Acrobat's Reduce File Size choices: images above 225 ppi downsampled to 150 ppi and JPEG-compressed (medium quality), thumbnails dropped, identical fonts and images merged, unused objects dropped, compressed object streams. The open document is unchanged.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "path": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "doc",
+          "path"
+        ],
+        "type": "object"
+      },
+      "name": "doc_reduce",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Read or change how the document opens (Document Properties ▸ Initial View) and its reading options: navigation (page, bookmarks, pages, attachments, layers), layout (default, single, continuous, two_up, two_up_continuous, two_up_cover, two_up_continuous_cover), magnification (default, actual, fit_page, fit_width, fit_height, fit_visible, or a percentage), page, window options (fit_window, center_window, full_screen, display_title), interface options (hide_menubar, hide_toolbar, hide_window_ui), language and binding (left, right). Only the given ones change; returns the result. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "binding": {
+            "enum": [
+              "left",
+              "right"
+            ],
+            "type": "string"
+          },
+          "center_window": {
+            "type": "boolean"
+          },
+          "display_title": {
+            "type": "boolean"
+          },
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "fit_window": {
+            "type": "boolean"
+          },
+          "full_screen": {
+            "type": "boolean"
+          },
+          "hide_menubar": {
+            "type": "boolean"
+          },
+          "hide_toolbar": {
+            "type": "boolean"
+          },
+          "hide_window_ui": {
+            "type": "boolean"
+          },
+          "language": {
+            "type": "string"
+          },
+          "layout": {
+            "enum": [
+              "default",
+              "single",
+              "continuous",
+              "two_up",
+              "two_up_continuous",
+              "two_up_cover",
+              "two_up_continuous_cover"
+            ],
+            "type": "string"
+          },
+          "magnification": {},
+          "navigation": {
+            "enum": [
+              "page",
+              "bookmarks",
+              "pages",
+              "attachments",
+              "layers"
+            ],
+            "type": "string"
+          },
+          "page": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "doc_initial_view",
+      "read_only": false
+    },
+    {
+      "command": "optimize.advanced",
+      "description": "How many bytes each kind of content takes and its share of the file (PDF Optimizer ▸ Audit space usage): images, content streams, fonts, forms, comments, structure, bookmarks, … and document overhead.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "doc_audit_space",
+      "read_only": true
+    },
+    {
+      "command": "edit.edit_text",
+      "description": "The lines of existing text on a page (Edit a PDF ▸ Edit text): number, text, box (top-left-origin points), font and size. Use the number with text_edit.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "page": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "doc",
+          "page"
+        ],
+        "type": "object"
+      },
+      "name": "text_lines",
+      "read_only": true
+    },
+    {
+      "command": "edit.edit_text",
+      "description": "The images a page draws (Edit a PDF): number, box (top-left-origin points), pixel size and resource name.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "page": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "doc",
+          "page"
+        ],
+        "type": "object"
+      },
+      "name": "page_images",
+      "read_only": true
+    },
+    {
+      "command": "edit.edit_text",
+      "description": "Change one of a page's images (number from page_images): action move (rect: new box in top-left-origin points), rotate (quarters clockwise, default 1), flip_horizontal, flip_vertical, replace (path: an image file, drawn in the same place) or delete. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "enum": [
+              "move",
+              "rotate",
+              "flip_horizontal",
+              "flip_vertical",
+              "replace",
+              "delete"
+            ],
+            "type": "string"
+          },
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "image": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "page": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "path": {
+            "type": "string"
+          },
+          "quarters": {
+            "type": "integer"
+          },
+          "rect": {
+            "items": {
+              "type": "number"
+            },
+            "maxItems": 4,
+            "minItems": 4,
+            "type": "array"
+          }
+        },
+        "required": [
+          "doc",
+          "page",
+          "image",
+          "action"
+        ],
+        "type": "object"
+      },
+      "name": "image_edit",
+      "read_only": false
+    },
+    {
+      "command": "edit.edit_text",
+      "description": "Write one of a page's images to path: JPEG images unchanged, others as PNG (the extension is added when missing).",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "image": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "page": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "path": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "doc",
+          "page",
+          "image",
+          "path"
+        ],
+        "type": "object"
+      },
+      "name": "image_save",
+      "read_only": true
+    },
+    {
+      "command": "edit.edit_text",
+      "description": "The paragraphs on a page (lines grouped by font, size, alignment and spacing): number, text, its line numbers, box (top-left-origin points), font and size. Use the number with text_edit's paragraph.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "page": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "doc",
+          "page"
+        ],
+        "type": "object"
+      },
+      "name": "text_paragraphs",
+      "read_only": true
+    },
+    {
+      "command": "edit.edit_text",
+      "description": "Replace the text of one paragraph (paragraph, from text_paragraphs: rewrapped to the paragraph's width with its line spacing) or one line (line, from text_lines) in place, keeping position, size and colour. For a paragraph, also change its formatting: font (helvetica, times, courier) with bold/italic, size (points), color (#rrggbb), align (left, center, right, justify), underline, line_spacing (× size), char_spacing (points) and scale (horizontal, percent), or move it (dx, dy in points; up is +dy) and rewrap it to a new width (points); text may then be omitted. Its own font is reused when it can show every character; otherwise the line is set in Helvetica (the result shows the font used). Text that no available font can show is refused. Undoable.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "align": {
+            "enum": [
+              "left",
+              "center",
+              "right",
+              "justify"
+            ],
+            "type": "string"
+          },
+          "bold": {
+            "type": "boolean"
+          },
+          "char_spacing": {
+            "description": "Points.",
+            "type": "number"
+          },
+          "color": {
+            "description": "#rrggbb",
+            "type": "string"
+          },
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "dx": {
+            "description": "Paragraph only: move right by this many points (negative: left).",
+            "type": "number"
+          },
+          "dy": {
+            "description": "Paragraph only: move up by this many points (negative: down).",
+            "type": "number"
+          },
+          "font": {
+            "enum": [
+              "helvetica",
+              "times",
+              "courier"
+            ],
+            "type": "string"
+          },
+          "italic": {
+            "type": "boolean"
+          },
+          "line": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "line_spacing": {
+            "description": "Multiple of the font size (1.2 is ordinary).",
+            "type": "number"
+          },
+          "page": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "paragraph": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "scale": {
+            "description": "Horizontal scale in percent.",
+            "type": "number"
+          },
+          "size": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "text": {
+            "type": "string"
+          },
+          "underline": {
+            "type": "boolean"
+          },
+          "width": {
+            "description": "Paragraph only: rewrap to this width in points (dragging the box's edge).",
+            "type": "number"
+          }
+        },
+        "required": [
+          "doc",
+          "page"
+        ],
+        "type": "object"
+      },
+      "name": "text_edit",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "List the document's saved revisions (oldest first): each incremental update is one. Returns revision number, where it ends in the file and its size, and which signatures sign exactly that revision.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "doc_revisions",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Open saved revision `revision` (1 = the oldest) of a document as a new, unsaved document, to see the file as it was then.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "revision": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "doc",
+          "revision"
+        ],
+        "type": "object"
+      },
+      "name": "doc_open_revision",
+      "read_only": false
+    },
+    {
+      "command": "optimize.advanced",
+      "description": "Write an optimized copy to `path` (Acrobat's PDF Optimizer). color / gray: { downsample, ppi, above_ppi, compression: jpeg|zip|retain, quality 1–100 } (defaults: downsample to 150 ppi above 225, JPEG 60). Images are measured where pages draw them and replaced only when smaller. discard_*: thumbnails (default true), alternate_images (true), tags, print_settings; flate_unencoded (true); remove_invalid_links and remove_unreferenced_dests (true). discard: Remove Hidden Information categories (metadata, attachments, comments, form-fields, hidden-text, hidden-layers, bookmarks, links-actions-scripts, private-data). Signed documents are refused. The open document is unchanged.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "color": {
+            "type": "object"
+          },
+          "discard": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "discard_alternate_images": {
+            "type": "boolean"
+          },
+          "discard_print_settings": {
+            "type": "boolean"
+          },
+          "discard_tags": {
+            "type": "boolean"
+          },
+          "discard_thumbnails": {
+            "type": "boolean"
+          },
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "flate_unencoded": {
+            "type": "boolean"
+          },
+          "gray": {
+            "type": "object"
+          },
+          "path": {
+            "type": "string"
+          },
+          "remove_invalid_links": {
+            "type": "boolean"
+          },
+          "remove_unreferenced_dests": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "doc",
+          "path"
+        ],
+        "type": "object"
+      },
+      "name": "doc_optimize",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Merge comment and/or form field appearances into the page content, so they print and display everywhere but can no longer be edited. Undoable until saved.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "comments": {
+            "description": "Default true.",
+            "type": "boolean"
+          },
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "fields": {
+            "description": "Default true.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "doc_flatten",
+      "read_only": false
+    },
+    {
+      "command": "edit.undo",
+      "description": "Undo the last edit of a document.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "edit_undo",
+      "read_only": false
+    },
+    {
+      "command": "edit.redo",
+      "description": "Redo the last undone edit of a document.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "doc"
+        ],
+        "type": "object"
+      },
+      "name": "edit_redo",
+      "read_only": false
+    },
+    {
+      "command": null,
+      "description": "Every registered PrintCraft command with its menu, shortcut, whether it is enabled now, and the tool that automates it.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc": {
+            "description": "Document id from doc_open or doc_list.",
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "name": "command_list",
+      "read_only": true
+    }
+  ]
+}

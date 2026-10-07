@@ -156,6 +156,21 @@ MIGRATIONS: list[str] = [
     ALTER TABLE deadlines ADD COLUMN source_ref TEXT NOT NULL DEFAULT '';
     ALTER TABLE mails ADD COLUMN hub_id TEXT NOT NULL DEFAULT '';
     """,
+    # 4: immutable PrintCraft outputs linked to their source document/revision
+    """
+    CREATE TABLE printcraft_artifacts (
+      artifact_id TEXT PRIMARY KEY,
+      source_doc_id TEXT REFERENCES documents(id) ON DELETE SET NULL,
+      parent_artifact_id TEXT REFERENCES printcraft_artifacts(artifact_id) ON DELETE SET NULL,
+      path TEXT NOT NULL,
+      source_sha TEXT NOT NULL DEFAULT '',
+      output_sha TEXT NOT NULL,
+      engine_release TEXT NOT NULL,
+      operation TEXT NOT NULL,
+      created_ts REAL NOT NULL
+    );
+    CREATE INDEX printcraft_artifacts_source ON printcraft_artifacts(source_doc_id, created_ts);
+    """,
 ]
 
 

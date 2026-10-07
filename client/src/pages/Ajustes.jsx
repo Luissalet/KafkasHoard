@@ -395,6 +395,7 @@ export default function Ajustes() {
         <div className="panel">
           <SettingsForm settings={settings} onSaved={reload} fields={[
             { key: "workshop.dir", type: "text", label: t("tl_workshop_dir"), hint: t("tl_workshop_dir_hint"), wide: true },
+            { key: "printcraft.cli", type: "text", label: t("printcraft_cli"), hint: t("printcraft_cli_hint"), wide: true },
           ]} />
         </div>
       </Section>

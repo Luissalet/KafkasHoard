@@ -115,3 +115,7 @@ Everything lives in `data/` (or `KAFKA_DATA_DIR`): `kafka.db`, `files/` (origina
 - **Events.** Emitted by the engine: `kafka.document.archived`, `kafka.warranty.created`, `kafka.deadline.created`, `kafka.deadline.soon` and `kafka.deadline.overdue`. The last two go once per deadline, date and state (markers in the settings table). History is quiet, so none are emitted for old documents.
 - **Ledger link.** `engine.link_ledger` asks Ledger's `tx_find`, links one strong match (score of 0.8 or more, and only one) with `tx_attach_doc` and a reference, and keeps the movement in the document's facts (`ledger_tx`). `retry_ledger_links` runs from housekeeping once a day for documents of the last 45 days.
 - **Cross-app tools.** `deadline_add` (idempotent by `source_ref` and title), `deadlines_from_minutes` (Funes `minutes_get`), `tax_pack`, `document_link_tx`. Calls to other apps go through `Engine._fcall`, which never raises.
+
+## PrintCraft local PDF engine
+
+Kafka wraps the pinned PrintCraft 0.2.1 CLI using per-call scratch folders, input path confinement, immutable output files and persisted SHA-256 receipts. Native operation schemas are pinned in `kafka_hoard/workshop/printcraft-tools-0.2.1.json`; `printcraft_catalog`, `printcraft_status`, `printcraft_workflow` and `printcraft_artifacts` share API/UI/MCP dispatch. The optional portable executable is selected through the `printcraft.cli` setting, `KAFKA_PRINTCRAFT_CLI`, PATH, or `native-craft-bundles/`.

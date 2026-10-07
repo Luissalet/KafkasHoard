@@ -109,6 +109,33 @@ class Store:
     def find_document(self, did: str) -> Optional[dict[str, Any]]:
         return _doc(self.db.one("SELECT * FROM documents WHERE id = ?", ((did or "").strip(),)))
 
+    # ---------------------------------------------------------- PrintCraft receipts
+    def create_printcraft_artifact(self, *, artifact_id: str, source_doc_id: Optional[str], parent_artifact_id: str,
+                                   path: str, source_sha: str, output_sha: str, engine_release: str,
+                                   operation: str) -> dict[str, Any]:
+        self.db.execute(
+            "INSERT INTO printcraft_artifacts(artifact_id, source_doc_id, parent_artifact_id, path, source_sha, output_sha, engine_release, operation, created_ts) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (artifact_id, source_doc_id, parent_artifact_id or None, path, source_sha, output_sha, engine_release, operation, self.clock()),
+        )
+        return self.printcraft_artifact(artifact_id)
+
+    def printcraft_artifact(self, artifact_id: str) -> dict[str, Any]:
+        row = self.db.one("SELECT * FROM printcraft_artifacts WHERE artifact_id = ?", (artifact_id,))
+        if row is None:
+            raise KafkaError("not_found", f"No existe la revisión PrintCraft {artifact_id}.")
+        return dict(row)
+
+    def printcraft_artifacts(self, source_doc_id: str = "") -> list[dict[str, Any]]:
+        if not source_doc_id:
+            rows = self.db.query("SELECT * FROM printcraft_artifacts ORDER BY created_ts DESC LIMIT 100")
+        else:
+            rows = self.db.query("SELECT * FROM printcraft_artifacts WHERE source_doc_id = ? ORDER BY created_ts", (source_doc_id,))
+        return [dict(row) for row in rows]
+
+    def printcraft_artifact_path_exists(self, path: str) -> bool:
+        return self.db.one("SELECT 1 FROM printcraft_artifacts WHERE path = ? LIMIT 1", (path,)) is not None
+
     def document_by_sha(self, sha: str) -> Optional[dict[str, Any]]:
         return _doc(self.db.one("SELECT * FROM documents WHERE file_sha = ? AND file_sha != '' ORDER BY created_ts LIMIT 1", (sha,)))
 

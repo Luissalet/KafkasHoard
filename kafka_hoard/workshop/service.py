@@ -99,7 +99,13 @@ class Workshop:
             p.relative_to(self.root.resolve())
             return True
         except ValueError:
-            return str(p) in self.produced
+            if str(p) in self.produced:
+                return True
+            # Receipt paths survive an app restart; serve only files with a persisted receipt.
+            try:
+                return bool(self.store.printcraft_artifact_path_exists(str(p)))
+            except Exception:
+                return False
 
     def _check_out(self, folder: Path) -> Path:
         reason = paths.unsafe_output_dir(folder, self.config.data_dir)

@@ -34,7 +34,10 @@ def _same_origin(request: Request) -> None:
 
 @router.get("/status")
 def status(request: Request) -> dict[str, Any]:
-    return services(request).workshop.status()
+    svc = services(request)
+    result = svc.workshop.status()
+    result["printcraft"] = svc.printcraft.status()
+    return result
 
 
 @router.post("/upload")

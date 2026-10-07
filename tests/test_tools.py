@@ -23,7 +23,7 @@ def test_the_catalogue_has_unique_names_and_valid_schemas():
     names = [t.name for t in TOOLS]
     assert len(names) == len(set(names)) >= 51
     for t in TOOLS:
-        schema = t.input_model.model_json_schema()
+        schema = t.input_model if isinstance(t.input_model, dict) else t.input_model.model_json_schema()
         assert schema["type"] == "object"
         assert "Sinónimos:" in t.description
         assert {"readOnlyHint", "destructiveHint", "idempotentHint", "openWorldHint"} <= set(t.annotations)
@@ -272,7 +272,8 @@ def test_the_workshop_tools_are_in_the_catalogue_and_documented():
     wanted = {"pdf_merge", "pdf_split", "pdf_pages", "pdf_compress", "pdf_protect", "pdf_watermark", "pdf_info", "pdf_metadata_set", "pdf_from_images",
               "pdf_from_office", "pdf_to_images", "images_compress"}
     names = {t.name for t in TOOLS}
-    assert wanted <= names and len(names) == 59
+    assert wanted <= names and len(names) == 186
+    assert sum(name.startswith("printcraft_") and name not in {"printcraft_workflow", "printcraft_status", "printcraft_artifacts", "printcraft_catalog"} for name in names) == 123
     from pathlib import Path
     api = (Path(__file__).resolve().parent.parent / "docs" / "API.md").read_text(encoding="utf-8")
     for name in wanted:

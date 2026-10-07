@@ -34,6 +34,107 @@ const DEFAULTS = {
   limit: "5", unit: "MB", recursive: true, lossless: false, skip_small: false,
 };
 
+function PrintCraftEditor({ status, doc }) {
+  const { t, notify } = useApp();
+  const [busy, run] = useBusy();
+  const [docRef, setDocRef] = useState(doc?.id || "");
+  const [page, setPage] = useState("1");
+  const [paragraph, setParagraph] = useState("1");
+  const [replacement, setReplacement] = useState("");
+  const [insertPath, setInsertPath] = useState("");
+  const [insertAt, setInsertAt] = useState("2");
+  const [rotatePages, setRotatePages] = useState("");
+  const [degrees, setDegrees] = useState("90");
+  const [catalog, setCatalog] = useState(null);
+  const [filter, setFilter] = useState("");
+  const [paragraphs, setParagraphs] = useState(null);
+  const [revisions, setRevisions] = useState(null);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
+  useEffect(() => { if (doc?.id) setDocRef(doc.id); }, [doc?.id]);
+
+  const showError = (e) => setError(e);
+  const inspect = () => run("inspect", async () => {
+    try { setError(null); setParagraphs(await api.call("printcraft_text_paragraphs", { doc: docRef.trim(), page: Number(page) })); }
+    catch (e) { showError(e); }
+  });
+  const inspectCatalog = () => run("catalog", async () => {
+    try { setError(null); setCatalog(await api.call("printcraft_catalog", {})); }
+    catch (e) { showError(e); }
+  });
+  const loadRevisions = () => run("revisions", async () => {
+    try { setError(null); setRevisions(await api.call("printcraft_artifacts", { doc: docRef.trim() })); }
+    catch (e) { showError(e); }
+  });
+  const edit = () => run("edit", async () => {
+    try {
+      setError(null);
+      const actions = [];
+      if (replacement.trim()) actions.push({ tool: "text_edit", arguments: { page: Number(page), paragraph: Number(paragraph), text: replacement } });
+      if (insertPath.trim()) actions.push({ tool: "page_insert_file", arguments: { path: insertPath.trim(), at: Math.max(1, Number(insertAt) || 1) } });
+      if (rotatePages.trim()) {
+        const pages = rotatePages.split(/[;,\s]+/).filter(Boolean).map(Number);
+        if (pages.some((n) => !Number.isInteger(n) || n < 1)) throw new Error(t("pc_pages_invalid"));
+        actions.push({ tool: "page_rotate", arguments: { pages, degrees: Number(degrees) } });
+      }
+      if (!docRef.trim() || !actions.length) throw new Error(t("pc_need_action"));
+      const next = await api.call("printcraft_workflow", { doc: docRef.trim(), actions });
+      setResult(next);
+      setParagraphs(null);
+      setRevisions(null);
+      notify(t("pc_saved"));
+    } catch (e) { showError(e); }
+  });
+  const available = !!status?.available;
+  const filtered = (catalog?.tools || []).filter((item) => !filter || `${item.name} ${item.description}`.toLowerCase().includes(filter.toLowerCase()));
+
+  return (
+    <Section id="sec-printcraft" title={t("pc_title")} count={status?.tool_count}>
+      <div className="panel space-y-4">
+        <p className="help">{t("pc_intro")}</p>
+        <div className="flex flex-wrap items-center gap-2">
+          <Chip className={available ? "chip-ok" : "chip-amber"}>{available ? `${status.engine} · ${status.tool_count} ${t("pc_tools")}` : t("pc_unavailable")}</Chip>
+          {status?.path && <span className="help mono" style={{ overflowWrap: "anywhere" }}>{status.path}</span>}
+        </div>
+        {!available && <p className="help">{t("pc_setup")}</p>}
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Field label={t("pc_document")} hint={t("pc_document_hint")}><input className="field mono" value={docRef} onChange={(e) => setDocRef(e.target.value)} placeholder="d_…" /></Field>
+          <Field label={t("pc_page")}><input className="field num" type="number" min="1" value={page} onChange={(e) => setPage(e.target.value)} /></Field>
+          <Field label={t("pc_paragraph")}><input className="field num" type="number" min="1" value={paragraph} onChange={(e) => setParagraph(e.target.value)} /></Field>
+          <Field label={t("pc_replacement")} hint={t("pc_replacement_hint")}><input className="field" value={replacement} onChange={(e) => setReplacement(e.target.value)} /></Field>
+          <Field label={t("pc_insert_path")} hint={t("pc_insert_path_hint")}><input className="field mono" value={insertPath} onChange={(e) => setInsertPath(e.target.value)} placeholder="C:\\...\\insert.pdf" /></Field>
+          <Field label={t("pc_insert_at")}><input className="field num" type="number" min="1" value={insertAt} onChange={(e) => setInsertAt(e.target.value)} /></Field>
+          <Field label={t("pc_rotate_pages")} hint={t("pc_rotate_pages_hint")}><input className="field" value={rotatePages} onChange={(e) => setRotatePages(e.target.value)} placeholder="1,2" /></Field>
+          <Field label={t("pc_degrees")}><select className="field" value={degrees} onChange={(e) => setDegrees(e.target.value)}><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option></select></Field>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Busy type="button" className="btn btn-sm" busy={busy.inspect} onClick={inspect} disabled={!available || !docRef.trim()}>{t("pc_inspect")}</Busy>
+          <Busy type="button" className="btn btn-sm btn-primary" busy={busy.edit} onClick={edit} disabled={!available || !docRef.trim()}>{t("pc_run")}</Busy>
+          <Busy type="button" className="btn btn-sm" busy={busy.revisions} onClick={loadRevisions} disabled={!docRef.trim()}>{t("pc_revisions")}</Busy>
+          <Busy type="button" className="btn btn-sm" busy={busy.catalog} onClick={inspectCatalog}>{t("pc_catalog")}</Busy>
+        </div>
+        <ErrorBox error={error} />
+        {paragraphs && <pre className="panel panel-tight mono" style={{ maxHeight: 220, overflow: "auto", whiteSpace: "pre-wrap" }}>{JSON.stringify(paragraphs, null, 2)}</pre>}
+        {result?.artifacts?.map((item) => <div className="panel panel-tight flex flex-wrap items-center gap-2" key={item.artifact_id}>
+          <Chip>{item.artifact_id}</Chip><span className="help mono" style={{ overflowWrap: "anywhere" }}>{item.path}</span>
+          <a className="btn btn-sm" href={api.workshopFileUrl(item.path)}>{t("pc_download")}</a>
+        </div>)}
+        {revisions?.artifacts?.length > 0 && <ul className="space-y-2">{revisions.artifacts.map((item) => <li className="panel panel-tight flex flex-wrap items-center gap-2" key={item.artifact_id}>
+          <Chip>{item.artifact_id}</Chip><span className="help">{item.operation} · {item.created_ts ? new Date(item.created_ts * 1000).toLocaleString() : ""}</span>
+          <span className="help mono">{item.output_sha.slice(0, 16)}…</span><a className="btn btn-sm" href={api.workshopFileUrl(item.path)}>{t("pc_download")}</a>
+        </li>)}</ul>}
+        {catalog && <div className="space-y-2">
+          <div className="flex flex-wrap items-center justify-between gap-2"><Chip>{catalog.count} {t("pc_tools")}</Chip><Field label={t("pc_filter")}><input className="field" value={filter} onChange={(e) => setFilter(e.target.value)} /></Field></div>
+          <div className="max-h-80 space-y-1 overflow-auto">{filtered.map((item) => <details className="panel panel-tight" key={item.name}>
+            <summary className="cursor-pointer font-semibold">{item.name}</summary><p className="help mt-1">{item.description}</p>
+            <pre className="mono mt-2 overflow-auto text-xs">{JSON.stringify(item.input_schema, null, 2)}</pre>
+          </details>)}</div>
+        </div>}
+      </div>
+    </Section>
+  );
+}
+
 const extOf = (name) => { const m = /\.([A-Za-z0-9]+)$/.exec(name || ""); return m ? m[1].toLowerCase() : ""; };
 const dirOf = (path) => (path || "").replace(/[\\/][^\\/]*$/, "");
 const isDocId = (ref) => /^d_[A-Za-z0-9]+$/.test(ref);
@@ -581,6 +682,7 @@ export default function Taller({ query }) {
           <p className="help">{t("workshop_intro")}</p>
         </header>
         {doc && <div className="banner banner-info">{t("tl_pre_doc", { name: doc.title })}</div>}
+        <PrintCraftEditor status={status.data?.printcraft} doc={doc} />
         <Section id="sec-tools" title={t("tl_all_tools")}>
           <div className="tl-grid">
             {OPS.map((x) => (
