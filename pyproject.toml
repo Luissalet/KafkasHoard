@@ -35,7 +35,7 @@ kafka-hoard = "kafka_hoard.__main__:main"
 include = ["kafka_hoard*"]
 
 [tool.setuptools.package-data]
-kafka_hoard = ["static/**/*"]
+kafka_hoard = ["static/**/*", "workshop/*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
