@@ -219,6 +219,25 @@ Annotations: readOnlyHint, idempotentHint.
 | `pages` (array/null) | no | Only these page numbers. |
 | `reveal` (boolean) | no | Show personal identifiers unmasked (only when the user asks for that exact number). |
 
+## `doc_compare`
+
+Compare two archived documents with changed text and page citations. Comparar versiones de papeles.
+
+Pass before and after document IDs. Optional before_pages/after_pages select physical pages. Aligns lines across page breaks, ignoring only whitespace and empty lines; preserves amounts and repeated rows. Returns ordered changes, same_text (null when equality cannot be established from empty page text), coverage and next_offset. Compare extracted text only: not visual differences or legal interpretation. Originals and deadlines unchanged.
+Sinónimos: compare documents, diff, changed clauses, versions, comparar contratos, qué cambió, comparar recibos
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `before` (string) | yes | Earlier archived document ID, d_… |
+| `after` (string) | yes | Later archived document ID, d_… |
+| `before_pages` (array/null) | no | Physical pages to compare from before; absent means all archived pages. |
+| `after_pages` (array/null) | no | Physical pages to compare from after; absent means all archived pages. |
+| `offset` (integer) | no | Zero-based change index; use next_offset for more. |
+| `limit` (integer) | no | Maximum changes; output byte budget can return fewer, with next_offset. |
+| `reveal` (boolean) | no | Show personal identifiers only when the user explicitly requests them. |
+
 ## `doc_search`
 
 Full-text search over every page, with snippets and citations. Buscar en los documentos.

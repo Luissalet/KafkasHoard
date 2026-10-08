@@ -206,7 +206,13 @@ class Store:
             return
         self.db.execute("UPDATE pages_fts SET title = ?, issuer = ? WHERE doc_id = ?", (d["title"], d["issuer"], did))
 
-    def pages(self, did: str) -> list[dict[str, Any]]:
+    def pages(self, did: str, selected_pages: Optional[list[int]] = None) -> list[dict[str, Any]]:
+        if selected_pages is not None:
+            if not selected_pages:
+                return []
+            marks = ",".join("?" for _ in selected_pages)
+            return [dict(r) for r in self.db.query(f"SELECT page, text FROM pages WHERE doc_id = ? AND page IN ({marks}) ORDER BY page",
+                                                 (did, *selected_pages))]
         return [dict(r) for r in self.db.query("SELECT page, text FROM pages WHERE doc_id = ? ORDER BY page", (did,))]
 
     def page_text(self, did: str, page: int) -> str:

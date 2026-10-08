@@ -102,6 +102,13 @@ def test_doc_search_returns_citations(svc):
     assert tool(svc, "doc_search", query="prima", kind="insurance")["count"] == 1
 
 
+def test_doc_compare_is_an_available_readonly_tool(svc):
+    schema=next(t for t in TOOLS if t.name=='doc_compare')
+    assert schema.annotations['readOnlyHint'] is True
+    d=tool(svc,'doc_add_text',title='Plain comparison',text='Plain text')['documents'][0]['id']
+    assert tool(svc,'doc_compare',before=d,after=d)['same_text'] is True
+
+
 def test_doc_add_file_and_its_refusals(svc, tmp_path):
     ok = tmp_path / "ticket.txt"
     ok.write_text(docs.RECEIPT, encoding="utf-8")
@@ -272,7 +279,7 @@ def test_the_workshop_tools_are_in_the_catalogue_and_documented():
     wanted = {"pdf_merge", "pdf_split", "pdf_pages", "pdf_compress", "pdf_protect", "pdf_watermark", "pdf_info", "pdf_metadata_set", "pdf_from_images",
               "pdf_from_office", "pdf_to_images", "images_compress"}
     names = {t.name for t in TOOLS}
-    assert wanted <= names and len(names) == 186
+    assert wanted <= names and len(names) == 187
     assert sum(name.startswith("printcraft_") and name not in {"printcraft_workflow", "printcraft_status", "printcraft_artifacts", "printcraft_catalog"} for name in names) == 123
     from pathlib import Path
     api = (Path(__file__).resolve().parent.parent / "docs" / "API.md").read_text(encoding="utf-8")
