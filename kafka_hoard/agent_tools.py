@@ -169,7 +169,7 @@ _KIND_ARG = f"Kind to file it as, when the caller knows it (e.g. manual for an i
 
 
 class AddFileArgs(BaseModel):
-    path: str = Field(..., min_length=3, max_length=1000, description="Absolute path of a PDF, image, .eml, .txt, .html or .docx on this computer.")
+    path: str = Field(..., min_length=3, max_length=1000, description="Absolute path of a PDF, image, .eml, .txt, .html, .docx or .pptx on this computer.")
     kind: str = Field("", max_length=30, description=_KIND_ARG)
     item: str = Field("", max_length=160, description="The product or thing the document is about (optional); kept like a user edit.")
 
@@ -1001,7 +1001,7 @@ TOOLS: list[Tool] = [
                           "Quote only what the snippets say and cite them as [d_id · p. N].",
                           "busca, encuentra, dónde pone, cuánto pagué, número de póliza, buscar en mis papeles"), SearchArgs, _ann(True), run_doc_search),
     Tool("doc_add_file", _d("File a document from an absolute path on this computer (PDF, image, .eml, text). Archivar un fichero.",
-                            "Accepts PDF, image, .eml, .txt, .html and .docx. System folders and credential files are refused. Identical content is filed once.",
+                            "Accepts PDF, image, .eml, .txt, .html, .docx and .pptx. System folders and credential files are refused. Identical content is filed once.",
                             "añade este PDF, sube esta factura, guarda este documento, importar"), AddFileArgs, _ann(False, idempotent=True), run_add_file),
     Tool("doc_add_text", _d("File a document pasted as text. Archivar un texto pegado.", synonyms="pegar texto, guardar este correo, nota"),
          AddTextArgs, _ann(False, idempotent=True), run_add_text),

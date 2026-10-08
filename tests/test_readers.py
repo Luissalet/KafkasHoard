@@ -13,6 +13,7 @@ import docs
 from kafka_hoard import readers
 from kafka_hoard.ocr import Ocr, _rows
 from pdfmaker import make_pdf
+from pptxmaker import RENEWAL, make_pptx
 
 
 class FakeEngine:
@@ -161,3 +162,29 @@ def test_docx_text_is_extracted(tmp_path):
                    "<w:body><w:p><w:r><w:t>Contrato de alquiler</w:t></w:r></w:p><w:p><w:r><w:t>Renta mensual 700,00 EUR</w:t></w:r></w:p></w:body></w:document>")
     r = readers.read_bytes("c.docx", buf.getvalue(), Ocr(False))
     assert r.kind == "docx" and "Contrato de alquiler" in r.pages[0] and "700,00" in r.pages[0]
+
+
+def test_pptx_slides_become_pages_in_presentation_order():
+    r = readers.read_bytes("renovacion.pptx", RENEWAL, Ocr(False))
+    assert r.kind == "pptx" and r.ext == "pptx" and r.mime == readers.MIME["pptx"] and len(r.pages) == 4
+    assert r.pages[0].startswith("Renovación de la póliza de hogar") and "320,00" in r.pages[0]
+    assert r.pages[1] == ""                                  # an empty slide keeps its place: page n is slide n
+    assert r.pages[2].startswith("Fechas") and r.pages[2].endswith("(notes) Recordar domiciliar el recibo")
+    assert r.pages[3].startswith("Coberturas") and "Daños por agua" in r.pages[3]
+    assert readers.sniff("renovacion.pptx", RENEWAL) == "pptx" and "pptx" in readers.SUPPORTED_EXT
+
+
+def test_a_text_less_deck_is_read_with_a_note():
+    r = readers.read_bytes("fotos.pptx", make_pptx([("", []), ("", [])]), Ocr(False))
+    assert r.kind == "pptx" and r.notes and not any(p.strip() for p in r.pages)
+
+
+def test_corrupt_pptx_raises_read_error():
+    with pytest.raises(readers.ReadError):
+        readers.read_bytes("x.pptx", b"PK\x03\x04 not really a zip", Ocr(False))
+    import zipfile
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w") as z:
+        z.writestr("ppt/presentation.xml", "<p/>")
+    with pytest.raises(readers.ReadError):
+        readers.read_bytes("x.pptx", buf.getvalue(), Ocr(False))

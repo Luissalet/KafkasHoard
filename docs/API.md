@@ -243,14 +243,14 @@ Annotations: readOnlyHint, idempotentHint.
 
 File a document from an absolute path on this computer (PDF, image, .eml, text). Archivar un fichero.
 
-Accepts PDF, image, .eml, .txt, .html and .docx. System folders and credential files are refused. Identical content is filed once.
+Accepts PDF, image, .eml, .txt, .html, .docx and .pptx. System folders and credential files are refused. Identical content is filed once.
 Sinónimos: añade este PDF, sube esta factura, guarda este documento, importar
 
 Annotations: idempotentHint.
 
 | Argument | Required | Description |
 |---|---|---|
-| `path` (string) | yes | Absolute path of a PDF, image, .eml, .txt, .html or .docx on this computer. |
+| `path` (string) | yes | Absolute path of a PDF, image, .eml, .txt, .html, .docx or .pptx on this computer. |
 | `kind` (string) | no | Kind to file it as, when the caller knows it (e.g. manual for an instruction manual); kept like a user edit. One of invoice, receipt, bill, contract, insurance, warranty, tax, official_notice, fine, vehicle, identity, subscription, payslip, bank, manual, other. |
 | `item` (string) | no | The product or thing the document is about (optional); kept like a user edit. |
 

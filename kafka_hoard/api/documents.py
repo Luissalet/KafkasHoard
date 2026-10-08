@@ -16,6 +16,8 @@ router = APIRouter(prefix="/api/documents")
 
 MAX_UPLOAD_FILES = 40
 TEXTUAL = {"txt", "md", "text", "csv", "html", "htm", "xhtml", "eml"}
+OFFICE_TYPES = {"application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                "application/vnd.openxmlformats-officedocument.presentationml.presentation"}
 INLINE_TYPES = {"application/pdf", "image/png", "image/jpeg", "image/webp", "image/gif", "image/bmp", "image/tiff"}
 SAFE_HEADERS = {"X-Content-Type-Options": "nosniff", "Cache-Control": "private, max-age=3600", "Cross-Origin-Resource-Policy": "same-origin"}
 
@@ -74,7 +76,9 @@ def original(request: Request, doc_id: str):
         # never let the browser render stored HTML or mail: show it as plain text
         return Response(path.read_bytes(), media_type="text/plain; charset=utf-8",
                         headers={**SAFE_HEADERS, "Content-Disposition": f'inline; filename="{_ascii(filename)}.txt"', "Content-Security-Policy": "sandbox"})
-    return FileResponse(path, media_type="application/octet-stream", headers={**SAFE_HEADERS, "Content-Disposition": f'attachment; filename="{_ascii(filename)}"'})
+    # Word and PowerPoint originals download with their own type (never rendered here); anything else as raw bytes
+    return FileResponse(path, media_type=mime if mime in OFFICE_TYPES else "application/octet-stream",
+                        headers={**SAFE_HEADERS, "Content-Disposition": f'attachment; filename="{_ascii(filename)}"'})
 
 
 @router.get("/{doc_id}/page/{number}.png")

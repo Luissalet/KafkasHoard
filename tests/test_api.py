@@ -6,6 +6,7 @@ from __future__ import annotations
 import docs
 from kafka_hoard.model import FINE
 from pdfmaker import make_pdf
+from pptxmaker import RENEWAL
 
 
 def upload(client, *files, headers=None):
@@ -163,3 +164,25 @@ def test_the_mcp_token_survives_a_restart(tmp_path):
     assert len(first) >= 32 and write_token(config) == first
     config.token_path.write_text("short", encoding="utf-8")
     assert len(write_token(config)) >= 32  # a stub is replaced
+
+
+PPTX = "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+
+
+def test_upload_pptx_is_read_per_slide_searchable_and_downloadable(client):
+    # browsers often send .pptx as octet-stream: the name and the content decide, not the declared type
+    body = upload(client, ("renovación hogar.pptx", RENEWAL, "application/octet-stream")).json()
+    assert body["results"][0]["ok"] and body["created"] == 1
+    did = body["results"][0]["documents"][0]["id"]
+    detail = client.get(f"/api/documents/{did}").json()
+    assert detail["document"]["mime"] == PPTX and detail["document"]["pages"] == 4
+    pages = {p["page"]: p["text"] for p in detail["pages"]}
+    assert "Vencimiento: 31/10/2027" in pages[3] and "Coberturas" in pages[4]
+    hits = client.svc.store.search("domiciliar recibo")
+    assert hits and hits[0]["doc_id"] == did and hits[0]["page"] == 3
+    r = client.get(f"/api/documents/{did}/file")
+    assert r.status_code == 200 and r.content == RENEWAL and r.headers["content-type"] == PPTX
+    assert r.headers["content-disposition"].startswith("attachment") and r.headers["x-content-type-options"] == "nosniff"
+    assert client.get(f"/api/documents/{did}/page/1.png").status_code in (400, 404, 415, 422)
+    again = upload(client, ("copia.pptx", RENEWAL, PPTX)).json()
+    assert again["created"] == 0 and again["duplicates"] == 1

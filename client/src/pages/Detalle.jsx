@@ -6,6 +6,8 @@ import { Busy, Chip, ErrorBox, Field, Icon, ICONS, KindChip, Rel, Section, useBu
 import { dayLabel, fileSize, money } from "../format.js";
 import { DOC_KINDS, WARRANTY_KINDS } from "../meta.js";
 
+const PPTX_MIME = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+
 const FIELD_LABEL = { kind: "f_kind", issuer: "f_issuer", ref: "f_ref", amount: "f_amount", "date:issue": "f_issue", "date:due": "f_due", "date:effect_from": "f_effect_from",
   "date:effect_to": "f_effect_to", "date:renewal": "f_renewal", "date:purchase": "f_purchase", "date:delivery": "f_delivery", "date:expiry": "f_expiry", "date:notified": "f_notified",
   "date:itv_next": "f_itv", "date:permanence_end": "f_permanence", "date:period_from": "f_period_from", "date:period_to": "f_period_to", "date:offence": "f_offence" };
@@ -20,15 +22,16 @@ function Preview({ doc, pages, initialPage }) {
   useEffect(() => setFailed(false), [page, doc.id]);
   const visual = doc.has_file && (doc.mime === "application/pdf" || (doc.mime || "").startsWith("image/"));
   const text = pages.find((p) => p.page === page)?.text || "";
+  const slides = doc.mime === PPTX_MIME;
   return (
     <section className="space-y-2" aria-label={t("preview")} ref={ref}>
       <div className="flex flex-wrap items-center gap-2">
         <h2>{t("preview")}</h2>
         {total > 1 && (
           <div className="ml-auto flex items-center gap-1.5">
-            <button type="button" className="btn btn-sm" disabled={page <= 1} onClick={() => setPage(page - 1)} aria-label={t("prev_page")}><Icon d={ICONS.back} size={13} /></button>
-            <span className="num help">{t("page_of", { n: page, total })}</span>
-            <button type="button" className="btn btn-sm" disabled={page >= total} onClick={() => setPage(page + 1)} aria-label={t("next_page")}><Icon d={ICONS.chevron} size={13} /></button>
+            <button type="button" className="btn btn-sm" disabled={page <= 1} onClick={() => setPage(page - 1)} aria-label={t(slides ? "prev_slide" : "prev_page")}><Icon d={ICONS.back} size={13} /></button>
+            <span className="num help">{t(slides ? "slide_of" : "page_of", { n: page, total })}</span>
+            <button type="button" className="btn btn-sm" disabled={page >= total} onClick={() => setPage(page + 1)} aria-label={t(slides ? "next_slide" : "next_page")}><Icon d={ICONS.chevron} size={13} /></button>
           </div>
         )}
         {doc.has_file && <a className="btn btn-sm" href={api.fileUrl(doc.id)} target="_blank" rel="noopener noreferrer"><Icon d={ICONS.external} size={13} />{t("open_original")}</a>}
@@ -37,7 +40,7 @@ function Preview({ doc, pages, initialPage }) {
       {visual && !failed ? (
         <img src={api.pageUrl(doc.id, page)} alt={t("page_alt", { n: page })} className="rounded-md border" style={{ borderColor: "var(--line)", background: "#fff", width: "100%" }} onError={() => setFailed(true)} />
       ) : (
-        <pre className="mono panel overflow-auto" style={{ maxHeight: 520, whiteSpace: "pre-wrap" }}>{text || t("no_text")}</pre>
+        <pre className="mono panel overflow-auto" style={{ maxHeight: 520, whiteSpace: "pre-wrap" }}>{text || t(slides ? "no_text_slide" : "no_text")}</pre>
       )}
       {visual && text && (
         <details>

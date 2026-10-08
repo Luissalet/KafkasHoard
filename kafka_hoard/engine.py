@@ -482,7 +482,7 @@ class Engine:
     def ingest_path(self, path: str, *, source: str = "upload", source_ref: str = "", quiet: bool = False) -> dict[str, Any]:
         reason = paths.unsafe_file(path, self.data_dir)
         if reason:
-            raise KafkaError("forbidden", f"Cannot read {path}: {reason}.", "Give the path of a document (PDF, image, .eml, .txt, .html, .docx) outside system folders.")
+            raise KafkaError("forbidden", f"Cannot read {path}: {reason}.", "Give the path of a document (PDF, image, .eml, .txt, .html, .docx, .pptx) outside system folders.")
         p = Path(path).expanduser().resolve()
         if p.suffix.lower().lstrip(".") not in readers.SUPPORTED_EXT:
             raise KafkaError("unsupported", f"{p.suffix or 'That'} files are not documents Kafka can read.", f"Supported: {', '.join(sorted(readers.SUPPORTED_EXT))}.")

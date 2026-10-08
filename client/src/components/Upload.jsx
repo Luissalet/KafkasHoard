@@ -21,7 +21,7 @@ export default function UploadZone({ compact = false }) {
         <div className="font-semibold">{t("drop_title")}</div>
         <div className="help">{t("drop_hint")}</div>
       </div>
-      <input ref={input} type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.webp,.heic,.tif,.tiff,.eml,.txt,.html,.htm,.docx,.md" hidden aria-label={t("upload_docs")} onChange={(e) => { pick(e.target.files); e.target.value = ""; }} />
+      <input ref={input} type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.webp,.heic,.tif,.tiff,.eml,.txt,.html,.htm,.docx,.pptx,.md" hidden aria-label={t("upload_docs")} onChange={(e) => { pick(e.target.files); e.target.value = ""; }} />
       <button type="button" className="btn btn-primary" disabled={uploading} onClick={() => input.current?.click()}>
         {uploading ? <Spinner /> : <Icon d={ICONS.upload} size={14} />}
         {t("choose_files")}

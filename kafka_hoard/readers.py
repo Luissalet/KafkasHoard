@@ -1,7 +1,7 @@
 """Turn the bytes of a file into text per page: PDF (text layer, OCR for scanned pages), images (OCR), e-mails (.eml and their
-attachments), plain text, HTML and .docx. Everything else is reported as unsupported. Originals are never modified.
+attachments), plain text, HTML, .docx and .pptx (one page per slide). Everything else is reported as unsupported. Originals are never modified.
 
-The type sniffing, text cleaning, text decoding, page splitting, HTML-to-text and the .docx reader are the shared ones of Hoard Link
+The type sniffing, text cleaning, text decoding, page splitting, HTML-to-text and the .docx and .pptx readers are the shared ones of Hoard Link
 (``hoard_link.docs``); what stays here is Kafka's own: the PDF read with an OCR pass per page, the image read, and the e-mail reader
 that also hands back the attachments as children to file."""
 
@@ -34,8 +34,9 @@ HTML_EXT = {"html", "htm", "xhtml"}
 MIME = {"pdf": "application/pdf", "png": "image/png", "jpg": "image/jpeg", "jpeg": "image/jpeg", "webp": "image/webp", "gif": "image/gif",
         "bmp": "image/bmp", "tif": "image/tiff", "tiff": "image/tiff", "heic": "image/heic", "heif": "image/heif", "eml": "message/rfc822",
         "txt": "text/plain", "md": "text/markdown", "text": "text/plain", "csv": "text/csv", "html": "text/html", "htm": "text/html",
-        "xhtml": "application/xhtml+xml", "docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document"}
-SUPPORTED_EXT = PDF_EXT | IMAGE_EXT | TEXT_EXT | HTML_EXT | {"eml", "docx"}
+        "xhtml": "application/xhtml+xml", "docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation"}
+SUPPORTED_EXT = PDF_EXT | IMAGE_EXT | TEXT_EXT | HTML_EXT | {"eml", "docx", "pptx"}
 
 
 class ReadError(Exception):
@@ -52,7 +53,7 @@ class Child:
 
 @dataclass
 class ReadResult:
-    kind: str                                   # pdf | image | eml | text | html | docx | unsupported
+    kind: str                                   # pdf | image | eml | text | html | docx | pptx | unsupported
     ext: str
     mime: str
     pages: list[str] = field(default_factory=list)
@@ -101,6 +102,28 @@ def read_docx(data: bytes) -> list[str]:
     except ValueError as exc:
         raise ReadError("not a valid .docx" if "zip" in str(exc).lower() else f"the .docx cannot be read ({exc})") from exc
     return split_pages("\n\n".join("\n".join(x for x in (u.get("title"), u.get("text")) if x) for u in units))
+
+
+# ------------------------------------------------------------------------------------------------------------ pptx
+MAX_SLIDES = 2000
+
+
+def read_pptx(data: bytes) -> list[str]:
+    """One page per slide, in the order the presentation shows them; page n is slide n (an empty slide stays as an empty page,
+    so the numbers match what PowerPoint shows). Text only: titles, text boxes, tables and speaker notes, no rendering."""
+    try:
+        units = readers_lite.read_pptx(data, max_unzipped=300_000_000)
+    except readers_lite.ZipBombError as exc:
+        raise ReadError(f"pptx refused: {exc}") from exc
+    except (ValueError, KeyError) as exc:
+        raise ReadError("not a valid .pptx" if "zip" in str(exc).lower() else f"the .pptx cannot be read ({exc})") from exc
+    numbered = [u for u in units if isinstance(u.get("number"), int) and 0 < u["number"] <= MAX_SLIDES]
+    total = max((u["number"] for u in numbered), default=0)
+    pages = [""] * total
+    for u in numbered:
+        title, text = (u.get("title") or "").strip(), (u.get("text") or "").strip()
+        pages[u["number"] - 1] = text if not title or text.startswith(title) else f"{title}\n{text}" if text else title
+    return [p[:TEXT_PAGE_CHARS * 4] for p in pages]
 
 
 # ------------------------------------------------------------------------------------------------------------ pdf
@@ -288,7 +311,7 @@ def read_eml(data: bytes) -> ReadResult:
         filename = att.get_filename() or ""
         ctype = att.get_content_type()
         ext = file_ext(filename) or {"application/pdf": "pdf", "image/png": "png", "image/jpeg": "jpg"}.get(ctype, "")
-        if ext not in PDF_EXT | IMAGE_EXT | {"docx", "txt", "html", "htm"}:
+        if ext not in PDF_EXT | IMAGE_EXT | {"docx", "pptx", "txt", "html", "htm"}:
             continue
         try:
             payload = att.get_payload(decode=True) or b""
@@ -321,4 +344,9 @@ def read_bytes(name: str, data: bytes, ocr: Ocr) -> ReadResult:
         return ReadResult("html", ext, MIME[ext], split_pages(html_to_text(decode_text(data)[:MAX_TEXT_CHARS])), 0, notes)
     if ext == "docx":
         return ReadResult("docx", "docx", MIME["docx"], read_docx(data), 0, notes)
+    if ext == "pptx":
+        pages = read_pptx(data)
+        if not any(p.strip() for p in pages):
+            notes.append("the presentation has no text (images only?)")
+        return ReadResult("pptx", "pptx", MIME["pptx"], pages, 0, notes)
     return ReadResult("unsupported", ext or "bin", "application/octet-stream", [], 0, ["unsupported type"])
