@@ -1,5 +1,5 @@
 """OCR for scanned pages and photos, the family's one engine: Kafka owns it and other apps reach it through ``ocr_image`` / ``ocr_pdf`` /
-``doc_extract``. Backends are picked in the order winocr (Windows, fast), rapidocr (any system, the default install), tesseract; the first
+``doc_extract``. Backends are picked in the order winocr (Windows, fast), rapidocr (any system, the default install), light-ocr, tesseract; the first
 one that is available runs, ``KAFKA_OCR_BACKEND`` forces one. When nothing is installed OCR is reported as unavailable and nothing crashes.
 
 ``Ocr(enabled, factory=...)`` is what the rest of Kafka uses: ``read(image) -> text``, ``recognise(image, lang) -> OcrResult`` (blocks with
@@ -18,7 +18,7 @@ from .base import Block, OcrBackend, OcrResult, join_blocks, lang_code, rows
 log = logging.getLogger("kafka.ocr")
 
 MAX_SIDE = 3200                       # larger scans are shrunk before recognition (speed); the stored original is never touched
-ORDER = ("winocr", "rapidocr", "tesseract")
+ORDER = ("winocr", "rapidocr", "light-ocr", "tesseract")
 _rows = rows                          # the old private name, kept for the tests that group boxes into lines
 
 __all__ = ["Ocr", "OcrResult", "Block", "OcrBackend", "ORDER", "MAX_SIDE", "join_blocks", "select_ocr", "ocr_availability"]
@@ -28,8 +28,9 @@ def _classes() -> dict[str, type[OcrBackend]]:
     from .rapid import RapidBackend
     from .tesseract import TesseractBackend
     from .winocr_backend import WinOcrBackend
+    from .light import LightBackend
 
-    return {"winocr": WinOcrBackend, "rapidocr": RapidBackend, "tesseract": TesseractBackend}
+    return {"winocr": WinOcrBackend, "rapidocr": RapidBackend, "light-ocr": LightBackend, "tesseract": TesseractBackend}
 
 
 def ocr_availability() -> dict[str, dict[str, Any]]:

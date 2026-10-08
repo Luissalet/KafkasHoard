@@ -66,7 +66,7 @@ class Config:
     offline: bool = False  # never touch the network (tests): the mail source and the notification channels answer "offline"
     scheduler: bool = True  # background folder and mail scans and reminders; tests and the MCP-only mode switch it off
     ocr: bool = True  # allow OCR of scanned pages and images (needs an engine; reported as unavailable when missing)
-    ocr_backend: str = "auto"  # auto (winocr, rapidocr, tesseract: the first available) or one of them (KAFKA_OCR_BACKEND)
+    ocr_backend: str = "auto"  # auto (winocr, rapidocr, light-ocr, tesseract) or one of them (KAFKA_OCR_BACKEND)
     ocr_lang: str = "es"  # the language OCR reads when the caller does not say (KAFKA_OCR_LANG)
     secrets: dict[str, str] = field(default_factory=dict)  # from .env (+ environment); never written back
 
