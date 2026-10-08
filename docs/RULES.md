@@ -99,3 +99,15 @@ Insurance, subscriptions and (with `prices.bills`) utility bills of the same iss
 - Agenda priority: overdue or last-day deadlines are urgent when missing them costs money (appeal, fine discount, cancellation window, tax, payment), high otherwise; up to 3 days left: high for those kinds, normal for the rest; up to 14 days: normal and low; later: low.
 - Meeting minutes: only action items with a date, owned by the user (`minutes.me`, or «yo») or by nobody, become deadlines; items of others and undated ones are reported, not created.
 - Tax return folder: fiscal year is the calendar year; the folder is new each time («Renta 2025 (2)»), originals are copied, never moved. Kafka lists the usual certificates that are missing; it does not decide what is deductible.
+
+## OCR and date evidence
+
+Shared PDF extraction preserves repeated lines and their source page. Table
+rows with changing amounts must not be removed as repeated headers. This applies
+to document service output; it does not change deadline calculation rules.
+
+OCR can read dates from scanned pages but does not change their roles or counting rules. The optional `light-ocr` backend uses the same text, boxes and confidence contract as the other engines. An absent or unloadable engine falls back to the next available one; pages that no engine can read stay flagged for review. The original quote and page remain the basis for checking a proposed deadline.
+
+## Text comparisons
+
+`doc_compare` only compares archived page text. It does not reapply these rules or calculate a new deadline from a changed clause; citations point to the source wording for review.

@@ -55,7 +55,7 @@ Entorno: `KAFKA_PORT` (5200), `KAFKA_DATA_DIR`, `PORT_STRICT=1`, `KAFKA_SCHEDULE
 
 `mcp_server.py` es un puente MCP por stdio llamado `kafka-hoard`. No abre nunca la base de datos: reenvía cada llamada a la app en marcha con el token de `data/mcp-token` y arranca la app si no responde. `faustus-plugin.json` describe la app, su comprobación de salud y el puente para Faustus y el Hoard Hub.
 
-Herramientas (186): `kafka_overview`, `kafka_status`, `deadlines_list`, `deadline_get`, `deadline_add`, `deadlines_from_minutes`, `deadline_update_by_key`, `deadline_update`, `deadline_explain`, `deadline_delete`, `docs_list`, `doc_get`, `doc_search`, `doc_add_file`, `doc_add_text`, `doc_update`, `doc_reprocess`, `doc_delete`, `document_link_tx`, `extract_preview`, `warranty_check`, `series_list`, `price_history`, `mail_scan`, `mail_list`, `mail_accept`, `mail_ignore`, `mail_status`, `folders_list`, `folder_add`, `folder_remove`, `folder_scan`, `phileas_sync`, `notifications_list`, `notify_status`, `notify_test`, `telegram_find_chat_id`, `settings_set`, `secret_set`, `scheduler_status`, `runs_list`, `housekeeping_run`, `pdf_merge`, `pdf_split`, `pdf_pages`, `pdf_compress`, `pdf_protect`, `pdf_watermark`, `pdf_info`, `pdf_metadata_set`, `pdf_from_images`, `pdf_from_office`, `pdf_to_images`, `images_compress`, `tax_pack`, `doc_extract`, `ocr_image`, `ocr_pdf`, `ocr_status`. Argumentos en [docs/API.md](docs/API.md).
+Herramientas (60): `kafka_overview`, `kafka_status`, `deadlines_list`, `deadline_get`, `deadline_add`, `deadlines_from_minutes`, `deadline_update_by_key`, `deadline_update`, `deadline_explain`, `deadline_delete`, `docs_list`, `doc_get`, `doc_compare`, `doc_search`, `doc_add_file`, `doc_add_text`, `doc_update`, `doc_reprocess`, `doc_delete`, `document_link_tx`, `extract_preview`, `warranty_check`, `series_list`, `price_history`, `mail_scan`, `mail_list`, `mail_accept`, `mail_ignore`, `mail_status`, `folders_list`, `folder_add`, `folder_remove`, `folder_scan`, `phileas_sync`, `notifications_list`, `notify_status`, `notify_test`, `telegram_find_chat_id`, `settings_set`, `secret_set`, `scheduler_status`, `runs_list`, `housekeeping_run`, `pdf_merge`, `pdf_split`, `pdf_pages`, `pdf_compress`, `pdf_protect`, `pdf_watermark`, `pdf_info`, `pdf_metadata_set`, `pdf_from_images`, `pdf_from_office`, `pdf_to_images`, `images_compress`, `tax_pack`, `doc_extract`, `ocr_image`, `ocr_pdf`, `ocr_status`. Argumentos en [docs/API.md](docs/API.md).
 
 Eventos en el bus de la familia: `kafka.document.added`, `kafka.price.change`, `kafka.deadline.soon` y `kafka.deadline.overdue`. `phileas_sync` pide a Phileas's Hoard (por el enlace de la familia) las compras entregadas y crea sus plazos de garantía.
 
@@ -65,9 +65,15 @@ Kafka es el dueño de la lectura de documentos y del OCR de la familia (contrato
 
 - `doc_extract(path, mode?, max_pages?, lang?, wait_s?)`: texto por página de PDF, imágenes, `.docx`, `.eml`, HTML, texto, hojas de cálculo y archivos comprimidos, con OCR en las páginas sin capa de texto. Devuelve `{kind, title, text, units, needs_ocr, notes, mime, pages_ocr}` o la vista de un trabajo si tarda más de `wait_s`.
 - `ocr_image(path, lang?, wait_s?)` y `ocr_pdf(path, pages?, dpi?, lang?, mode?, wait_s?)`: texto con bloques (caja y confianza) por página; `ocr_pdf` aplica OCR a las páginas elegidas aunque tengan capa de texto.
-- `ocr_status(job_id?, wait_s?)`: el informe del motor (cuál de `winocr`, `rapidocr` y `tesseract` está instalado y elegido) o la vista de un trabajo; `wait_s` se limita a 150 s.
+- `ocr_status(job_id?, wait_s?)`: el informe del motor (cuál de `winocr`, `rapidocr`, `light-ocr` y `tesseract` está instalado y elegido) o la vista de un trabajo; `wait_s` se limita a 150 s.
 
-El idioma por defecto es el español. `KAFKA_OCR_BACKEND` (`auto`, `winocr`, `rapidocr`, `tesseract`) fuerza un motor y `KAFKA_OCR_LANG` cambia el idioma por defecto. Se rechazan los ficheros de más de 200 MB.
+El idioma por defecto es el español. `KAFKA_OCR_BACKEND` (`auto`, `winocr`, `rapidocr`, `light-ocr`, `tesseract`) fuerza un motor y `KAFKA_OCR_LANG` cambia el idioma por defecto. Se rechazan los ficheros de más de 200 MB.
+
+El motor nativo opcional `light-ocr` se instala con `npm install --include=optional` en esta carpeta y necesita Node.js 22 o posterior. Usa la CPU y lee las imágenes localmente, con cajas y confianza por línea; no descarga modelos al leer. Para seleccionarlo: `KAFKA_OCR_BACKEND=light-ocr`. En automático sigue después de winocr y rapidocr, antes de tesseract. Si no está instalado o no puede cargar, se prueba el siguiente motor disponible. Los plazos siguen usando las mismas reglas y evidencias.
+
+La extracción compartida conserva los encabezados y filas de tablas repetidos
+en cada página del PDF, también cuando cambian los importes. Las comparaciones
+reproducibles con escaneos inventados están en [el banco de OCR](docs/OCR_BENCHMARK.md).
 
 ## El taller
 
@@ -78,6 +84,8 @@ Las doce herramientas del taller (`pdf_*` e `images_compress`) aceptan una ruta 
 - Una ruta: junto al original, con un sufijo (`_unido`, `_paginas`, `_rotado`, `_comprimido`, `_protegido`, `_sin_clave`, `_marca`, `_dividido`, `_imagenes`, `_comprimida`). `output` u `out_dir` eligen otro sitio. Se rechazan las carpetas del sistema, las ocultas y la de datos de Kafka.
 
 Con `file_result: true` cada PDF resultante se archiva también en Kafka y se devuelven sus `doc_ids`. REST de la página: `POST /api/workshop/upload` (multipart, campo `files`, `job` opcional), `GET /api/workshop/file?path=` (solo ficheros que ha producido el taller o que están en `data/workshop/`, mismo origen, cabeceras de descarga) y `GET /api/workshop/status` (cuáles de Ghostscript, Word y LibreOffice se han encontrado).
+
+PrintCraft 0.2.1 es un editor PDF local opcional, con 123 herramientas `printcraft_*` en el mismo catálogo de API y MCP. Configúralo con `printcraft.cli` en Ajustes → Taller de PDF, con `KAFKA_PRINTCRAFT_CLI` o colocando el bundle portable en `native-craft-bundles/`. Esta instalación guarda el ejecutable verificado en el ajuste existente `printcraft.cli`, así que lo descubre al arrancar sin variables de entorno. `printcraft_status` compara las herramientas activas con los esquemas JSON incluidos. Usa `printcraft_workflow` con el id (`d_…`) de un PDF archivado para inspeccionar párrafos, editar uno, insertar y girar páginas, y guardar un PDF nuevo. Cada resultado incluye un recibo `pc_…` con los SHA-256 de entrada y salida; pasa ese id como `doc` para continuar la edición y usa `printcraft_artifacts` para consultar el historial. Kafka copia el original antes de editarlo y nunca lo sobrescribe. La edición de texto existente depende de las fuentes y estructura del PDF; revisa el resultado exportado, sobre todo en escrituras que el motor indique que no admite.
 
 ## Cómo está hecha
 
@@ -96,4 +104,7 @@ Pruebas: `python -m pytest -q` (sin red; los documentos y PDF los generan las pr
 ## Licencia
 
 MIT
-PrintCraft 0.2.1 es un editor PDF local opcional con 127 herramientas API/MCP (`printcraft_*`): 123 operaciones nativas y cuatro herramientas de flujo Kafka. Configura `printcraft.cli` en Ajustes → Taller de PDF, usa `KAFKA_PRINTCRAFT_CLI` o instala el bundle portable en `native-craft-bundles/`. `printcraft_workflow` trabaja con el id (`d_…`) de un PDF archivado para inspeccionar/editar párrafos, insertar y girar páginas, y guardar una revisión nueva. Los recibos incluyen SHA-256 de entrada y salida; `printcraft_artifacts` lista las revisiones. Se conservan los originales. La edición de texto depende de las fuentes y estructura del PDF; revisa los ficheros exportados, sobre todo cuando el motor indique que una escritura no es compatible.
+
+## Comparar versiones archivadas
+
+`doc_compare(before, after)` muestra los cambios de texto con citas a ambos documentos y sus páginas físicas. Alinea líneas a través de saltos de página, conserva filas repetidas y números e ignora únicamente líneas vacías y espacios dentro de una línea. Admite selección de páginas y paginación con `offset`/`next_offset`. Muestra las advertencias de extracción y páginas sin texto; la igualdad se refiere al texto archivado seleccionado, no a los archivos originales. No cambia originales, ediciones del usuario ni plazos. [Referencia y límites](docs/DOCUMENT_COMPARE.md).

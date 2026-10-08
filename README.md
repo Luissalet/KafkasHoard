@@ -55,7 +55,7 @@ Environment: `KAFKA_PORT` (5200), `KAFKA_DATA_DIR`, `PORT_STRICT=1`, `KAFKA_SCHE
 
 `mcp_server.py` is a stdio MCP bridge named `kafka-hoard`. It never opens the database: it proxies every call to the running app with the token in `data/mcp-token`, and starts the app when it is not answering. `faustus-plugin.json` describes the app, its health check and the bridge for Faustus and the Hoard Hub.
 
-Tools (186): `kafka_overview`, `kafka_status`, `deadlines_list`, `deadline_get`, `deadline_add`, `deadlines_from_minutes`, `deadline_update_by_key`, `deadline_update`, `deadline_explain`, `deadline_delete`, `docs_list`, `doc_get`, `doc_search`, `doc_add_file`, `doc_add_text`, `doc_update`, `doc_reprocess`, `doc_delete`, `document_link_tx`, `extract_preview`, `warranty_check`, `series_list`, `price_history`, `mail_scan`, `mail_list`, `mail_accept`, `mail_ignore`, `mail_status`, `folders_list`, `folder_add`, `folder_remove`, `folder_scan`, `phileas_sync`, `notifications_list`, `notify_status`, `notify_test`, `telegram_find_chat_id`, `settings_set`, `secret_set`, `scheduler_status`, `runs_list`, `housekeeping_run`, `pdf_merge`, `pdf_split`, `pdf_pages`, `pdf_compress`, `pdf_protect`, `pdf_watermark`, `pdf_info`, `pdf_metadata_set`, `pdf_from_images`, `pdf_from_office`, `pdf_to_images`, `images_compress`, `tax_pack`, `doc_extract`, `ocr_image`, `ocr_pdf`, `ocr_status`. Arguments in [docs/API.md](docs/API.md).
+Tools (60): `kafka_overview`, `kafka_status`, `deadlines_list`, `deadline_get`, `deadline_add`, `deadlines_from_minutes`, `deadline_update_by_key`, `deadline_update`, `deadline_explain`, `deadline_delete`, `docs_list`, `doc_get`, `doc_compare`, `doc_search`, `doc_add_file`, `doc_add_text`, `doc_update`, `doc_reprocess`, `doc_delete`, `document_link_tx`, `extract_preview`, `warranty_check`, `series_list`, `price_history`, `mail_scan`, `mail_list`, `mail_accept`, `mail_ignore`, `mail_status`, `folders_list`, `folder_add`, `folder_remove`, `folder_scan`, `phileas_sync`, `notifications_list`, `notify_status`, `notify_test`, `telegram_find_chat_id`, `settings_set`, `secret_set`, `scheduler_status`, `runs_list`, `housekeeping_run`, `pdf_merge`, `pdf_split`, `pdf_pages`, `pdf_compress`, `pdf_protect`, `pdf_watermark`, `pdf_info`, `pdf_metadata_set`, `pdf_from_images`, `pdf_from_office`, `pdf_to_images`, `images_compress`, `tax_pack`, `doc_extract`, `ocr_image`, `ocr_pdf`, `ocr_status`. Arguments in [docs/API.md](docs/API.md).
 
 Events on the family bus: `kafka.document.added`, `kafka.price.change`, `kafka.deadline.soon` and `kafka.deadline.overdue`. `phileas_sync` asks Phileas's Hoard (through the family link) for delivered purchases and creates their warranty deadlines.
 
@@ -65,9 +65,15 @@ Kafka owns the family's document reading and OCR (contract: `HoardLink/docs/comm
 
 - `doc_extract(path, mode?, max_pages?, lang?, wait_s?)`: text per page for PDF, images, `.docx`, `.eml`, HTML, text, spreadsheets and archives, with OCR on the pages that have no text layer. Returns `{kind, title, text, units, needs_ocr, notes, mime, pages_ocr}` or a job view when it takes longer than `wait_s`.
 - `ocr_image(path, lang?, wait_s?)` and `ocr_pdf(path, pages?, dpi?, lang?, mode?, wait_s?)`: text with blocks (box and confidence) per page; `ocr_pdf` OCRs the chosen pages even when they have a text layer.
-- `ocr_status(job_id?, wait_s?)`: the engine report (which of `winocr`, `rapidocr`, `tesseract` is installed and chosen) or the view of a job; `wait_s` is clamped to 150 s.
+- `ocr_status(job_id?, wait_s?)`: the engine report (which of `winocr`, `rapidocr`, `light-ocr`, `tesseract` is installed and chosen) or the view of a job; `wait_s` is clamped to 150 s.
 
-Spanish is the default language. `KAFKA_OCR_BACKEND` (`auto`, `winocr`, `rapidocr`, `tesseract`) forces an engine and `KAFKA_OCR_LANG` changes the default language. Files over 200 MB are refused.
+Spanish is the default language. `KAFKA_OCR_BACKEND` (`auto`, `winocr`, `rapidocr`, `light-ocr`, `tesseract`) forces an engine and `KAFKA_OCR_LANG` changes the default language. Files over 200 MB are refused.
+
+The optional native `light-ocr` engine is installed with `npm install --include=optional` in this folder and needs Node.js 22 or newer. It uses the CPU and reads images locally, with boxes and confidence per line; it does not download models while reading. Select it with `KAFKA_OCR_BACKEND=light-ocr`. Automatic selection keeps winocr and rapidocr ahead of it, followed by tesseract. If it is absent or cannot load, the next available engine is tried. Deadline rules and evidence stay the same.
+
+The family extraction service preserves repeated headings and table rows on
+each PDF page, including rows whose amounts differ. For reproducible OCR
+comparisons on invented scans, see [the OCR benchmark](docs/OCR_BENCHMARK.md).
 
 ## The workshop
 
@@ -78,6 +84,8 @@ The twelve workshop tools (`pdf_*` and `images_compress`) accept an absolute pat
 - A path: next to the source, with a suffix (`_unido`, `_paginas`, `_rotado`, `_comprimido`, `_protegido`, `_sin_clave`, `_marca`, `_dividido`, `_imagenes`, `_comprimida`). `output` or `out_dir` choose another place. System, hidden and Kafka's own data folders are refused.
 
 `file_result: true` also files each resulting PDF in Kafka and returns its `doc_ids`. REST for the page: `POST /api/workshop/upload` (multipart, field `files`, optional `job`), `GET /api/workshop/file?path=` (only files the workshop produced or that live under `data/workshop/`, same-origin, download headers) and `GET /api/workshop/status` (which of Ghostscript, Word and LibreOffice were found).
+
+PrintCraft 0.2.1 is an optional local PDF editor exposed as 123 `printcraft_*` tools in the same API and MCP catalogue. Set `printcraft.cli` under Settings → PDF workshop, set `KAFKA_PRINTCRAFT_CLI`, or place its portable bundle under `native-craft-bundles/`. The local Kafka installation stores its verified executable in the existing `printcraft.cli` setting, so discovery works on startup without an environment variable. `printcraft_status` can compare live tools with the pinned JSON schemas. Use `printcraft_workflow` with a filed PDF id (`d_…`) to inspect paragraphs, edit one, insert pages, rotate them and save a new PDF. Each result has a `pc_…` receipt with source/output SHA-256 values; pass that revision id as `doc` to continue editing and use `printcraft_artifacts` to list its history. The archived original is copied before editing and never overwritten. Existing text editing depends on the source PDF's fonts and content structure; review the exported PDF, especially for scripts the engine reports as unsupported.
 
 ## How it is built
 
@@ -96,4 +104,7 @@ Tests: `python -m pytest -q` (no network, documents and PDFs are generated by th
 ## License
 
 MIT
-PrintCraft 0.2.1 is an optional local PDF editor exposed as 127 `printcraft_*` API/MCP tools (123 native operations plus four Kafka workflow tools). Configure `printcraft.cli` in Settings → PDF workshop, set `KAFKA_PRINTCRAFT_CLI`, or install the portable bundle under `native-craft-bundles/`. Use `printcraft_workflow` with a filed PDF id (`d_…`) to inspect/edit paragraphs, insert and rotate pages, and save a new revision. Receipts include source/output SHA-256 values; `printcraft_artifacts` lists revisions. Originals are retained. Existing text editing depends on the PDF fonts and structure; review exported files, especially for scripts the engine reports as unsupported.
+
+## Compare archived versions
+
+`doc_compare(before, after)` reports changed text with citations to both documents and physical pages. It aligns lines across page breaks, keeps repeated rows and numbers, and ignores only empty lines and spacing inside a line. Use page selectors and `offset`/`next_offset` for focused, compact results. Source extraction warnings and empty-text pages are shown; equality refers to the selected archived text, not the original files. Originals, user edits and deadlines remain unchanged. [Reference and limits](docs/DOCUMENT_COMPARE.md).

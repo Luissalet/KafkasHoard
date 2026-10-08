@@ -5,7 +5,7 @@
  watched folders ───┼──► engine.ingest ──► files.py (content-addressed store, SHA-256, original never modified)
  mail attachments ──┤        │
  pasted text ───────┘        ▼
- mail/source.py          readers.py  PDF text layer (pypdfium2) · OCR (ocr/, optional rapidocr, winocr or tesseract) · images · .eml · .docx · HTML · text
+ mail/source.py          readers.py  PDF text layer (pypdfium2) · OCR (ocr/, optional rapidocr, winocr, light-ocr or tesseract) · images · .eml · .docx · HTML · text
  (Faustus's Python,          │ pages
   stdlib only)               ▼
                      extract/pipeline.py ── texts · kinds · issuers · refs · amounts · dates · periods · deadlines · rules
@@ -17,7 +17,7 @@
  services.py (wiring,        └──► series + price alerts · recurring roll · Phileas sync · housekeeping
  dashboard, settings)
         ▲
- agent_tools.py: one catalogue (59 tools) ──► api/agent.py (shared agent router, Bearer token, masked) · api/ui.py (local, unmasked) · mcp_server.py (stdio)
+ agent_tools.py: one catalogue (60 tools) ──► api/agent.py (shared agent router, Bearer token, masked) · api/ui.py (local, unmasked) · mcp_server.py (stdio)
  scheduler.py (shared lane scheduler): lane "ingest" (folder and mail scans) · lane "reminders" (reminder run every 10 min, housekeeping hourly)
 ```
 
@@ -30,7 +30,7 @@
 | `kafka_hoard/db.py`, `store.py` | Schema and migrations; every query. WAL, FTS5 `pages_fts` (unicode61, accent-insensitive) |
 | `kafka_hoard/files.py` | Content-addressed originals: `files/<sha[:2]>/<sha256>.<ext>`; the same bytes are stored once |
 | `kafka_hoard/readers.py` | Bytes to text per page; page splitting; notes when a page could not be read |
-| `kafka_hoard/ocr/` | Optional OCR behind one `Ocr` class: backends `winocr`, `rapidocr`, `tesseract` chosen by `select_ocr`; blocks with confidence; reports unavailable instead of failing |
+| `kafka_hoard/ocr/` | Optional OCR behind one `Ocr` class: backends `winocr`, `rapidocr`, `light-ocr`, `tesseract` chosen by `select_ocr`; blocks with confidence; reports unavailable instead of failing |
 | `kafka_hoard/docsvc.py` | The family document services (`doc_extract`, `ocr_image`, `ocr_pdf`, `ocr_status`) and their in-memory job table |
 | `kafka_hoard/extract/` | Pure functions from text to an `Extraction`; see below |
 | `kafka_hoard/bizdays.py` | Spanish working days, holidays, regions, extra holidays |
@@ -93,6 +93,8 @@ The Faustus mail helper is the family's `hoard_link/mail_helper.py`: `fam_mail.F
 
 `agent_tools.TOOLS` is the single catalogue. `GET /api/agent/tools` and `POST /api/agent/call` serve it to assistants with the bearer token from `data/mcp-token`: results are capped and personal identifiers are masked unless `reveal` is set. `POST /api/ui/call` serves the same handlers to the bundled UI uncapped and unmasked (the app only listens on 127.0.0.1 and the guard rejects cross-site requests). `mcp_server.py` exposes the catalogue over stdio as the `kafka-hoard` server and proxies to the running app. `docs/API.md` is generated from the catalogue by `scripts/gen_api_doc.py`; a test fails when it is out of date.
 
+`workshop/printcraft.py` adapts the pinned PrintCraft 0.2.1 JSON-schema catalogue to those same API and MCP tools. Each CLI call runs in a temporary `--root`; a case PDF is copied there and edits save to a new workshop output. The `printcraft_artifacts` table persists source/revision links and SHA-256 receipts, including after restart. The optional executable is selected by the `printcraft.cli` setting, `KAFKA_PRINTCRAFT_CLI`, PATH or a portable bundle folder. The manifest records the verified CLI hash. This integration exposes the engine's 123 commands; it does not claim all existing PDF text or fonts can be edited faithfully.
+
 ## Workshop
 
 `kafka_hoard/workshop/service.py` holds the operations as plain methods with keyword-only arguments; `agent_tools.py` wraps them in twelve tools (`pdf_merge`, `pdf_split`, `pdf_pages`, `pdf_compress`, `pdf_protect`, `pdf_watermark`, `pdf_info`, `pdf_metadata_set`, `pdf_from_images`, `pdf_from_office`, `pdf_to_images`, `images_compress`), so the UI, the agent route and MCP run the same code. Everything that touches the machine (Ghostscript, Word through PowerShell, LibreOffice, `PATH`, the environment) goes through an injectable `Env`, which is how the tests fake those programs.
@@ -116,6 +118,17 @@ Everything lives in `data/` (or `KAFKA_DATA_DIR`): `kafka.db`, `files/` (origina
 - **Ledger link.** `engine.link_ledger` asks Ledger's `tx_find`, links one strong match (score of 0.8 or more, and only one) with `tx_attach_doc` and a reference, and keeps the movement in the document's facts (`ledger_tx`). `retry_ledger_links` runs from housekeeping once a day for documents of the last 45 days.
 - **Cross-app tools.** `deadline_add` (idempotent by `source_ref` and title), `deadlines_from_minutes` (Funes `minutes_get`), `tax_pack`, `document_link_tx`. Calls to other apps go through `Engine._fcall`, which never raises.
 
-## PrintCraft local PDF engine
+## Optional native OCR
 
-Kafka wraps the pinned PrintCraft 0.2.1 CLI using per-call scratch folders, input path confinement, immutable output files and persisted SHA-256 receipts. Native operation schemas are pinned in `kafka_hoard/workshop/printcraft-tools-0.2.1.json`; `printcraft_catalog`, `printcraft_status`, `printcraft_workflow` and `printcraft_artifacts` share API/UI/MCP dispatch. The optional portable executable is selected through the `printcraft.cli` setting, `KAFKA_PRINTCRAFT_CLI`, PATH, or `native-craft-bundles/`.
+The family's `DocService` keeps all page text, including repeated headings,
+labels and rows. It does not run cross-page line deduplication: ignoring digits
+when comparing lines can erase changing amounts from otherwise similar tables.
+This differs from any ingestion-specific normalization used by deadline parsing.
+`scripts/eval_document_ocr.py` exercises this service on invented raster PDFs and
+can score external page predictions, so both OCR and postprocessing are measured.
+
+`ocr/light.py` implements the existing backend contract through `scripts/light_ocr.mjs`. The optional pinned Node package bundles its native model. Images travel as bounded PNG bytes on stdin, not paths; the worker returns text, confidence and boxes as JSON and runs on CPU. Process errors omit stderr and use the existing backend fallback. All document tools and family clients share this adapter through `Ocr`; there is no second document service.
+
+## Archived text comparison
+
+`doccompare.py` is a pure line alignment over page text. `doc_compare` reads selected pages from the store, retains page provenance, applies existing assistant masking before sizing/pagination, and returns bounded change excerpts. It does not re-extract files, edit state, generate notifications or calculate deadlines.
