@@ -76,6 +76,30 @@ def test_doc_extract_reads_a_text_layer_without_ocr(ocr_svc, engine, tmp_path):
     assert r["needs_ocr"] is False and not r.get("error") and engine.calls == 0
 
 
+def test_doc_extract_preserves_repeated_table_rows_with_different_amounts(ocr_svc, engine, tmp_path):
+    pages = [f"Inventario de prueba\nArticulo Unidades Importe\nAvena {i} {i * 12},50 EUR\nLeche {i + 1} -{i * 4},75 EUR"
+             for i in range(1, 6)]
+    path = write(tmp_path, "inventario.pdf", make_pdf(pages))
+    result = tool(ocr_svc, "doc_extract", path=path, ocr="off")
+    assert result["status"] == "done" and len(result["units"]) == 5
+    for i, unit in enumerate(result["units"], 1):
+        assert unit["number"] == i
+        assert "Inventario de prueba" in unit["text"]
+        assert f"Avena {i} {i * 12},50 EUR" in unit["text"]
+        assert f"Leche {i + 1} -{i * 4},75 EUR" in unit["text"]
+    assert result["text"] == "\n\n".join(unit["text"] for unit in result["units"])
+    assert engine.calls == 0
+
+
+def test_doc_extract_preserves_identical_ocr_pages_instead_of_emptying_them(ocr_svc, engine, tmp_path):
+    path = write(tmp_path, "escaneo.pdf", make_pdf(["", "", ""], blank_pages=(0, 1, 2)))
+    result = tool(ocr_svc, "doc_extract", path=path, ocr="force")
+    assert result["status"] == "done" and result["pages_ocr"] == 3
+    assert len(result["units"]) == 3 and engine.calls == 3
+    assert all("Factura de ejemplo" in unit["text"] and "Total 10,00 EUR" in unit["text"]
+               for unit in result["units"])
+
+
 def test_doc_extract_reads_only_the_pages_without_a_text_layer(ocr_svc, engine, tmp_path):
     path = write(tmp_path, "mixto.pdf", make_pdf(["", docs.FINE], blank_pages=(0,)))
     r = tool(ocr_svc, "doc_extract", path=path)

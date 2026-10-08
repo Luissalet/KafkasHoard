@@ -17,7 +17,7 @@ from typing import Any, Callable, Optional
 from . import paths, readers
 from .errors import KafkaError
 from .hoard_link import waiting
-from .hoard_link.docs import readers_lite, textclean
+from .hoard_link.docs import readers_lite
 from .hoard_link.docs.sniff import sniff as _sniff
 from .hoard_link.ids import new_id
 from .ocr import Ocr, lang_code
@@ -215,7 +215,10 @@ class DocService:
         notes: list[str] = []
         if found.kind == "pdf":
             read = readers.read_pdf_detail(data, self.ocr, notes, max_pages=max_pages, max_ocr=max_pages, mode=mode, lang=lang, progress=progress, layout=True)
-            pages = textclean.strip_repeated_lines(read.pages)
+            # Family extraction is source text with page provenance. Repeated
+            # headers, table labels and rows are still content, especially when
+            # only their quantities change. Do not deduplicate them here.
+            pages = read.pages
             skipped = set(read.not_attempted)
             units = []
             for i, text in enumerate(pages, start=1):
