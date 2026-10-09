@@ -55,7 +55,8 @@ def rpc(proc, payload):
 
 def test_bridge_roundtrip(server):
     url, data, env = server
-    benv = {**env, "KAFKA_URL": url, "KAFKA_TOKEN_FILE": str(data / "mcp-token"), "KAFKA_BRIDGE_AUTOSTART": "0"}
+    benv = {**env, "KAFKA_URL": url, "KAFKA_TOKEN_FILE": str(data / "mcp-token"), "KAFKA_BRIDGE_AUTOSTART": "0",
+            "HOARD_AGENT_ID": "agent-a", "HOARD_AGENT_SESSION": "session-1"}
     proc = subprocess.Popen([sys.executable, str(ROOT / "mcp_server.py")], cwd=ROOT, env=benv, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                             stderr=subprocess.DEVNULL)
     try:
@@ -71,8 +72,14 @@ def test_bridge_roundtrip(server):
         text = "AGENCIA TRIBUTARIA\nRequerimiento\nExpediente: 2026/EXP/1\nFecha de notificación: 28/09/2026\n" \
                "Dispone de un plazo de diez (10) días hábiles contados desde el día siguiente al de la notificación para presentar alegaciones.\n"
         ok = rpc(proc, {"jsonrpc": "2.0", "id": 3, "method": "tools/call", "params": {"name": "doc_add_text", "arguments": {"title": "Requerimiento", "text": text}}})
+        assert json.loads(ok["result"]["content"][0]["text"])["code"] == "reason_required"          # a write through the bridge says why
+        ok = rpc(proc, {"jsonrpc": "2.0", "id": 7, "method": "tools/call", "params": {"name": "doc_add_text", "arguments": {
+            "title": "Requerimiento", "text": text, "reason": "File the notice the person pasted"}}})
         body = json.loads(ok["result"]["content"][0]["text"])
         assert body["created"] and body["documents"][0]["deadlines"]
+        journal = httpx.get(f"{url}/api/agent/journal", params={"session": "session-1"}, trust_env=False,
+                            headers={"Authorization": "Bearer " + (data / "mcp-token").read_text(encoding="utf-8").strip()}).json()
+        assert [(e["tool"], e["agent"], e["ok"]) for e in journal["entries"] if e["ok"]] == [("doc_add_text", "agent-a", True)]        # the bridge sent who and which session
         listed = rpc(proc, {"jsonrpc": "2.0", "id": 4, "method": "tools/call", "params": {"name": "deadlines_list", "arguments": {"filter": "all"}}})
         assert json.loads(listed["result"]["content"][0]["text"])["count"] >= 1
         found = rpc(proc, {"jsonrpc": "2.0", "id": 6, "method": "tools/call", "params": {"name": "doc_search", "arguments": {"query": "alegaciones"}}})

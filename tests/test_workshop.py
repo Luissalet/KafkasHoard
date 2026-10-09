@@ -967,9 +967,10 @@ def test_workshop_tools_follow_the_catalogue_rules():
 def test_tools_through_the_agent_route_and_the_ui_route(client, tmp_path):
     client.svc.workshop.env = nothing_installed()
     src = write_pdf(tmp_path / "in", "agente.pdf", 4)
-    call = client.post("/api/agent/call", json={"name": "pdf_pages", "arguments": {"action": "delete", "file": str(src), "pages": "2-3"}}, headers=client.bearer)
+    call = client.post("/api/agent/call", json={"name": "pdf_pages", "arguments": {"action": "delete", "file": str(src), "pages": "2-3"},
+                                                     "reason": "Drop the cover pages"}, headers=client.bearer)
     assert call.status_code == 200 and call.json()["pages"] == 2
-    bad = client.post("/api/agent/call", json={"name": "pdf_pages", "arguments": {"action": "borrar", "file": str(src)}}, headers=client.bearer)
+    bad = client.post("/api/agent/call", json={"name": "pdf_pages", "arguments": {"action": "borrar", "file": str(src)}, "reason": "A bad action"}, headers=client.bearer)
     assert bad.status_code == 400
     missing = client.post("/api/agent/call", json={"name": "pdf_info", "arguments": {"file": str(tmp_path / "no.pdf")}}, headers=client.bearer)
     assert missing.status_code == 404 and missing.json()["code"] == "not_found"
