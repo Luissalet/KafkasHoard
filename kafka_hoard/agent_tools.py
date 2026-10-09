@@ -5,6 +5,7 @@ The assistant's route masks personal identifiers (DNI, NIE, IBAN, cards, phones)
 
 from __future__ import annotations
 
+import dataclasses
 import hashlib
 import json
 import re
@@ -13,6 +14,7 @@ from typing import Any, Callable, Literal, Optional
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
+from . import agent_undo
 from . import model as M
 from . import taxpack
 from . import doccompare
@@ -1247,6 +1249,31 @@ for _row in printcraft_catalog_rows():
         _ann(bool(_row["read_only"]), destructive=_native_name in {"doc_delete", "redact_apply", "doc_flatten"}, idempotent=bool(_row["read_only"])),
         lambda svc, args, native=_native_name: _run_printcraft(svc, args, native), timeout_s=180))
 TOOLS.extend(_PRINTCRAFT_UTILS)
+
+
+def _track_with_ctx(fn):
+    """``track(args, result, ctx=)`` is what the router calls; the hooks in agent_undo take the services first."""
+    def track(args, result, ctx=None):
+        return fn(ctx, args, result)
+    return track
+
+
+def _accountable(tool: Tool) -> Tool:
+    """Attach the capture / track / undo hooks and the draft-safe flag (see agent_undo.py)."""
+    hooks = agent_undo.HOOKS.get(tool.name, {})
+    changes: dict[str, Any] = {}
+    if "capture" in hooks:
+        changes["capture"] = hooks["capture"]
+    if "track" in hooks:
+        changes["track"] = _track_with_ctx(hooks["track"])
+    if "undo" in hooks:
+        changes["undo"] = hooks["undo"]
+    if tool.name in agent_undo.DRAFT_SAFE:
+        changes["annotations"] = {**tool.annotations, "draftSafeHint": True}
+    return dataclasses.replace(tool, **changes) if changes else tool
+
+
+TOOLS = [_accountable(t) for t in TOOLS]
 TOOLS_BY_NAME = {t.name: t for t in TOOLS}
 assert len(TOOLS_BY_NAME) == len(TOOLS)
 

@@ -2,6 +2,8 @@
 
 Every tool is served by the app at `GET /api/agent/tools` and `POST /api/agent/call` (Bearer token from `data/mcp-token`), by the stdio bridge `mcp_server.py`, and to the bundled UI through `POST /api/ui/call`. The argument tables are generated from the code (`python scripts/gen_api_doc.py`).
 
+Through `/api/agent/call` every tool that is not read-only needs a `reason` (3-300 characters, one sentence for the history); the UI route needs none. Agent writes are journaled (`GET /api/agent/journal`) and a whole session can be undone (`POST /api/agent/undo`): `Undo: yes` below means the tool keeps a snapshot and has an undo handler; `Undo: no` writes are reported as not undoable. `draftSafeHint` marks the tools a `drafts` token may call.
+
 ## `kafka_overview`
 
 Overdue and upcoming deadlines, documents to review, news. Mis papeles y plazos de un vistazo.
@@ -57,7 +59,9 @@ Add a deadline by hand or for another app (source + external_key upserts). Añad
 With source and external_key (another app of the family, e.g. homehoard) adding again updates the same deadline: a new date reopens it; a title, reminders or date the user changed here and a deadline the user dismissed are kept. basis and rule are shown by deadline_explain.
 Sinónimos: recuérdame, apunta una fecha, nuevo vencimiento, aviso, mantenimiento
 
-Annotations: none.
+Annotations: draftSafeHint.
+
+Undo: yes.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -85,7 +89,9 @@ Close, reopen or reschedule a deadline another app keeps here, by its key. Plazo
 For the owner app: state done/dismissed closes it, a new date reschedules it. A deadline the user dismissed stays.
 Sinónimos: cerrar plazo de otra app, mantenimiento hecho, reprogramar, mover fecha
 
-Annotations: idempotentHint.
+Annotations: idempotentHint, draftSafeHint.
+
+Undo: yes.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -103,7 +109,9 @@ Change a deadline: date, title, reminders, done, dismissed, snooze. Editar o cer
 Marking a recurring deadline done moves it to its next occurrence.
 Sinónimos: hecho, pagado, posponer, descartar, cambiar fecha, aplazar
 
-Annotations: idempotentHint.
+Annotations: idempotentHint, draftSafeHint.
+
+Undo: yes.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -138,6 +146,8 @@ Sinónimos: eliminar plazo, quitar vencimiento
 
 Annotations: destructiveHint.
 
+Undo: yes.
+
 | Argument | Required | Description |
 |---|---|---|
 | `deadline` (string) | yes |  |
@@ -150,7 +160,9 @@ Add a deadline per dated action item of meeting minutes. Plazos desde el acta de
 Reads the minutes from Funes through the family hub; items for someone else or without a date are skipped. Adding the same minutes again changes nothing. Own names go in the minutes.me setting.
 Sinónimos: acta, reunión, tareas de la reunión, compromisos con fecha, acciones acordadas
 
-Annotations: idempotentHint, openWorldHint.
+Annotations: idempotentHint, openWorldHint, draftSafeHint.
+
+Undo: yes.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -164,6 +176,8 @@ Copies (never moves) the year's tax office letters, payslips and withholding cer
 Sinónimos: declaración de la renta, IRPF, Hacienda, certificados, desgravaciones, gastos deducibles, preparar la renta
 
 Annotations: openWorldHint.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -179,6 +193,8 @@ Looks the amount and date up in Ledger through the family hub; a single strong m
 Sinónimos: a qué pago corresponde esta factura, conciliar factura con movimiento, buscar el cargo, justificante del gasto
 
 Annotations: idempotentHint, openWorldHint.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -265,7 +281,9 @@ File a document from an absolute path on this computer (PDF, image, .eml, text).
 Accepts PDF, image, .eml, .txt, .html, .docx and .pptx. System folders and credential files are refused. Identical content is filed once.
 Sinónimos: añade este PDF, sube esta factura, guarda este documento, importar
 
-Annotations: idempotentHint.
+Annotations: idempotentHint, draftSafeHint.
+
+Undo: yes.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -279,7 +297,9 @@ File a document pasted as text. Archivar un texto pegado.
 
 Sinónimos: pegar texto, guardar este correo, nota
 
-Annotations: idempotentHint.
+Annotations: idempotentHint, draftSafeHint.
+
+Undo: yes.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -295,7 +315,9 @@ Correct a document: title, kind, issuer, ref, amount, dates, item, tags, notes, 
 What you fix is kept when the document is re-read, and its deadlines are recomputed.
 Sinónimos: corrige el importe, cambia el emisor, es una factura, garantía de 2 años, archivar
 
-Annotations: idempotentHint.
+Annotations: idempotentHint, draftSafeHint.
+
+Undo: yes.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -320,7 +342,9 @@ Re-read a document with the current rules (optionally the local model). Reproces
 
 Sinónimos: vuelve a leer, recalcula plazos, revisar extracción
 
-Annotations: idempotentHint.
+Annotations: idempotentHint, draftSafeHint.
+
+Undo: yes.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -335,6 +359,8 @@ The stored file goes too unless another document uses the same content.
 Sinónimos: eliminar, quitar, borrar papel
 
 Annotations: destructiveHint.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -405,6 +431,8 @@ Sinónimos: revisa el correo, importar facturas del correo, busca en el correo, 
 
 Annotations: idempotentHint, openWorldHint.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `since_days` (integer/null) | no | How far back to read (default: the configured window). |
@@ -433,6 +461,8 @@ Sinónimos: sí es un documento, archivar este correo
 
 Annotations: idempotentHint.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `message_id` (string) | yes |  |
@@ -443,7 +473,9 @@ Ignore a doubtful mail. Ignorar correo dudoso.
 
 Sinónimos: no es un papel, descartar correo
 
-Annotations: idempotentHint.
+Annotations: idempotentHint, draftSafeHint.
+
+Undo: yes.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -474,6 +506,8 @@ Sinónimos: añade carpeta, escanear carpeta, Descargas
 
 Annotations: idempotentHint.
 
+Undo: yes.
+
 | Argument | Required | Description |
 |---|---|---|
 | `path` (string) | yes | Absolute path of an existing folder. |
@@ -485,6 +519,8 @@ Stop watching a folder (its files are untouched). Dejar de vigilar una carpeta.
 Sinónimos: quitar carpeta
 
 Annotations: idempotentHint.
+
+Undo: yes.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -498,6 +534,8 @@ Sinónimos: busca documentos nuevos, revisa la carpeta
 
 Annotations: idempotentHint.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `folder` (string) | no | One watched folder; empty scans all. |
@@ -509,6 +547,8 @@ Create warranties from delivered parcels in Phileas's Hoard. Garantías de compr
 Sinónimos: paquetes entregados, compras, sincronizar envíos, garantía legal 3 años
 
 Annotations: idempotentHint, openWorldHint.
+
+Undo: no.
 
 ## `notifications_list`
 
@@ -538,6 +578,8 @@ Sinónimos: prueba de aviso, comprobar notificación
 
 Annotations: openWorldHint.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `channel` (toast \| hub \| ntfy \| telegram \| email) | yes |  |
@@ -550,6 +592,8 @@ Sinónimos: configurar Telegram
 
 Annotations: idempotentHint, openWorldHint.
 
+Undo: no.
+
 ## `settings_set`
 
 Change settings: reminders per kind, warranty years, region, price alert, intervals. Cambiar ajustes.
@@ -557,6 +601,8 @@ Change settings: reminders per kind, warranty years, region, price alert, interv
 Sinónimos: avisarme antes, días de antelación, comunidad autónoma, festivos, idioma, intervalo
 
 Annotations: idempotentHint.
+
+Undo: yes.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -569,6 +615,8 @@ Store a key (Telegram, ntfy, SMTP, Faustus folder). Guardar una clave.
 Sinónimos: token de Telegram, tema de ntfy, contraseña SMTP
 
 Annotations: idempotentHint.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -603,6 +651,8 @@ Sinónimos: limpiar, ordenar, archivar plazos hechos
 
 Annotations: idempotentHint.
 
+Undo: no.
+
 ## `pdf_merge`
 
 Merge PDFs into one, optionally only some pages of each. Unir PDF en uno solo.
@@ -610,7 +660,9 @@ Merge PDFs into one, optionally only some pages of each. Unir PDF en uno solo.
 Inputs are absolute paths or document ids (d_…); order matters. Writes «<first>_unido.pdf» next to the first file (never overwrites). file_result=true also files the result in Kafka.
 Sinónimos: une estos pdf, junta los pdf, juntar documentos, combinar pdf, unir facturas en un solo pdf
 
-Annotations: none.
+Annotations: draftSafeHint.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -628,7 +680,9 @@ Split a PDF: one file per page, per range or every N pages. Dividir un PDF en va
 Writes the parts into a new folder «<name>_dividido» next to the source.
 Sinónimos: divide el pdf, sepáralo por páginas, trocea el pdf, un pdf por página, parte el documento en dos
 
-Annotations: none.
+Annotations: draftSafeHint.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -647,7 +701,9 @@ Extract, delete, rotate or reorder the pages of a PDF. Extraer, quitar, girar o 
 action=extract keeps the given pages; delete removes them; rotate turns them (default all) 90, 180 or 270 degrees clockwise; reorder takes the full new order. Pages: '1-3,5,8-', 'last', '-1', 'odd', 'even'.
 Sinónimos: quita la página 3, borra páginas del pdf, saca las páginas 2 a 5, gira el pdf, rota la página, pon las páginas en otro orden, invierte el pdf
 
-Annotations: none.
+Annotations: draftSafeHint.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -668,7 +724,9 @@ Shrink a PDF (Ghostscript if installed, else built-in), optionally under a size.
 target_mb tries stronger settings until the file fits and says when it cannot. Presets: screen, ebook, printer, prepress. Writes «<name>_comprimido.pdf».
 Sinónimos: comprime el pdf, que pese menos de 2 MB, reduce el tamaño del pdf, el pdf es muy grande, aligera el documento, para enviarlo por correo
 
-Annotations: none.
+Annotations: draftSafeHint.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -689,6 +747,8 @@ The password is never returned or stored. unprotect needs the current password. 
 Sinónimos: ponle contraseña, protege el pdf, cifra el documento, quítale la contraseña, desbloquea el pdf, quita la clave
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -711,7 +771,9 @@ Stamp a text watermark on the pages of a PDF. Marca de agua de texto en un PDF.
 Diagonal by default; opacity, angle, size, colour and pages are adjustable. Writes «<name>_marca.pdf».
 Sinónimos: marca de agua, ponle CONFIDENCIAL, sello de borrador, texto diagonal en cada página
 
-Annotations: none.
+Annotations: draftSafeHint.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -748,7 +810,9 @@ Set the title, author, subject or keywords of a PDF. Cambiar metadatos de un PDF
 Omit a field to keep it; an empty string clears it. Writes «<name>_metadatos.pdf».
 Sinónimos: cámbiale el título al pdf, pon el autor, edita las propiedades, palabras clave
 
-Annotations: none.
+Annotations: draftSafeHint.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -769,7 +833,9 @@ Make a PDF from images (JPG, PNG, WEBP, HEIC), one per page. Pasar fotos a PDF.
 Page size A4, Letter or fit; margin; photo orientation is honoured. A folder means all its images in name order.
 Sinónimos: pasa estas fotos a pdf, junta las imágenes en un pdf, escaneos a pdf, hazme un pdf con estas capturas
 
-Annotations: none.
+Annotations: draftSafeHint.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -788,7 +854,9 @@ Convert Word, ODT or RTF documents to PDF (Word or LibreOffice). Convertir un Wo
 Uses Microsoft Word on Windows when installed, otherwise LibreOffice; says clearly when neither exists. Writes «<name>.pdf» next to the source.
 Sinónimos: convierte el word a pdf, pasa el docx a pdf, guarda el documento como pdf, de doc a pdf
 
-Annotations: none.
+Annotations: draftSafeHint.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -805,7 +873,9 @@ Render PDF pages as PNG or JPG images. Pasar páginas de un PDF a imágenes.
 Writes into a new folder «<name>_imagenes». dpi 36-600 (default 150).
 Sinónimos: pdf a png, pdf a jpg, exporta las páginas como imágenes, saca una foto de cada página
 
-Annotations: none.
+Annotations: draftSafeHint.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -824,7 +894,9 @@ Compress PNG, JPEG and WEBP images under a size limit, single or folder. Comprim
 Copies, never touches the originals: lossless first, then fewer colours or lower quality, then smaller size. lossless_only reports what cannot fit. A folder goes to «<folder>_comprimidas»; a file to «<name>_comprimida».
 Sinónimos: comprime las imágenes, que cada png pese menos de 5 MB, reduce el tamaño de las fotos, las fotos pesan mucho, optimiza los png
 
-Annotations: none.
+Annotations: draftSafeHint.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -910,6 +982,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `password` (string) | no | User or owner password for encrypted files. |
@@ -951,6 +1025,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `discard_changes` (boolean) | no |  |
@@ -964,6 +1040,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -979,6 +1057,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -1039,6 +1119,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `degrees` (integer) | yes |  |
@@ -1056,6 +1138,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
@@ -1069,6 +1153,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -1084,6 +1170,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -1101,6 +1189,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `at` (integer) | yes |  |
@@ -1116,6 +1206,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -1136,6 +1228,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `open` (boolean) | no | Also open the result as a new document (default: only when out is omitted). |
@@ -1152,6 +1246,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -1184,6 +1280,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
@@ -1201,6 +1299,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
@@ -1216,6 +1316,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
@@ -1229,6 +1331,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -1246,6 +1350,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
@@ -1260,6 +1366,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -1292,6 +1400,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
@@ -1306,6 +1416,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
@@ -1319,6 +1431,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -1344,6 +1458,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `at` (array) | yes |  |
@@ -1363,6 +1479,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
@@ -1377,6 +1495,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -1408,6 +1528,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -1441,6 +1563,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
@@ -1455,6 +1579,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
@@ -1468,6 +1594,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -1491,6 +1619,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: destructiveHint.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
@@ -1504,6 +1634,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -1531,6 +1663,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `categories` (array) | no |  |
@@ -1557,6 +1691,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -1606,6 +1742,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `align` (left \| center \| right \| justify) | no |  |
@@ -1630,6 +1768,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
@@ -1645,6 +1785,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -1674,6 +1816,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
@@ -1702,6 +1846,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `color` (string) | no |  |
@@ -1722,6 +1868,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -1745,6 +1893,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
@@ -1760,6 +1910,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
@@ -1772,6 +1924,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -1799,6 +1953,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -1836,6 +1992,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `author` (string) | no |  |
@@ -1853,6 +2011,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -1884,6 +2044,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -1920,6 +2082,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `certify` (no_changes \| form_fill \| comments) | no |  |
@@ -1943,6 +2107,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `clear` (boolean) | no |  |
@@ -1958,6 +2124,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -1977,6 +2145,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
@@ -1994,6 +2164,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
@@ -2007,6 +2179,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -2023,6 +2197,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -2046,6 +2222,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
@@ -2061,6 +2239,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -2083,6 +2263,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
@@ -2095,6 +2277,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -2112,6 +2296,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
@@ -2125,6 +2311,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -2142,6 +2330,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -2168,6 +2358,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `behind` (boolean) | no |  |
@@ -2192,6 +2384,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `color` (string) | no |  |
@@ -2212,6 +2406,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
@@ -2225,6 +2421,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -2279,6 +2477,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
@@ -2307,6 +2507,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `alt` (string) | no |  |
@@ -2323,6 +2525,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `path` (string) | yes |  |
@@ -2337,6 +2541,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -2366,6 +2572,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
@@ -2380,6 +2588,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -2396,6 +2606,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -2425,6 +2637,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
@@ -2451,6 +2665,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -2485,6 +2701,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
@@ -2500,6 +2718,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
@@ -2513,6 +2733,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -2543,6 +2765,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `actions` (array) | yes |  |
@@ -2558,6 +2782,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `enabled` (boolean) | no |  |
@@ -2571,6 +2797,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -2588,6 +2816,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -2619,6 +2849,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
@@ -2635,6 +2867,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
@@ -2649,6 +2883,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -2667,6 +2903,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -2689,6 +2927,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
@@ -2702,6 +2942,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -2770,6 +3012,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `action` (move \| rotate \| flip_horizontal \| flip_vertical \| replace \| delete) | yes |  |
@@ -2819,6 +3063,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `align` (left \| center \| right \| justify) | no |  |
@@ -2849,6 +3095,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
@@ -2861,6 +3109,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -2875,6 +3125,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -2900,6 +3152,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: destructiveHint.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `comments` (boolean) | no | Default true. |
@@ -2915,6 +3169,8 @@ Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
 
+Undo: no.
+
 | Argument | Required | Description |
 |---|---|---|
 | `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
@@ -2927,6 +3183,8 @@ PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a pri
 Sinónimos: PrintCraft, PDF editable, taller de PDF
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
@@ -2953,6 +3211,8 @@ Use an existing Kafka PDF id (d_…) or PrintCraft revision (pc_…). actions is
 Sinónimos: editar texto de un PDF, cambiar párrafo, insertar páginas, girar páginas, componer documento
 
 Annotations: none.
+
+Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|

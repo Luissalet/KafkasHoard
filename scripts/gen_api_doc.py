@@ -15,7 +15,11 @@ def main() -> int:
     lines = ["# Kafka's Hoard — agent tools", "",
              "Every tool is served by the app at `GET /api/agent/tools` and `POST /api/agent/call` (Bearer token from `data/mcp-token`), "
              "by the stdio bridge `mcp_server.py`, and to the bundled UI through `POST /api/ui/call`. The argument tables are generated "
-             "from the code (`python scripts/gen_api_doc.py`).", ""]
+             "from the code (`python scripts/gen_api_doc.py`).", "",
+             "Through `/api/agent/call` every tool that is not read-only needs a `reason` (3-300 characters, one sentence for the history); the UI "
+             "route needs none. Agent writes are journaled (`GET /api/agent/journal`) and a whole session can be undone (`POST /api/agent/undo`): "
+             "`Undo: yes` below means the tool keeps a snapshot and has an undo handler; `Undo: no` writes are reported as not undoable. "
+             "`draftSafeHint` marks the tools a `drafts` token may call.", ""]
     for t in TOOLS:
         first, _, rest = t.description.partition("\n")
         lines += [f"## `{t.name}`", "", first]
@@ -25,6 +29,8 @@ def main() -> int:
         props, required = schema.get("properties", {}), set(schema.get("required", []))
         flags = ", ".join(k for k, v in t.annotations.items() if v)
         lines += ["", f"Annotations: {flags or 'none'}."]
+        if not t.annotations.get("readOnlyHint"):
+            lines += ["", f"Undo: {'yes' if t.undo else 'no'}."]
         if props:
             lines += ["", "| Argument | Required | Description |", "|---|---|---|"]
             for name, spec in props.items():
