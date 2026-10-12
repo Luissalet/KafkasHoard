@@ -4,7 +4,6 @@ import { api } from "./api.js";
 
 const PAGE_NAMES = { "": "deadlines", documentos: "documents", revision: "review", taller: "workshop", ajustes: "settings" };
 const EDITOR_ORDER = { "deadline-form": 0, "deadline-new": 0, "document-form": 1 };
-const MAX_DEADLINES = 8;
 
 // Fields of `draft` whose value differs from `initial` (compared as JSON, so arrays and "" clears count).
 export function changedFields(initial, draft) {
@@ -88,7 +87,7 @@ export async function buildContext({ hash, editors = [], getDocument, getDeadlin
     if (data?.document?.id) {
       viewObject = data.document.id;
       add(documentObject(data.document));
-      for (const d of (data.deadlines || []).slice(0, MAX_DEADLINES)) if (d?.id) add(deadlineObject(d));
+      for (const d of (data.deadlines || [])) if (d?.id) add(deadlineObject(d));
     }
   }
   for (const e of editors) {

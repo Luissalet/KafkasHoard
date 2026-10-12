@@ -43,6 +43,15 @@ test("document view returns the real document, its deadlines and the editor", as
   assert.deepEqual(ctx.view.editor.fields, { notes: "x" });
 });
 
+test("a document with twelve deadlines sends all twelve", async () => {
+  const many = Array.from({ length: 12 }, (_, i) => ({ id: `t_${i + 1}`, title: `Deadline ${i + 1}`, date: "2026-11-01", state: "open" }));
+  const getMany = async () => ({ document: doc, deadlines: many });
+  const ctx = await buildContext({ hash: "#/documentos/d_1", editors: [], getDocument: getMany, getDeadline });
+  const ids = ctx.active_objects.filter((o) => o.kind === "deadline").map((o) => o.object_id);
+  assert.equal(ids.length, 12);
+  assert.deepEqual(ids, many.map((d) => d.id));
+});
+
 test("unknown, new and list views yield no object and never throw", async () => {
   for (const hash of ["#/documentos/d_missing", "#/documentos/new", "", "#/revision", "#/ajustes", "#/taller?doc=nope"]) {
     const ctx = await buildContext({ hash, editors: [], getDocument, getDeadline });
