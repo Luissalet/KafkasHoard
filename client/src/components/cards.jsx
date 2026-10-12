@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { api } from "../api.js";
+import { changedFields, deadlineUpdateValues, parseReminders } from "../copilot-context.js";
 import { useApp } from "../context.js";
 import { dayLabel, money } from "../format.js";
 import { DEADLINE_KINDS, RECURRING } from "../meta.js";
@@ -87,13 +88,31 @@ function DeadlineEditor({ d, onClose, onSaved }) {
   const { t, notify } = useApp();
   const [busy, run] = useBusy();
   const [form, setForm] = useState({ title: d.title, date: d.date, remind: (d.remind || []).join(", "), recurring: d.recurring, notes: d.notes || "" });
+  // What the editor opened with: only the fields the user changes from it are saved, so an edit made meanwhile (by the assistant) is kept.
+  const base = useRef(form);
+  const latest = useRef(form);
+  latest.current = form;
+  useEffect(() => {
+    const provide = (event) => {
+      const fields = changedFields(base.current, latest.current);
+      event.detail.provide({ kind: "deadline-form", object_id: d.id, dirty: Object.keys(fields).length > 0, fields });
+    };
+    window.addEventListener("kafka:context-request", provide);
+    return () => window.removeEventListener("kafka:context-request", provide);
+  }, [d.id]);
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
   const save = (e) => {
     e.preventDefault();
-    const remind = form.remind.split(/[\s,;]+/).filter(Boolean).map(Number);
-    if (remind.some((n) => !Number.isInteger(n) || n < 0 || n > 365)) { notify(t("bad_reminders"), "error"); return; }
+    const changedNow = changedFields(base.current, form);
+    if ("remind" in changedNow) {
+      const remind = parseReminders(form.remind);
+      if (remind === null) { notify(t("bad_reminders"), "error"); return; }
+      changedNow.remind = remind;
+    }
+    const values = deadlineUpdateValues(changedNow);
+    if (Object.keys(values).length === 0) { onClose(); return; }
     run("save", async () => {
-      await api.call("deadline_update", { deadline: d.id, title: form.title, date: form.date, remind, recurring: form.recurring, notes: form.notes });
+      await api.call("deadline_update", { deadline: d.id, ...values });
       notify(t("saved"));
       await onSaved();
     });
@@ -121,10 +140,23 @@ function DeadlineEditor({ d, onClose, onSaved }) {
   );
 }
 
+const NEW_DEADLINE = { title: "", date: "", kind: "custom", remind: "", recurring: "none", notes: "" };
+
 export function AddDeadline({ docId, onClose, onSaved }) {
   const { t, notify, changed } = useApp();
   const [busy, run] = useBusy();
-  const [form, setForm] = useState({ title: "", date: "", kind: "custom", remind: "", recurring: "none", notes: "" });
+  const [form, setForm] = useState(NEW_DEADLINE);
+  const latest = useRef(form);
+  latest.current = form;
+  // Creation form: the copilot sees what is typed so far (there is no object id yet).
+  useEffect(() => {
+    const provide = (event) => {
+      const fields = changedFields(NEW_DEADLINE, latest.current);
+      event.detail.provide({ kind: "deadline-new", object_id: null, ...(docId ? { doc_id: docId } : {}), dirty: Object.keys(fields).length > 0, fields });
+    };
+    window.addEventListener("kafka:context-request", provide);
+    return () => window.removeEventListener("kafka:context-request", provide);
+  }, [docId]);
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
   const save = (e) => {
     e.preventDefault();

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { api } from "../api.js";
+import { changedFields, docUpdateValues, rebaseForm } from "../copilot-context.js";
 import { useApp } from "../context.js";
 import { AddDeadline, DeadlineCard, DocRow } from "../components/cards.jsx";
 import { Busy, Chip, ErrorBox, Field, Icon, ICONS, KindChip, Rel, Section, useBusy, useLoad } from "../components/ui.jsx";
@@ -55,26 +56,47 @@ function Preview({ doc, pages, initialPage }) {
 function Fields({ doc, onSaved }) {
   const { t, notify } = useApp();
   const [busy, run] = useBusy();
-  const init = () => ({ title: doc.title || "", kind: doc.kind, issuer: doc.issuer || "", ref: doc.ref || "", amount: doc.amount ?? "", issue_date: doc.issue_date || "",
+  const init = () => ({ title: doc.title || "", kind: doc.kind, issuer: doc.issuer || "", ref: doc.ref || "", amount: String(doc.amount ?? ""), issue_date: doc.issue_date || "",
     period_from: doc.period_from || "", period_to: doc.period_to || "", item: doc.item || "", tags: (doc.tags || []).join(", "), notes: doc.notes || "",
     warranty_years: doc.warranty_months ? String(doc.warranty_months / 12) : "" });
   const [form, setForm] = useState(init);
-  useEffect(() => setForm(init()), [doc]); // eslint-disable-line react-hooks/exhaustive-deps
+  // `base` is what the form was loaded with: only fields the user changed from it are saved, so an edit made meanwhile (by the assistant) is kept.
+  const base = useRef(null);
+  if (base.current === null) base.current = form;
+  const latest = useRef(form);
+  latest.current = form;
+  // The document reloaded (a turn ended, something else saved): fields the user has not touched follow it, touched ones stay as typed.
+  useEffect(() => {
+    const previous = base.current;
+    const next = init();
+    base.current = next;
+    setForm((f) => rebaseForm(previous, next, f));
+  }, [doc]); // eslint-disable-line react-hooks/exhaustive-deps
+  // The copilot asks what is typed but not saved yet.
+  useEffect(() => {
+    const provide = (event) => {
+      const fields = changedFields(base.current, latest.current);
+      event.detail.provide({ kind: "document-form", object_id: doc.id, dirty: Object.keys(fields).length > 0, fields });
+    };
+    window.addEventListener("kafka:context-request", provide);
+    return () => window.removeEventListener("kafka:context-request", provide);
+  }, [doc.id]);
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
   const edited = new Set(doc.edited || []);
   const mark = (k) => (edited.has(k) ? <Chip className="chip-accent" title={t("edited_hint")}>{t("edited")}</Chip> : null);
   const save = (e) => {
     e.preventDefault();
-    const values = { doc: doc.id };
-    const same = (k, a, b) => String(a ?? "") === String(b ?? "");
-    for (const k of ["title", "kind", "issuer", "ref", "issue_date", "period_from", "period_to", "item", "notes"]) {
-      if (!same(k, form[k], doc[k] ?? "")) values[k] = form[k];
-    }
-    if (!same("amount", form.amount, doc.amount ?? "") && form.amount !== "") values.amount = Number(String(form.amount).replace(",", "."));
-    if (!same("tags", form.tags, (doc.tags || []).join(", "))) values.tags = form.tags.split(/[,;]/).map((s) => s.trim()).filter(Boolean);
-    if (form.warranty_years !== "" && !same("w", form.warranty_years, doc.warranty_months ? String(doc.warranty_months / 12) : "")) values.warranty_years = Number(String(form.warranty_years).replace(",", "."));
-    if (Object.keys(values).length === 1) return;
-    run("save", async () => { await api.call("doc_update", values); notify(t("saved")); await onSaved(); });
+    const changedNow = changedFields(base.current, form);
+    const values = docUpdateValues(changedNow);
+    if (Object.keys(values).length === 0) return;
+    const saved = form;
+    run("save", async () => {
+      await api.call("doc_update", { doc: doc.id, ...values });
+      // What was just saved is the new baseline, so it is not sent again if the user keeps editing other fields.
+      base.current = { ...base.current, ...Object.fromEntries(Object.keys(changedNow).map((k) => [k, saved[k]])) };
+      notify(t("saved"));
+      await onSaved();
+    });
   };
   return (
     <form className="panel space-y-3" onSubmit={save} noValidate aria-label={t("fields")}>

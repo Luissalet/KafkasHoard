@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { api, errorText } from "./api.js";
 import { initialLang, makeT, saveLang } from "./i18n.js";
 import { AppContext } from "./context.js";
+import { setRefreshHandler } from "./copilot-context.js";
 import { ConfirmDialog, Icon, ICONS } from "./components/ui.jsx";
 import Plazos from "./pages/Plazos.jsx";
 import Documentos from "./pages/Documentos.jsx";
@@ -107,6 +108,9 @@ export default function App() {
     document.addEventListener("visibilitychange", onVisible);
     return () => { clearInterval(timer); document.removeEventListener("visibilitychange", onVisible); };
   }, [refreshDash]);
+
+  // The assistant finished a turn: reload the dashboard and whatever page is open (forms being edited keep their fields).
+  useEffect(() => setRefreshHandler(changed), [changed]);
 
   const notify = useCallback((message, kind = "ok") => setToast({ message, kind, id: Math.random() }), []);
   const toastError = useCallback((error) => setToast({ message: errorText(error), kind: "error", id: Math.random() }), []);
