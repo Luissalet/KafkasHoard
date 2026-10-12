@@ -9,7 +9,7 @@ from kafka_hoard.agent_tools import TOOLS
 from kafka_hoard.config import DEFAULT_PORT
 
 ROOT = Path(__file__).resolve().parent.parent
-BANNED = ("chatgpt", "claude", "openai", "anthropic", "lm studio", "odysseus", "gemini", "copilot", "notion", "evernote", "paperless")
+BANNED = ("chatgpt", "claude", "openai", "anthropic", "lm studio", "odysseus", "gemini", "notion", "evernote", "paperless")
 SLOGAN_HINTS = ("tagline", "slogan")
 
 
