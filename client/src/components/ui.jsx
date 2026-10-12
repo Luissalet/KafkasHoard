@@ -129,13 +129,16 @@ export function DaysChip({ deadline }) {
 // ------------------------------------------------------------------ dialogs
 export function Modal({ title, onClose, children, wide }) {
   const ref = useRef(null);
+  // onClose is read through a ref: a refresh re-renders the parent with a new function and must not move the focus again.
+  const closeRef = useRef(onClose);
+  closeRef.current = onClose;
   useEffect(() => {
-    const onKey = (e) => { if (e.key === "Escape") onClose(); };
+    const onKey = (e) => { if (e.key === "Escape") closeRef.current(); };
     window.addEventListener("keydown", onKey);
     const first = ref.current?.querySelector("input, select, textarea, button");
     first?.focus();
     return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
+  }, []);
   return (
     <div className="modal-backdrop" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="modal space-y-3" ref={ref} role="dialog" aria-modal="true" aria-label={title} style={wide ? { width: "min(560px, 100%)" } : undefined} onMouseDown={(e) => e.stopPropagation()}>
