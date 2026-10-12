@@ -51,6 +51,16 @@ El OCR es opcional: `pip install ".[ocr]"` (rapidocr + onnxruntime). Sin él, la
 
 Entorno: `KAFKA_PORT` (5200), `KAFKA_DATA_DIR`, `PORT_STRICT=1`, `KAFKA_SCHEDULER=0` (sin trabajo en segundo plano), `KAFKA_OFFLINE=1` (sin red), `KAFKA_OCR=0`, `KAFKA_ALLOWED_HOSTS`, `KAFKA_HTTP_TIMEOUT_S`. Los secretos (`KAFKA_TELEGRAM_TOKEN`, `KAFKA_TELEGRAM_CHAT_ID`, `KAFKA_NTFY_TOPIC`, `KAFKA_SMTP_*`, `KAFKA_FAUSTUS_DIR`) pueden ir en `.env` (ver `.env.example`) o en Ajustes. Lo demás son ajustes guardados en `data/kafka.db`.
 
+## Asistente de Faustus
+
+Con el lanzador compartido de Hoard Link instalado, la app muestra el panel de Faustus de la familia (un botón flotante). La conversación, el modelo y las herramientas viven en Faustus; esta app solo le dice al panel qué hay abierto.
+
+- **Contexto por vista.** Un documento abierto en Documentos (`#/documentos/<id>`) o en el taller (`#/taller?doc=<id>`) se envía como `document` (título, tipo, emisor, referencia, importe, moneda, fecha de emisión, estado) más hasta 8 de sus plazos como `deadline` (fecha, estado, recurrencia, días restantes). Un plazo en edición se añade con su id real. La vista indica la página (`deadlines`, `documents`, `review`, `workshop`, `settings`). Crear (`new`) no da objeto. El texto de los documentos nunca se envía, solo estos campos de resumen.
+- **Campos sin guardar.** El panel los pide con el evento de ventana `kafka:context-request`. Los formularios `deadline-form`, `deadline-new` (aún sin id) y `document-form` responden con lo escrito y una marca `dirty`.
+- **Refresco.** Cuando el asistente termina un turno, la vista abierta se recarga en el sitio (`hoard:copilot-turn-end` / `window.hoardCopilot.onTurnEnd`, unidos en una sola recarga). Los formularios abiertos conservan lo que escribías; lo que no has tocado sigue a los datos nuevos.
+- **Guardado.** Los formularios envían solo los campos cambiados a `doc_update` y `deadline_update` (incluido `remind`), que fusionan solo esos campos; un valor vacío explícito borra uno. Sin argumentos nuevos.
+- **Pruebas.** `node --test client/copilot-context.test.mjs` y `python -m pytest tests/test_partial_updates.py`.
+
 ## Asistentes (MCP)
 
 `mcp_server.py` es un puente MCP por stdio llamado `kafka-hoard`. No abre nunca la base de datos: reenvía cada llamada a la app en marcha con el token de `data/mcp-token` y arranca la app si no responde. `faustus-plugin.json` describe la app, su comprobación de salud y el puente para Faustus y el Hoard Hub.
