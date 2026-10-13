@@ -1,4 +1,4 @@
-"""PrintCraft catalogue and real CLI workflow tests (set KAFKA_PRINTCRAFT_CLI to run the integration case)."""
+"""Owned PDF catalogue, historical aliases and real artifact workflows."""
 
 from __future__ import annotations
 
@@ -25,15 +25,13 @@ def test_printcraft_catalogue_has_all_123_json_schemas_and_dispatch_entries():
     assert len(load_manifest()["tools"]) == 123
 
 
-def test_printcraft_settings_accept_only_an_absolute_cli(svc, tmp_path):
-    from kafka_hoard.errors import KafkaError
-
-    with pytest.raises(KafkaError):
-        svc.set_settings({"printcraft.cli": "printcraft-cli.exe"})
-    fake = tmp_path / "printcraft-cli.exe"
-    fake.write_bytes(b"test")
-    svc.set_settings({"printcraft.cli": str(fake)})
-    assert svc.setting("printcraft.cli") == str(fake)
+def test_historical_cli_configuration_is_preserved_without_selecting_it(svc, tmp_path, monkeypatch):
+    obsolete = str(tmp_path / "missing-printcraft-cli.exe")
+    svc.set_settings({"printcraft.cli": obsolete})
+    monkeypatch.setenv("KAFKA_PRINTCRAFT_CLI", obsolete)
+    assert svc.setting("printcraft.cli") == obsolete
+    selected = svc.printcraft.executable()
+    assert selected is None or selected.name == "kafka-pdf-worker.exe"
 
 
 def test_live_discovery_cache_avoids_restarting_cli_for_each_tool(svc, tmp_path):
@@ -48,13 +46,11 @@ def test_live_discovery_cache_avoids_restarting_cli_for_each_tool(svc, tmp_path)
     assert len(calls) == 1
 
 
-def test_real_printcraft_edits_a_filed_pdf_and_returns_a_receipt(svc, tmp_path, monkeypatch):
-    """Edits two synthetic PDFs, retains the original hash, checks output with pypdf (not PrintCraft)."""
-    exe_value = os.environ.get("KAFKA_PRINTCRAFT_CLI", "")
-    if not exe_value or not Path(exe_value).is_file():
-        pytest.skip("Set KAFKA_PRINTCRAFT_CLI to the portable PrintCraft executable for the real integration test")
-    exe = Path(exe_value).resolve()
-    monkeypatch.setenv("KAFKA_PRINTCRAFT_CLI", str(exe))
+def test_owned_engine_edits_a_filed_pdf_and_returns_a_receipt(svc, tmp_path, monkeypatch):
+    """Real PDFs checked independently with pypdf; old executable settings are invalid."""
+    exe = svc.printcraft.executable()
+    assert exe is not None, "Build the owned PDF worker with scripts/build_pdf_engine.py"
+    monkeypatch.setenv("KAFKA_PRINTCRAFT_CLI", str(tmp_path / "absent-old-cli.exe"))
     svc.printcraft.env.environ = os.environ
     status = svc.printcraft.status(discover=True)
     assert status["runtime_tool_count"] == 123 and status["schema_matches"] is True
@@ -81,7 +77,7 @@ def test_real_printcraft_edits_a_filed_pdf_and_returns_a_receipt(svc, tmp_path, 
     source_doc = svc.store.create_document(title="Synthetic PrintCraft case", kind="other", file_sha=sha, file_ext="pdf",
                                            file_name=base.name, mime="application/pdf", size=len(original_bytes), pages=1)
 
-    result = call_tool(svc, "printcraft_workflow", {
+    result = call_tool(svc, "pdf_workflow", {
         "doc": source_doc["id"],
         "actions": [
             {"tool": "text_paragraphs", "arguments": {"page": 1}},

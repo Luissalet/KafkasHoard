@@ -1,6 +1,6 @@
-"""PrintCraft's headless PDF engine, run in a per-call sandbox.
+"""Kafka's incorporated PDF engine and historical operation aliases.
 
-Kafka keeps each original in its content-addressed store. PrintCraft receives a
+Kafka keeps each original in its content-addressed store. The owned worker receives a
 temporary copy under ``workshop/`` and writes its result to a new file. A receipt
 links every result back to the Kafka document (and, for follow-up edits, to the
 previous receipt).
@@ -53,8 +53,8 @@ def _is_file_ref(value: Any) -> bool:
     return isinstance(value, str) and (value.startswith(("d_", "pc_")) or Path(value).is_absolute())
 
 
-class PrintCraft:
-    """Kafka's adapter for the PrintCraft CLI and the artifact receipt store."""
+class KafkaPdf:
+    """The owned PDF worker, its complete operation table and artifact receipts."""
 
     def __init__(self, config: Any, store: Any, files: Any, setting: Callable[[str], str], workshop: Any,
                  *, env: Optional[Any] = None):
@@ -74,31 +74,17 @@ class PrintCraft:
         return Path(self.config.data_dir) / "workshop" / "printcraft"
 
     def executable(self) -> Optional[Path]:
-        configured = (self.setting("printcraft.cli") or "").strip() or str(self.env.environ.get("KAFKA_PRINTCRAFT_CLI", "")).strip()
-        if configured:
-            candidate = Path(configured).expanduser()
-            return candidate.resolve() if candidate.is_file() else None
-        found = self.env.find(("printcraft-cli", "printcraft-cli.exe"))
-        if found:
-            return Path(found).resolve()
         app_root = Path(__file__).resolve().parents[2]
-        patterns = (
-            str(app_root / "native-craft-bundles" / "printcraft-*-windows-x64-portable" / "printcraft-cli.exe"),
-            str(app_root / "tools" / "printcraft-*-windows-x64-portable" / "printcraft-cli.exe"),
-            str(app_root / "vendor" / "printcraft" / "printcraft-cli.exe"),
-        )
-        for pattern in patterns:
-            matches = sorted(Path(p) for p in __import__("glob").glob(pattern))
-            if matches:
-                return matches[-1]
-        return None
+        candidate = app_root / "native" / "bin" / ("kafka-pdf-worker.exe" if os.name == "nt" else "kafka-pdf-worker")
+        return candidate if candidate.is_file() else None
 
     def status(self, *, discover: bool = False) -> dict[str, Any]:
         exe = self.executable()
         out: dict[str, Any] = {
-            "engine": self.manifest["engine"], "schema_release": self.manifest["release"],
+            "engine": "Kafka PDF", "schema_release": self.manifest["release"],
             "tool_count": len(self.native_tools), "configured": bool(exe), "available": bool(exe),
-            "path": str(exe) if exe else "", "source": "printcraft.cli setting, KAFKA_PRINTCRAFT_CLI, PATH, or portable folder",
+            "path": str(exe) if exe else "", "source": "incorporated local source",
+            "legacy_configuration_preserved": bool(self.setting("printcraft.cli")),
         }
         if exe and discover:
             live = self._live_tools(exe)
@@ -111,7 +97,7 @@ class PrintCraft:
             )
         elif not exe:
             out["available"] = False
-            out["hint"] = "Set printcraft.cli in Ajustes or KAFKA_PRINTCRAFT_CLI to the portable printcraft-cli executable."
+            out["hint"] = "The incorporated Kafka PDF worker has not been built or installed."
         return out
 
     def _live_tools(self, exe: Path, *, refresh: bool = False) -> list[dict[str, Any]]:
@@ -123,17 +109,21 @@ class PrintCraft:
         if not refresh and self._live_cache_key == cache_key and self._live_cache:
             return self._live_cache
         try:
-            done = self.env.runner([str(exe), "tools"], timeout=30)
+            done = self.env.runner([str(exe), "catalog"], timeout=30)
         except Exception as exc:  # noqa: BLE001 - CLI may be missing, incompatible, or timed out.
-            raise KafkaError("unavailable", f"PrintCraft no responde ({type(exc).__name__}).", hint="Revisa printcraft.cli en Ajustes.") from exc
+            raise KafkaError("unavailable", f"El motor PDF de Kafka no responde ({type(exc).__name__}).", hint="Comprueba la instalación del motor incorporado.") from exc
         if getattr(done, "returncode", 1) != 0:
-            raise KafkaError("failed", "PrintCraft no pudo enumerar sus herramientas.", hint="Revisa la versión del CLI configurado.")
+            raise KafkaError("failed", "El motor PDF de Kafka no pudo enumerar sus herramientas.")
         try:
             value = json.loads(getattr(done, "stdout", ""))
+            if isinstance(value, dict):
+                if value.get("format") != "kafka-pdf-catalog/v1":
+                    raise ValueError("Unexpected PDF catalogue format")
+                value = value.get("tools")
         except (TypeError, ValueError) as exc:
-            raise KafkaError("failed", "PrintCraft devolvió un catálogo que no es JSON.") from exc
+            raise KafkaError("failed", "El motor PDF devolvió un catálogo que no es JSON.") from exc
         if not isinstance(value, list) or not all(isinstance(row, dict) and row.get("name") for row in value):
-            raise KafkaError("failed", "El catálogo de PrintCraft no tiene el formato esperado.")
+            raise KafkaError("failed", "El catálogo PDF no tiene el formato esperado.")
         self._live_cache_key, self._live_cache = cache_key, value
         return value
 
@@ -146,12 +136,12 @@ class PrintCraft:
         if "doc" in properties:
             properties["doc"] = {
                 "type": "string", "pattern": _DOC_REF_RE.pattern,
-                "description": "Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…).",
+                "description": "Kafka document id (d_…) or a prior PDF artifact id (pc_…).",
             }
         else:
             properties["doc"] = {
                 "type": "string", "pattern": _DOC_REF_RE.pattern,
-                "description": "Optional Kafka document id (d_…) or prior PrintCraft artifact id (pc_…).",
+                "description": "Optional Kafka document id (d_…) or prior PDF artifact id (pc_…).",
             }
         if native_name == "doc_open":
             required[:] = [key for key in required if key != "path"]
@@ -164,14 +154,14 @@ class PrintCraft:
             receipt = self.store.printcraft_artifact(ref)
             target = Path(receipt["path"]).resolve()
             if not target.is_file():
-                raise KafkaError("not_found", "No encuentro el PDF de esa revisión PrintCraft.")
+                raise KafkaError("not_found", "No encuentro el PDF de esa revisión.")
             if target.suffix.lower() != ".pdf":
                 raise KafkaError("unsupported", "Esa revisión no es PDF y no se puede abrir como documento.")
             source = self.store.find_document(receipt.get("source_doc_id") or "")
             return target, source, receipt.get("artifact_id") or ""
         doc = self.store.document(ref)
         if doc.get("file_ext", "").lower() != "pdf":
-            raise KafkaError("unsupported", "PrintCraft necesita un PDF archivado en Kafka.")
+            raise KafkaError("unsupported", "El editor necesita un PDF archivado en Kafka.")
         if not doc.get("file_sha"):
             raise KafkaError("not_found", "El documento no tiene un PDF original disponible.")
         target = self.files.path_of(doc["file_sha"], doc["file_ext"])
@@ -248,31 +238,25 @@ class PrintCraft:
 
     def _run_script(self, exe: Path, work: Path, steps: Sequence[dict[str, Any]]) -> tuple[list[Any], Any]:
         script = work / "calls.json"
-        script.write_text(json.dumps([{"tool": step["tool"], "args": step.get("arguments", {})} for step in steps], ensure_ascii=False), encoding="utf-8")
+        request = {"format": "kafka-pdf-batch/v1", "workspace": str(work),
+                   "operations": [{"name": step["tool"], "arguments": step.get("arguments", {})} for step in steps]}
+        script.write_text(json.dumps(request, ensure_ascii=False), encoding="utf-8")
         try:
-            done = self.env.runner([str(exe), "run", "--script", str(script), "--root", str(work)], timeout=_TIMEOUT_S)
+            done = self.env.runner([str(exe), "execute", str(script)], timeout=_TIMEOUT_S)
         except Exception as exc:  # noqa: BLE001
-            raise KafkaError("failed", f"PrintCraft no terminó ({type(exc).__name__}).", status=500) from exc
+            raise KafkaError("failed", f"El motor PDF no terminó ({type(exc).__name__}).", status=500) from exc
         stdout = str(getattr(done, "stdout", "") or "")
-        results: list[Any] = []
-        decoder = json.JSONDecoder()
-        offset = 0
-        while offset < len(stdout):
-            while offset < len(stdout) and stdout[offset].isspace():
-                offset += 1
-            if offset >= len(stdout):
-                break
-            try:
-                item, offset = decoder.raw_decode(stdout, offset)
-            except ValueError:
-                break
-            results.append(item)
         if getattr(done, "returncode", 1) != 0:
             tail = " ".join(str(getattr(done, "stderr", "") or stdout).split())[-500:]
-            raise KafkaError("failed", f"PrintCraft falló: {tail or 'sin mensaje'}", status=500)
-        if not results:
+            raise KafkaError("failed", f"El motor PDF falló: {tail or 'sin mensaje'}", status=500)
+        try:
+            response = json.loads(stdout)
+        except ValueError:
+            response = None
+        results = response.get("results") if isinstance(response, dict) and response.get("format") == "kafka-pdf-result/v1" else None
+        if not isinstance(results, list) or not results:
             tail = " ".join(str(getattr(done, "stderr", "") or stdout).split())[-500:]
-            raise KafkaError("failed", f"PrintCraft no devolvió un resultado utilizable: {tail or 'sin mensaje'}", status=500)
+            raise KafkaError("failed", f"El motor PDF no devolvió un resultado utilizable: {tail or 'sin mensaje'}", status=500)
         return results, done
 
     @staticmethod
@@ -282,36 +266,36 @@ class PrintCraft:
                 value = value.replace(old, new)
             return value
         if isinstance(value, list):
-            return [PrintCraft._rewrite_paths(item, mapping) for item in value]
+            return [KafkaPdf._rewrite_paths(item, mapping) for item in value]
         if isinstance(value, dict):
-            return {key: PrintCraft._rewrite_paths(item, mapping) for key, item in value.items()}
+            return {key: KafkaPdf._rewrite_paths(item, mapping) for key, item in value.items()}
         return value
 
     def call(self, native_name: str, arguments: Mapping[str, Any]) -> dict[str, Any]:
         if native_name not in self.native_tools:
-            raise KafkaError("not_found", f"No existe la herramienta PrintCraft {native_name}.")
+            raise KafkaError("not_found", f"No existe la operación PDF {native_name}.")
         exe = self.executable()
         if exe is None:
-            raise KafkaError("not_configured", "No encuentro printcraft-cli.", hint="Configúralo en Ajustes → Taller de PDF → PrintCraft CLI.")
-        # The live CLI is the final authority for version/schema compatibility.
+            raise KafkaError("not_configured", "El motor PDF incorporado de Kafka no está instalado.")
+        # The owned worker supplies the authoritative operation table.
         live_names = {row["name"] for row in self._live_tools(exe)}
         if native_name not in live_names:
-            raise KafkaError("unsupported", f"El PrintCraft configurado no ofrece la herramienta {native_name}.",
-                             hint=f"El catálogo integrado corresponde a PrintCraft {self.manifest['release']}.")
+            raise KafkaError("unsupported", f"El motor PDF instalado no ofrece la operación {native_name}.",
+                             hint="Comprueba que el motor y los esquemas instalados corresponden a la misma versión de Kafka.")
         return self._run_actions(exe, native_name, dict(arguments), [])
 
     def workflow(self, document: str, actions: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
         if not actions or len(actions) > 20:
-            raise KafkaError("invalid", "El flujo necesita de 1 a 20 operaciones PrintCraft.")
+            raise KafkaError("invalid", "El flujo necesita de 1 a 20 operaciones PDF.")
         exe = self.executable()
         if exe is None:
-            raise KafkaError("not_configured", "No encuentro printcraft-cli.", hint="Configúralo en Ajustes → Taller de PDF → PrintCraft CLI.")
+            raise KafkaError("not_configured", "El motor PDF incorporado de Kafka no está instalado.")
         live_names = {row["name"] for row in self._live_tools(exe)}
         checked = []
         for item in actions:
-            native_name = str(item.get("tool") or "")
+            native_name = str(item.get("tool") or "").removeprefix("pdf_").removeprefix("printcraft_")
             if native_name not in self.native_tools or native_name not in live_names:
-                raise KafkaError("invalid", f"La operación {native_name!r} no está en PrintCraft.")
+                raise KafkaError("invalid", f"La operación {native_name!r} no está en el motor PDF.")
             spec = self.native_tools[native_name]
             if "doc" not in (spec.get("input_schema", {}).get("properties") or {}) or native_name in {"doc_open", "doc_close", "doc_save"}:
                 raise KafkaError("invalid", f"{native_name} no es una operación de edición sobre un documento abierto.")
@@ -382,7 +366,7 @@ class PrintCraft:
             path_map = {item.pop("temporary_path"): item["path"] for item in artifacts}
             results = self._rewrite_paths(results, path_map)
             last_result = results[-1] if results else {}
-            return {"tool": native_name, "engine": f"PrintCraft {self.manifest['release']}", "source_doc": (source_doc or {}).get("id"),
+            return {"tool": native_name, "engine": "Kafka PDF", "source_doc": (source_doc or {}).get("id"),
                     "result": last_result, "artifacts": artifacts, "artifact_ids": [item["artifact_id"] for item in artifacts],
                     "artifact_paths": [item["path"] for item in artifacts], "calls": len(steps),
                     "note": "Edits were saved to a new file. Kafka's archived original was preserved."}
@@ -410,7 +394,7 @@ class PrintCraft:
             )
             entries.append({"artifact_id": artifact_id, "source_doc": row.get("source_doc_id"), "parent_artifact": parent or None,
                             "path": row["path"], "source_sha256": source_sha, "output_sha256": output_sha,
-                            "bytes": len(data), "extension": ext, "engine": f"PrintCraft {self.manifest['release']}",
+                            "bytes": len(data), "extension": ext, "engine": "Kafka PDF",
                             "operation": native_name, "temporary_path": str(candidate.resolve())})
         return entries
 
@@ -423,17 +407,21 @@ class PrintCraft:
         return {"source_doc": source_doc or None, "count": len(rows), "artifacts": rows}
 
 
+# Historical imports and persisted receipt names remain valid after incorporation.
+PrintCraft = KafkaPdf
+
+
 def printcraft_catalog_rows() -> list[dict[str, Any]]:
     """The exact pinned 123-tool API surface used by REST, the UI and Kafka's MCP bridge."""
     manifest = load_manifest()
     rows = []
     for native in manifest["tools"]:
         name = native["name"]
-        first = f"PrintCraft {name} on a PDF. Operación PDF {name}."
+        first = f"Kafka PDF {name}. Operación PDF {name}."
         if len(first) > 110:
-            first = f"PrintCraft {name}. Operación PDF {name}."
-        detail = str(native.get("description") or "")
-        schema = PrintCraft.tool_schema(name, native)
+            first = f"PDF {name}. Operación PDF {name}."
+        detail = str(native.get("description") or "").replace("PrintCraft", "Kafka PDF")
+        schema = KafkaPdf.tool_schema(name, native)
         rows.append({"native_name": name, "name": f"printcraft_{name}", "description": first + ("\n" + detail if detail else ""),
                      "input_schema": schema, "read_only": bool(native.get("read_only"))})
     return rows

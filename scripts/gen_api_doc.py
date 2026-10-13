@@ -50,7 +50,7 @@ def main() -> int:
               "- `GET /api/documents/{id}/page/{n}.png` — page preview of a PDF or the picture of an image document (cached in `data/cache/pages`).",
               "- `POST /api/workshop/upload` — multipart `files` (PDF, images, Word/ODT/RTF; up to 60 files, 400 MB each) and an optional `job`; stores them in `data/workshop/in/<job>/` and returns the job id and each file's path (pages and whether it is protected, for PDFs). The UI then calls the `pdf_*` tools and `images_compress` with those paths; results of uploaded files go to `data/workshop/out/<job>/`.",
               "- `GET /api/workshop/file?path=` — downloads a file under `data/workshop/` or one the workshop wrote in this run (attachment; `inline=1` shows a PDF or image); any other path is refused with 403; same-origin only.",
-              "- `GET /api/workshop/status` — workshop folder and installed helpers; includes PrintCraft CLI availability and schema release.",
+              "- `GET /api/workshop/status` — workshop folder and installed helpers; includes the owned Kafka PDF worker and operation schema release.",
               "- `POST /api/ui/call` `{name, arguments}` — any tool above, uncapped and unmasked (the UI is local).", ""]
     target = ROOT / "docs" / "API.md"
     text = "\n".join(lines)

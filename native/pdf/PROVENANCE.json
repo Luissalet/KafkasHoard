@@ -1,0 +1,2425 @@
+{
+  "source_repository": "https://github.com/storytold/printcraft",
+  "source_revision": "dcb00238896e418b357e6dd777ee35bad36f0b97",
+  "source_release": "v0.2.1",
+  "license": "MIT OR Apache-2.0",
+  "files": [
+    {
+      "file": "Cargo.lock",
+      "source_sha256": "39706dfce1ed6c8418cb39a16433a0704e09b08f7310e6b06ddb923adac78097",
+      "incorporated_sha256": "1122c1e05d9dcc2a686baf57a2ce293f4c3a3fa684d8f27278a78164f254ad3f"
+    },
+    {
+      "file": "Cargo.toml",
+      "source_sha256": "cb101946af7fa50853474a440abf61816f5d0b41ecbb5fb8a66eb9c36d06e6d7",
+      "incorporated_sha256": "89ddcffc15e30374820879dfaa72c3155338c5eaa20e8e29a87f213c4ec06899"
+    },
+    {
+      "file": "LICENSE-APACHE",
+      "source_sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
+      "incorporated_sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594"
+    },
+    {
+      "file": "LICENSE-MIT",
+      "source_sha256": "69ac7c5f9764178bcb794b53cb708062e789f5fe61275c7f348fd0c8688babd2",
+      "incorporated_sha256": "69ac7c5f9764178bcb794b53cb708062e789f5fe61275c7f348fd0c8688babd2"
+    },
+    {
+      "file": "assets/fonts/DancingScript.ttf",
+      "source_sha256": "21808625578fe8d8cd10cb684be546dca077b27cd03a53a2f1ec11dc743c924c",
+      "incorporated_sha256": "21808625578fe8d8cd10cb684be546dca077b27cd03a53a2f1ec11dc743c924c"
+    },
+    {
+      "file": "assets/fonts/Inter-Medium.ttf",
+      "source_sha256": "97ad806f526e41546d46365bb3a393145f75b7b1568913db74549ad8b8dba872",
+      "incorporated_sha256": "97ad806f526e41546d46365bb3a393145f75b7b1568913db74549ad8b8dba872"
+    },
+    {
+      "file": "assets/fonts/Inter-Regular.ttf",
+      "source_sha256": "40d692fce188e4471e2b3cba937be967878f631ad3ebbbdcd587687c7ebe0c82",
+      "incorporated_sha256": "40d692fce188e4471e2b3cba937be967878f631ad3ebbbdcd587687c7ebe0c82"
+    },
+    {
+      "file": "assets/fonts/Inter-SemiBold.ttf",
+      "source_sha256": "78a843fade9d4612a5567302fb595b56976eb5fcebf4fea5a5912d638bafcde3",
+      "incorporated_sha256": "78a843fade9d4612a5567302fb595b56976eb5fcebf4fea5a5912d638bafcde3"
+    },
+    {
+      "file": "assets/fonts/JetBrainsMono-Regular.ttf",
+      "source_sha256": "e6fd0d7e91550b3ed2b735d4312474362c4716edc4fc0577a0f61ed782d5aed1",
+      "incorporated_sha256": "e6fd0d7e91550b3ed2b735d4312474362c4716edc4fc0577a0f61ed782d5aed1"
+    },
+    {
+      "file": "assets/fonts/OFL-DancingScript.txt",
+      "source_sha256": "6f090277c00af96651ce6dbcc38ff1591047a3bffef486e80b6a32e8276a8201",
+      "incorporated_sha256": "6f090277c00af96651ce6dbcc38ff1591047a3bffef486e80b6a32e8276a8201"
+    },
+    {
+      "file": "assets/fonts/OFL-Inter.txt",
+      "source_sha256": "262481e844521b326f5ecd053e59b98c8b2da78c8ee1bdbb6e8174305e54935a",
+      "incorporated_sha256": "262481e844521b326f5ecd053e59b98c8b2da78c8ee1bdbb6e8174305e54935a"
+    },
+    {
+      "file": "assets/fonts/OFL-JetBrainsMono.txt",
+      "source_sha256": "a76abf002c49097d146e86740a3105a5d00450b1592e820a1109a8c5680cd697",
+      "incorporated_sha256": "a76abf002c49097d146e86740a3105a5d00450b1592e820a1109a8c5680cd697"
+    },
+    {
+      "file": "assets/fonts/OFL-ShipporiMincho.txt",
+      "source_sha256": "41fba056279be5f45ff9a99e44b7b53897b42732f5806d8e666e0ab49ac6bd38",
+      "incorporated_sha256": "41fba056279be5f45ff9a99e44b7b53897b42732f5806d8e666e0ab49ac6bd38"
+    },
+    {
+      "file": "assets/fonts/ShipporiMincho-Regular.ttf",
+      "source_sha256": "769b5269f0f9bc6534b352c0e6bd856a566e03ff788f107191c2d835863570b2",
+      "incorporated_sha256": "769b5269f0f9bc6534b352c0e6bd856a566e03ff788f107191c2d835863570b2"
+    },
+    {
+      "file": "crates/a11y/Cargo.toml",
+      "source_sha256": "f597d26e9b695fa9c951e4276ba7e49cc4993be85c05a5d7900f0a8b4f49c6cd",
+      "incorporated_sha256": "af2bc650396230900bb41444de2f550ebfad021a24288b0bb50d08ffa711baa7"
+    },
+    {
+      "file": "crates/a11y/README.md",
+      "source_sha256": "ccd75a19210c52ea917f581f4a067427c635de0e8e1f49256292049b940fa2f0",
+      "incorporated_sha256": "cc324e197dd8d816d6f14ee7d20abb7038efc63e988212faf8c01b9655106156"
+    },
+    {
+      "file": "crates/a11y/src/alt.rs",
+      "source_sha256": "3ea012eb9764539b2f0a6e425b4629945ef3a02b94ca625fa23c671854c65abf",
+      "incorporated_sha256": "7792c0ba78c2911d24d98cecd10695291edf21648b7c3be8ce88dc23ba2b8fde"
+    },
+    {
+      "file": "crates/a11y/src/content.rs",
+      "source_sha256": "e388be47620183b10066841f6c1d9c2e11ecc600651cfb064f398aa8598ed661",
+      "incorporated_sha256": "265f90501782485bfad0c6f6dd577b71c4013048a0387cb7fbf1c22d9de25637"
+    },
+    {
+      "file": "crates/a11y/src/lib.rs",
+      "source_sha256": "a79c78d14d1416b8001a60c022c90ded748be6f0f6e6c067eb2fcd6bfa2a9229",
+      "incorporated_sha256": "ee8ffcd6e6f3685e2b48c6fb5134f62d540c5b97c12c7abb57e099aafdbf4e12"
+    },
+    {
+      "file": "crates/a11y/src/report.rs",
+      "source_sha256": "33235cd95575e49b3b2d178f4f3ae0759ad3a302a8629ba65e6b2a03e0c9c8c0",
+      "incorporated_sha256": "33235cd95575e49b3b2d178f4f3ae0759ad3a302a8629ba65e6b2a03e0c9c8c0"
+    },
+    {
+      "file": "crates/a11y/src/structure.rs",
+      "source_sha256": "058ad3e4fd394b9a984929ae562c64b0039c48c19d1b6a1a6d9954d73f61d016",
+      "incorporated_sha256": "28787c3bbfb5e9cd951f9b69462c4da150681f38af3fd0800ec2f2326fe398bb"
+    },
+    {
+      "file": "crates/a11y/src/tests.rs",
+      "source_sha256": "f84d3e678c9344c7387396b414f00875154ff1e3d5080f39af0ba13932dc355d",
+      "incorporated_sha256": "1cdd7dc03664eb0010359ca19b1b00c430692bd427dfa1744488af7a7bc4dcd0"
+    },
+    {
+      "file": "crates/annot/Cargo.toml",
+      "source_sha256": "3b53bbdafa89b5df7ac170ea448eb09b62641fa098745f07be010423256b09f0",
+      "incorporated_sha256": "bb2952500a22009a8717fc2cf88cd65799eda9fbd824e24ee0d0336318095634"
+    },
+    {
+      "file": "crates/annot/README.md",
+      "source_sha256": "188d9975d992f33001a880d1326145f1d8e16b992a401d0c335642464d011838",
+      "incorporated_sha256": "421ad9195d059bfcdfb08f5b2c3c9507c38d555e7f4fb1d0636a0ab0fc0f1c54"
+    },
+    {
+      "file": "crates/annot/src/appearance.rs",
+      "source_sha256": "0070e3ad8be1d2cf969dba4b7cbc598b894cda8c8ef303b9f7ad5456c9fdc7ed",
+      "incorporated_sha256": "4d11c1e7bfa4a703e377e1d39e004169f8ce111e9a21db680dc76ee98efd4a75"
+    },
+    {
+      "file": "crates/annot/src/lib.rs",
+      "source_sha256": "c5b0a68dcd37f1e0286cd6e7f778128aa1ce03ac203a030769f663cd79f84f2e",
+      "incorporated_sha256": "8232658f1a506cd5e9c580eb408d00c24685f06d370216e927af772edeea8ec0"
+    },
+    {
+      "file": "crates/annot/src/links.rs",
+      "source_sha256": "8e56b15651f1aba39cf5bfcc51bb0a2f8cdbbe405e82181a1a10c17f4628f843",
+      "incorporated_sha256": "fbae0338fc614e391582b64aa4681ec54c9af2d259e3b3d0689792792d3f1662"
+    },
+    {
+      "file": "crates/annot/src/tests.rs",
+      "source_sha256": "b56925e9fc84d47f13cca70cfb3c791d64a0efae84779864570a21742252513a",
+      "incorporated_sha256": "d4c275a25b80f05c29360d428c4ecd4e9b2f99a8a39d7ae697bdf38845861e3d"
+    },
+    {
+      "file": "crates/automation/Cargo.toml",
+      "source_sha256": "2321b4c19e777f1bac5a058674fd3250b8984a473abb48d8b88599d5b57f459b",
+      "incorporated_sha256": "52f2bc0f155627426f6c5398dd2db5f8c376f7fe7380d1b7a5e33532c41ddb91"
+    },
+    {
+      "file": "crates/automation/README.md",
+      "source_sha256": "b69565a8ca9342bcc33c2cb9bf20d0d0d45fa1ae63220353e602c24d9476f630",
+      "incorporated_sha256": "9fe7581603d200fe6d6a2db40d6f5d2b6a6fbd0b564ef59fb0fbe081bff6fb91"
+    },
+    {
+      "file": "crates/automation/src/a11y.rs",
+      "source_sha256": "30d0b39b1bcc608d109991f23cbfe5cd6b1c0f2f9ea8657b33082781fb5be77a",
+      "incorporated_sha256": "f2ebdbe9aeebca8b3e5117537e853e46dee7dec8577ac945833ab36d65dba9c8"
+    },
+    {
+      "file": "crates/automation/src/comments.rs",
+      "source_sha256": "3d3a62dba37563a8c988ce34b0a7af24981a0dc89157a8f2b5a25c792f3932af",
+      "incorporated_sha256": "c4f109dc4059366f2905c04bb621f08cf0b3dc19730ad3ce6a0268222428efd6"
+    },
+    {
+      "file": "crates/automation/src/content.rs",
+      "source_sha256": "6cddc023b3f6e3d21f8fe27fe74c75cacd5f6e1dafae3c2a338228690e657336",
+      "incorporated_sha256": "5bf0245ffc533a7597b94096d834428692f101f4d9b83cdca676d3f4f797a7e4"
+    },
+    {
+      "file": "crates/automation/src/forms.rs",
+      "source_sha256": "e99a61e4869892f4829ffaa9eb587c54547af6593b9dbced08086b5e9ed65d48",
+      "incorporated_sha256": "14233517d48c71ef387cb4d505631f74fec320888a8b8c223f0fd58ae6a71a5b"
+    },
+    {
+      "file": "crates/automation/src/lib.rs",
+      "source_sha256": "a7192086f88c611ac8d42efe64cf99bb8261a90dc8bd679a4a3f6df5b51d6505",
+      "incorporated_sha256": "90212f10efe038dd3b79b50aee5753b8fd866d9fc18677cd73d83e4526d64285"
+    },
+    {
+      "file": "crates/automation/src/links.rs",
+      "source_sha256": "2453f8567648dbb9879f8eddac5dbcf34dfe5e44a5ca5dd0eedf4ee2e30c8b53",
+      "incorporated_sha256": "3ce41b38556479bf1cb6b4a493b6f62f090b293b1d7046587e447ca9df727017"
+    },
+    {
+      "file": "crates/automation/src/mcp.rs",
+      "source_sha256": "bb0381e7e4b3cc3a8b87227438b5241a041ce5988cd49cebb98cf09b9d03d0c3",
+      "incorporated_sha256": "5f0f9ef1fa0386f9eef564f1f56566e2d1b3bba56fb8e9a99e3a137bb02e8bd6"
+    },
+    {
+      "file": "crates/automation/src/printing.rs",
+      "source_sha256": "cf6f88b60a8e22e785db94039f3e5f4e09d44c45e741c3b46d553733513e52ad",
+      "incorporated_sha256": "54ba20aaf004ee8a0a46dcc1d7a2e4ba1cabae761b6945263867d09d03fb99d5"
+    },
+    {
+      "file": "crates/automation/src/redact.rs",
+      "source_sha256": "f04f99bf82f1d9a7e529cf786d961c0f4cfbfa413139f182dc65939427393058",
+      "incorporated_sha256": "ec69431c22b79e337a8aca132491e028b9fbdc6d43e906f11a5e4de4656da9d6"
+    },
+    {
+      "file": "crates/automation/src/signing.rs",
+      "source_sha256": "4dbd2c7185aa302080ad8b7fa2f13ea66a34ddabe22c18a7a1c83421abec156f",
+      "incorporated_sha256": "e00e8713009924f1d45e0fb9e575e3949c24a0d1df18aad1dff48079101871c8"
+    },
+    {
+      "file": "crates/automation/src/tools.rs",
+      "source_sha256": "441bf2c9780256bd902cd55189fc5d7e1545177ab8e963c025010858469deb94",
+      "incorporated_sha256": "66dc322e6ae69f378a615957bcd879b03dd93e6d46789f58063a7fd87a5089a1"
+    },
+    {
+      "file": "crates/automation/tests/automation.rs",
+      "source_sha256": "3efb590c8ee440b21933bd8d3f60fa0648f307613e00b870cdeb945b03f1207f",
+      "incorporated_sha256": "a892f14078cc9720da4126001c93b12bf9c61f533c0c66c09584b3c37e1761e8"
+    },
+    {
+      "file": "crates/compare/Cargo.toml",
+      "source_sha256": "edf5090ec90ef26326509d990467d2bbe3748ba2ed485f9dde127b5df2eda977",
+      "incorporated_sha256": "bc6653bb83d46dd2c4dba40263bf1baaef9bd6f44335e64360a276adc88c5c8a"
+    },
+    {
+      "file": "crates/compare/src/lib.rs",
+      "source_sha256": "1dff57989636fa2718c63dc720298852375e5a60df6c0dd19e32c150bdaa79af",
+      "incorporated_sha256": "d59456667aeec9511c74bf67733faffc99ab153145272db887d9155a41d35e83"
+    },
+    {
+      "file": "crates/content/Cargo.toml",
+      "source_sha256": "6b7d2d446b201f01ada2281e0c4098fff29cb28c6308c0e51a8322e6e80989a4",
+      "incorporated_sha256": "f0ce6af727243ab817ff15d1a26a8da4f2d75d73a902b6dee283229ae612730d"
+    },
+    {
+      "file": "crates/content/README.md",
+      "source_sha256": "53daa3b5b1cfa078f175486cce46917679c35c0db0b7ccca2947e1034532720e",
+      "incorporated_sha256": "e81633c05e8e24a552008e0a916ddccc3c2739af89a55a2fba3b5df28c059d64"
+    },
+    {
+      "file": "crates/content/src/lib.rs",
+      "source_sha256": "3af25acfc3f036d3c27828d2900ca07d8e6d1ea28f46089876a79abf52132d02",
+      "incorporated_sha256": "49662f4d23f8c4606ab096e7d937e768d17db97b11436591bf351c1b10d0d0b7"
+    },
+    {
+      "file": "crates/content/src/tests.rs",
+      "source_sha256": "797788843d286fa8eb0e7a5fe5effb6628222d068bfa98dab8a8eadfba00f1c2",
+      "incorporated_sha256": "797788843d286fa8eb0e7a5fe5effb6628222d068bfa98dab8a8eadfba00f1c2"
+    },
+    {
+      "file": "crates/cos/Cargo.toml",
+      "source_sha256": "9bae18baca772dee2f74cac1e50fbda711967160e3cf6aa320d667083966c7f5",
+      "incorporated_sha256": "a9b6c1c15612066a1fc57e97127bb94f0c7f1bc0b437e49f3c6728ce61ba63fd"
+    },
+    {
+      "file": "crates/cos/examples/cosinfo.rs",
+      "source_sha256": "b0415bfe2b4afbae1642318453e7ab250309d2507239885222c8d4344fd8c471",
+      "incorporated_sha256": "44cac2a4d58cea083cf4daa306e5b22b2175f821c0503770abdd9f84995be3df"
+    },
+    {
+      "file": "crates/cos/examples/protect.rs",
+      "source_sha256": "c71cc4a9b6e556083b8dac47e81934c35b1320ddf3ca8035fd5174acf4418ee8",
+      "incorporated_sha256": "6887a3c0bd8c04a710e02811f8406696214ba01920a66ea33cb415602031c408"
+    },
+    {
+      "file": "crates/cos/src/document.rs",
+      "source_sha256": "e451a39648e1b2d61afec817ea7f8208edd0ab8e130b6cda47bc0f7488ba0f6a",
+      "incorporated_sha256": "6a81526cf7b583971e08e98078257d4e475a7558897087c893453df0b436362e"
+    },
+    {
+      "file": "crates/cos/src/lib.rs",
+      "source_sha256": "08051498ed216aa5254c48d95df97814465f8deb1693cf29ee5ce92c2a37c203",
+      "incorporated_sha256": "873e38246c132a05a9a7a7a3cf6d43200f79a39e6950d000fa9d8d9ab83514bf"
+    },
+    {
+      "file": "crates/cos/src/object.rs",
+      "source_sha256": "bc01a9f8e43c4216aac0f3a438449b94d30e1fabfc32f156be35504d15604ed3",
+      "incorporated_sha256": "c0a645ad17d5bbad3d286ef9973d119d8e4a36a248c6a481a777d5d9dca079c7"
+    },
+    {
+      "file": "crates/cos/src/parser.rs",
+      "source_sha256": "6ba365331e1bf99019e77e798ee0b3f6db0e15380109d37f4210db6cfbc32dfe",
+      "incorporated_sha256": "6ba365331e1bf99019e77e798ee0b3f6db0e15380109d37f4210db6cfbc32dfe"
+    },
+    {
+      "file": "crates/cos/src/security.rs",
+      "source_sha256": "5c6edb179e081a4cdb5529796ef6cef5cceb3e92ed178eb24f3432f4826b5638",
+      "incorporated_sha256": "423ce2d6278422ef1ff8b1258514895f6fbc8492e1525ddb3d9200ca2bafa8dd"
+    },
+    {
+      "file": "crates/cos/src/writer.rs",
+      "source_sha256": "e5c9edebf1c1cd841f2c0a3287af2fb775f7e9697b9081fdb31b97aae3416f3f",
+      "incorporated_sha256": "e5c9edebf1c1cd841f2c0a3287af2fb775f7e9697b9081fdb31b97aae3416f3f"
+    },
+    {
+      "file": "crates/cos/tests/corpus.rs",
+      "source_sha256": "8a7b4e58c1ea2037b73af8909bb7708b4093b34424c44b99fcab548a23fcc044",
+      "incorporated_sha256": "90639e65027ac89ea94c0d06d6e6fc2a3a94ff7f64e02225da0c747730195fc0"
+    },
+    {
+      "file": "crates/cos/tests/encryption.rs",
+      "source_sha256": "dd7baad447bb350492cf57fe6b7cfa1988c2cb63f85d79400b24a86ff5b37433",
+      "incorporated_sha256": "f1358f70c4f288fbd62b4836ec3c979f84dc246511be2f6840e70150e6786b7f"
+    },
+    {
+      "file": "crates/cos/tests/writer.rs",
+      "source_sha256": "7cdc50539dc47c6a0f873fd872665d8912003d78eb4e8d9b588f7327741cac91",
+      "incorporated_sha256": "1bda207cb3dd43c3042efe61e477cbc61f4b6f54366f662e3003f08f3bd4444d"
+    },
+    {
+      "file": "crates/create/Cargo.toml",
+      "source_sha256": "99d8e8802fef0eaeea9fadc6220d957ebd6c9dc8ab49c45db92c41b1afd4099f",
+      "incorporated_sha256": "989d4d23fa9bda365b2a85cad520dcf11314624ab23ec6fa0bc53271b8d75f3d"
+    },
+    {
+      "file": "crates/create/README.md",
+      "source_sha256": "b3000545b2994771305c739b21648f79bf1c415753aef0a7c3be4f50bbd430d4",
+      "incorporated_sha256": "4d1f76a7e73e1b3730da677a3d782e42d6b7e4aa788ba264975e0643a9fb5032"
+    },
+    {
+      "file": "crates/create/src/extract.rs",
+      "source_sha256": "df54249068519c29c7074b7b71ff62a0e3c928c8fa98862369bf808b02e38e13",
+      "incorporated_sha256": "5d09282375d8451464793d571772d6418b93f183ecb307d511dd74149884cf3f"
+    },
+    {
+      "file": "crates/create/src/lib.rs",
+      "source_sha256": "fee03bd74f653d6b0158413b6282934855734484917a1626b4c67d92e1ca4db3",
+      "incorporated_sha256": "a0f7fadea9d48d4307ad9ad8ece48d5495edec2ad7d137edf424e1f946e7f951"
+    },
+    {
+      "file": "crates/create/src/tests.rs",
+      "source_sha256": "ed2cfaf96d8b96bb313937dc22e66e5a39fae14f4de268d928e19f34f7a2afa4",
+      "incorporated_sha256": "13abe9f55d9fadedbbe99aeba9f3a1a4f1b0183915541456959d10aeaf8722a2"
+    },
+    {
+      "file": "crates/crypt/Cargo.toml",
+      "source_sha256": "437908d686ef009050980b0d6496bced2c6eee4ab52c82638f377f34e252753c",
+      "incorporated_sha256": "42e02a5ca139e3cdcfccb77513dc19277ffcf14e6a4838c7aa48693879396f18"
+    },
+    {
+      "file": "crates/crypt/src/aes_cbc.rs",
+      "source_sha256": "459d1558b9c7964debec5a19d282cb6bb3e18fdf2cb904154c12f0eb90fc4dd1",
+      "incorporated_sha256": "459d1558b9c7964debec5a19d282cb6bb3e18fdf2cb904154c12f0eb90fc4dd1"
+    },
+    {
+      "file": "crates/crypt/src/lib.rs",
+      "source_sha256": "295a1dab4c6b6f4e7062b9572a383ce845fce1395a20f8987379e7299f620826",
+      "incorporated_sha256": "8aa7dff99891e7debe978702cbe989491438d0c298593d47e204143a1fad4c9f"
+    },
+    {
+      "file": "crates/crypt/src/rc4.rs",
+      "source_sha256": "fe2a980f40ea0c46bf2e915e8a2ca843a8277a52e8192800b8f1b427cbc62eb8",
+      "incorporated_sha256": "fe2a980f40ea0c46bf2e915e8a2ca843a8277a52e8192800b8f1b427cbc62eb8"
+    },
+    {
+      "file": "crates/crypt/src/tests.rs",
+      "source_sha256": "385b3895556ebbee7cb4c7edf322401cf11cd65fc1acd3da23a9ca479e12ac71",
+      "incorporated_sha256": "385b3895556ebbee7cb4c7edf322401cf11cd65fc1acd3da23a9ca479e12ac71"
+    },
+    {
+      "file": "crates/edit/Cargo.toml",
+      "source_sha256": "9095ceeccb95d360f6b5c62f9c46aa9e5cbb1251b33206916e802b2d70703527",
+      "incorporated_sha256": "80029469926a6bbce0546130bd26e2647fe4de9f7d0407dc3c056781e1694e4c"
+    },
+    {
+      "file": "crates/edit/src/added.rs",
+      "source_sha256": "11cf6cf84ee2dbf3e9cc64f022d56bd2c18b13da3192ecfa65039004cc0f6e2b",
+      "incorporated_sha256": "b4f5bef6aa4be5ab3503771f5545a1d519ad7cf6f5085fde1d0ff1698f438177"
+    },
+    {
+      "file": "crates/edit/src/flatten.rs",
+      "source_sha256": "8d670745d368258567d4db0e79e7424c26d3be8b142753e789e62c04027fe6f3",
+      "incorporated_sha256": "e632c913df2b8bf77e2d0bd11d9267391ee973562c3bdf6ae210692ad1f53c9e"
+    },
+    {
+      "file": "crates/edit/src/images.rs",
+      "source_sha256": "a325241ff6b51e46c5f8fa8823a4e48d5821fbbe0e954e472b68f34fe9a684ac",
+      "incorporated_sha256": "8d9d5fcf81ee39587d6f98a601df8e19b7e50bb34f43baa9d7df7c688dd3ed2b"
+    },
+    {
+      "file": "crates/edit/src/lib.rs",
+      "source_sha256": "3e55544ebfdd3086ecbd6ba41ad581d61c2d15bfbd2274b917e051f34b2b5c38",
+      "incorporated_sha256": "c20176391ec62e89b9cb47e576f4732fb425879a0f5c640e93b7c80fe0f5ab2a"
+    },
+    {
+      "file": "crates/edit/src/tests.rs",
+      "source_sha256": "58f16202101aee346f1220fe9c39c56c3fa0f00d849acb73ab7f1bc7520f4d24",
+      "incorporated_sha256": "e2556dbe1aaf276f9147ab07c36d89b7bc8082f995cff96862c49a0550bba1fa"
+    },
+    {
+      "file": "crates/edit/src/text.rs",
+      "source_sha256": "b30ecd9d0a1789c427b7383586afe057ec98fde411cecec6ee45d2e0cc82af89",
+      "incorporated_sha256": "a3b19ef3b886b8e8fababed4d7dc6be0b57faeee028b3a7f14796b7cc2e9ae4d"
+    },
+    {
+      "file": "crates/engine/Cargo.toml",
+      "source_sha256": "62a6b1f36b2d3a9c3def9c0289dd8125b04cf1a25fd2bf946b4b534285651e4b",
+      "incorporated_sha256": "509ae56079efdfb045edf380cd8770ed239b2de3801b73b00e7b1ee329973b14"
+    },
+    {
+      "file": "crates/engine/src/actions.rs",
+      "source_sha256": "28c04bb014ffc36a69a01acd0ed0e73d3649002016eabff4157dae84a7e87fb8",
+      "incorporated_sha256": "01108d53e01654c1d54e04cbae0eb5f5bee838de9fa18b348ec6e2229dabbd04"
+    },
+    {
+      "file": "crates/engine/src/catalog.rs",
+      "source_sha256": "02a06bab8be17aefdf2b0d44d7afe512dd25d33d8f7e0eb74cde11c5e74755b9",
+      "incorporated_sha256": "9024e058b111e20825b71e15b2eb57e800ecc111a65f477a921e9a2f23b224ca"
+    },
+    {
+      "file": "crates/engine/src/commands.rs",
+      "source_sha256": "dcc80dd5c3fa693674b60ef0791351655360d74792735a4a2ca4aa475aacd5cd",
+      "incorporated_sha256": "0194bb88fe0f3be09edbbcea241e081465e329857d91d7620a4c50b7bd5c6931"
+    },
+    {
+      "file": "crates/engine/src/compare.rs",
+      "source_sha256": "2ac591f1a3923af2a25546d32efa3b0fb6fd9ce51d4d94151b177a4f3ecbe399",
+      "incorporated_sha256": "a425ba1146d6ccc5dedd12b01a96718a7fe9191ebefa07e93638128365a1d40e"
+    },
+    {
+      "file": "crates/engine/src/export.rs",
+      "source_sha256": "72741489b2812931ab74e479d1c6aee5af49b8a2b5982e332d62eb6cf64ccb96",
+      "incorporated_sha256": "7847ce6e25b1f009c84ad30a624e137e7746fb9ee0df1ad18e6b83b67f4d11ee"
+    },
+    {
+      "file": "crates/engine/src/js.rs",
+      "source_sha256": "e6d7cc76c8b0fd71f575e2e23a1f7d8d53e9fdddeecb43cb247111729b8816fa",
+      "incorporated_sha256": "edbb6fd3793cc78e2650629649054c73b1fefa63b612ea61c7f5ff62d45c2577"
+    },
+    {
+      "file": "crates/engine/src/lib.rs",
+      "source_sha256": "592e257836c83a28ef65f21f66735da604af14dd4c7043e4a38c75fea7f876e6",
+      "incorporated_sha256": "d5d3c14af98aaf2ab4da456571c47fc4e879b79b284c4013c712357f3c28ed62"
+    },
+    {
+      "file": "crates/engine/src/links.rs",
+      "source_sha256": "ca9e6d4e8dce72524a5a9ea0a2dfccfe3e6c6e87a4027ca9578e31ab5adde220",
+      "incorporated_sha256": "3032ae0c7b5b51b589979a762fb117b5ded5cb05c4a75b51820ffa759dcfa031"
+    },
+    {
+      "file": "crates/engine/src/ocr.rs",
+      "source_sha256": "107e90ef52e79cdc5e3a38942789c52fc09fffd3d3fff1125bbc3c4ceb3791b3",
+      "incorporated_sha256": "f03915f2269a2ffdf4362a363e6b3df85a037775e9ae632ab5048cb336901f97"
+    },
+    {
+      "file": "crates/engine/src/tests.rs",
+      "source_sha256": "3ade110d4263fbba4dd9269877937d60e84c94dd0a1a31f5460834a8a4886279",
+      "incorporated_sha256": "718a96150242541488b3c15fae689b9f364d933872f6cf5dc45c4b51d55b31fe"
+    },
+    {
+      "file": "crates/export/Cargo.toml",
+      "source_sha256": "172e17c852da0764ec8911e8b9031723e4d1571250f050226934c94333b6a25c",
+      "incorporated_sha256": "2460bf4c8e72f1c9eae37e7662e40a6c79fc0e3a618e25c0e3825eb6dbb9e2dc"
+    },
+    {
+      "file": "crates/export/src/lib.rs",
+      "source_sha256": "9b881b63edc5ec3abbbf5e4fa642848d31a18b11ee963376600fe5e748704b91",
+      "incorporated_sha256": "07808cfd9f60e20da2dd67fee48458053ed1a13f3e6e5ef66a661e7c2bb17043"
+    },
+    {
+      "file": "crates/export/src/zip.rs",
+      "source_sha256": "7c605d2752a6251ed4a1e47e2b6f39ac94ab7d72938304f6426d7fd8dcef586b",
+      "incorporated_sha256": "7c605d2752a6251ed4a1e47e2b6f39ac94ab7d72938304f6426d7fd8dcef586b"
+    },
+    {
+      "file": "crates/filters/Cargo.toml",
+      "source_sha256": "ed327d1b63cdeb0b460ad22fc84881e98246a3bf3db42e643b4f5a8a1cb492a6",
+      "incorporated_sha256": "53a0df77f445bd3848c9673115c4ea965b9601657194882b7026f743d302dbac"
+    },
+    {
+      "file": "crates/filters/README.md",
+      "source_sha256": "ef62f2ba38b97d8dbaa9cbd8448b20469a664b7dc7eb22383e1d443f5cdec33f",
+      "incorporated_sha256": "065ee1adb20fc67c9cac1eab3e2381eabc1646ceef3ed246708664d8a3b941ca"
+    },
+    {
+      "file": "crates/filters/fuzz/.gitignore",
+      "source_sha256": "f70e1c78716e7ef6c4211d6ca9a4c4e6847314662fc8786b16156e3e94f9f99d",
+      "incorporated_sha256": "f70e1c78716e7ef6c4211d6ca9a4c4e6847314662fc8786b16156e3e94f9f99d"
+    },
+    {
+      "file": "crates/filters/fuzz/Cargo.toml",
+      "source_sha256": "62113b11cf254cf74f83d77fbdde0d8bb8dc467e85c17658c3aa9b63f32bf722",
+      "incorporated_sha256": "5cc429a15da7ac940a65d12e991585ba4940d7bc10c991d04d5ef66ed9bfa930"
+    },
+    {
+      "file": "crates/filters/fuzz/fuzz_targets/decode.rs",
+      "source_sha256": "d13de90e798aa94112d08415b1ecd3da869fd40812f3d3542181fa975257bd69",
+      "incorporated_sha256": "e1f8caf7ad38d43db62ad6666dab4f3f5bcd061e6b0d0a3ce958618ab36532f0"
+    },
+    {
+      "file": "crates/filters/src/ascii85.rs",
+      "source_sha256": "0ed5ca4c28d42b34c13c005d2ee8b29d9d69c6e598943044ae34c2b129005429",
+      "incorporated_sha256": "0ed5ca4c28d42b34c13c005d2ee8b29d9d69c6e598943044ae34c2b129005429"
+    },
+    {
+      "file": "crates/filters/src/asciihex.rs",
+      "source_sha256": "64645ec8619a32b631f7ad0f84565b63fe09bddae9ba468ea25d5f5929264c92",
+      "incorporated_sha256": "64645ec8619a32b631f7ad0f84565b63fe09bddae9ba468ea25d5f5929264c92"
+    },
+    {
+      "file": "crates/filters/src/flate.rs",
+      "source_sha256": "6b23a0bb3131c84bbca12fe5ea3054203c3aec99619ce425d50cd2b9188e0077",
+      "incorporated_sha256": "6b23a0bb3131c84bbca12fe5ea3054203c3aec99619ce425d50cd2b9188e0077"
+    },
+    {
+      "file": "crates/filters/src/lib.rs",
+      "source_sha256": "62239c0e62152b04508c724a565dcd02bbc3d3721d016bb2a01af4e80ff85273",
+      "incorporated_sha256": "4897dde0c0d915f88eb25b2eb8f1f08a5932ddeb61c062d9571990bd57198c15"
+    },
+    {
+      "file": "crates/filters/src/lzw.rs",
+      "source_sha256": "ec7fdc87aa8712fce2525d0b7d069909072c8d0285cba4f689e10e42ad8f1f1f",
+      "incorporated_sha256": "ec7fdc87aa8712fce2525d0b7d069909072c8d0285cba4f689e10e42ad8f1f1f"
+    },
+    {
+      "file": "crates/filters/src/predictor.rs",
+      "source_sha256": "7f52da2fc29adacc98cb3c08d48e3855a27c0ebefb7eb26b248a5d4d9a67633b",
+      "incorporated_sha256": "7f52da2fc29adacc98cb3c08d48e3855a27c0ebefb7eb26b248a5d4d9a67633b"
+    },
+    {
+      "file": "crates/filters/src/runlength.rs",
+      "source_sha256": "052b4aa6003ade7905b80edbdaef868cf510c816297e72be0ac985f8046516d6",
+      "incorporated_sha256": "052b4aa6003ade7905b80edbdaef868cf510c816297e72be0ac985f8046516d6"
+    },
+    {
+      "file": "crates/filters/tests/proptests.proptest-regressions",
+      "source_sha256": "959cc6b57deafd7a05014c2c93094cf7898ca3a779ae80c0832f0eaed0b0aa42",
+      "incorporated_sha256": "959cc6b57deafd7a05014c2c93094cf7898ca3a779ae80c0832f0eaed0b0aa42"
+    },
+    {
+      "file": "crates/filters/tests/proptests.rs",
+      "source_sha256": "6354a04493e6d776dc2f1e2e88e0bb9a44b6bd95350c76221ca44e2b35165d58",
+      "incorporated_sha256": "38b7921cc20619e0ab7eef757f5b0309704262bb0683f55698806061c2912aac"
+    },
+    {
+      "file": "crates/fonts/Cargo.toml",
+      "source_sha256": "fcac75ad3ee374e87854e6acb0c509fa3b996b6df8cb1540686f3595e639ad04",
+      "incorporated_sha256": "2fd7bf848e68ce68b3cb58dad594e0cc16ad72411ce50741c1c1d8497ce9532f"
+    },
+    {
+      "file": "crates/fonts/README.md",
+      "source_sha256": "3bc197e2120010dc649ea076007d8dbb49b28a7f777b9b035a651069d1d75787",
+      "incorporated_sha256": "02c6ae106e8b81d8abe3a3cb15597722f51ef64a8a764ec2dc020bc55e7c1179"
+    },
+    {
+      "file": "crates/fonts/src/encodings.rs",
+      "source_sha256": "97e331eafc42d0f55023d1eff98926bb75371ba34ada64794c2f3040b382f776",
+      "incorporated_sha256": "97e331eafc42d0f55023d1eff98926bb75371ba34ada64794c2f3040b382f776"
+    },
+    {
+      "file": "crates/fonts/src/lib.rs",
+      "source_sha256": "946b10014d9b941d533742955da00e2ab0f354caed38bed0ff8bde80f1a31292",
+      "incorporated_sha256": "1793786c85797c330e3d90ffb6d2462dd872092f46ae5cb733824d3395b13b25"
+    },
+    {
+      "file": "crates/fonts/src/pdf.rs",
+      "source_sha256": "28cd5cf1655faa45efb85b9876c336b8c1952b5a985c741d59522079da1b49ea",
+      "incorporated_sha256": "d8386c050de88b1b8e52c518e1e185dbd029ff50695287353d5536283fd843b8"
+    },
+    {
+      "file": "crates/fonts/src/script.rs",
+      "source_sha256": "d24bf10c89eb6ae21d072228976ff3a17f9db6bd3a67ebe2e2011cc13b066f34",
+      "incorporated_sha256": "d24bf10c89eb6ae21d072228976ff3a17f9db6bd3a67ebe2e2011cc13b066f34"
+    },
+    {
+      "file": "crates/forms/Cargo.toml",
+      "source_sha256": "64844322d8c91ddb68c0ae90ffdff81650dd1debaf32cbe40223fee510c0c4a1",
+      "incorporated_sha256": "38ff02887b04d741245c26fa6b7c3320c660abd68dc8224cd9200eedc6db37b8"
+    },
+    {
+      "file": "crates/forms/README.md",
+      "source_sha256": "73fb44fb782ef3f82bd49d98d51144b99159a1ccaac6bcbfc5c3848dc6d92fcd",
+      "incorporated_sha256": "a0af73cd6394a09f1eaf6ea21d09f1ad39892974b7b97b88916a20dcb041ccd2"
+    },
+    {
+      "file": "crates/forms/src/actions.rs",
+      "source_sha256": "817b5c756a7def888ebb3bbf488c515e6df4b1d9abbe12dcc5939a2de05e2875",
+      "incorporated_sha256": "4ecf1571fae08e5f5370d0bb61ab1208fc3c720f15bd8f2af252d74c7602ca4e"
+    },
+    {
+      "file": "crates/forms/src/af.rs",
+      "source_sha256": "3d0df2c1e8d93dd35f58b2112e0fbd29620c84eb2d1b83428f26b505beccfc7c",
+      "incorporated_sha256": "03d6f16db3f7df6a4008576873fcf2ecf58b339a8d8cc6d8621b8235d291004e"
+    },
+    {
+      "file": "crates/forms/src/appearance.rs",
+      "source_sha256": "9cd454a466db9261a89e0ee2004fba6595ecbe1c65d1ba2d2b07d59edfeb187d",
+      "incorporated_sha256": "c6e63ad7a5591bfbd425c647762ec0afea1304af0cf088ca58c06e9668357458"
+    },
+    {
+      "file": "crates/forms/src/author.rs",
+      "source_sha256": "ba8676c13af59d902aa6d54bfccc35412f73e8164bed19f62c4720703b16e5e1",
+      "incorporated_sha256": "59c2552d060788441d4982e7c3a1510b72cbd77db1da11c17c1d5a8bce653bcd"
+    },
+    {
+      "file": "crates/forms/src/detect.rs",
+      "source_sha256": "88aeba1479a646b03b76101a21340840dea618c5be3e12aa8afacb0d14ea73cf",
+      "incorporated_sha256": "ba1b38976cb9943f68528f80c0684cdb09ce9257a5871b48191e99d1347228e0"
+    },
+    {
+      "file": "crates/forms/src/lib.rs",
+      "source_sha256": "1f417f8171b217a8e45977a4334b414ec6f99f48b25978e9c264a31593af94b5",
+      "incorporated_sha256": "e8261dd1842fc1f4aa68c47634173e7f7ad5897e4711e67a8c7ff4f5b8403f57"
+    },
+    {
+      "file": "crates/forms/src/scripting.rs",
+      "source_sha256": "c5e2880222495bcb0743f519ed850e07058cd4e5ff5e2ddbdc145e80f8c350ee",
+      "incorporated_sha256": "430b4e3a854ca4f1be04120a9f945887d1e477740a2dd3bc0011f76de29b5b5c"
+    },
+    {
+      "file": "crates/forms/src/tests.rs",
+      "source_sha256": "59e34a779e38732542f54b4ffb7c077db102a6951f6b381d236aa6d00281c545",
+      "incorporated_sha256": "628a07db0be31f6e4f1b1cc4d6cd666c054b3bd62c8d5eaf99de8ffec85bcf2b"
+    },
+    {
+      "file": "crates/geom/Cargo.toml",
+      "source_sha256": "c399bbed4faf9174e59ecea5a5ad95075a3efad511607add606dc8d33aa17da7",
+      "incorporated_sha256": "681886a67553f2e63cf63b37ba6796113d72f44454133ec415c14cb29c77aa68"
+    },
+    {
+      "file": "crates/geom/src/lib.rs",
+      "source_sha256": "99f748fc778f0ada5f6d502557972c4e37beb8c9017501418d249b6701851119",
+      "incorporated_sha256": "c800cf100dbb773c68a63c46bec4a95c0ca2a21b71106fb535e85b9597c1936a"
+    },
+    {
+      "file": "crates/js/Cargo.toml",
+      "source_sha256": "14a54cce9a14c8354b80e957f1d1924a073e0eb8456c0fd93d65d5e042650206",
+      "incorporated_sha256": "1e7b0b599da8fc9297952afc06a79335f95b5ca6bc30f5d9c2e9a8b19bb4c854"
+    },
+    {
+      "file": "crates/js/src/lib.rs",
+      "source_sha256": "f71972bb5b8020ce4ecd35b2381db93888fe5be0c2b668f8a0e064da5ee69889",
+      "incorporated_sha256": "4a1d98bea331d42eb4163cdfdad4ebfbbfd54341c808bff0c769e9ea979ca709"
+    },
+    {
+      "file": "crates/js/src/tests.rs",
+      "source_sha256": "c2ad948b28efd8c034ae7216587249dc21b7442ba375ab1219a73556ccd656fc",
+      "incorporated_sha256": "c2ad948b28efd8c034ae7216587249dc21b7442ba375ab1219a73556ccd656fc"
+    },
+    {
+      "file": "crates/model/Cargo.toml",
+      "source_sha256": "63eebcd4403ad43eb03bc77799a9ae6f951580288d7e1c0e91f46e2b69267353",
+      "incorporated_sha256": "355f43a541344af538cf8279b6482c7b11baf378e7e61c2834428a4b075efc44"
+    },
+    {
+      "file": "crates/model/README.md",
+      "source_sha256": "a11bbe636eedda490dd7b682ed63dcd82e97d53686bb0542f793491d1da6546c",
+      "incorporated_sha256": "cc923da2d7bd8aaa9c14ee781ee31ca99f1f09a47a011d6743c2db2e16066bbc"
+    },
+    {
+      "file": "crates/model/src/lib.rs",
+      "source_sha256": "07885b5af6f8fda3750d21365610e7084dac50769b2e8ae744cb510e8187865c",
+      "incorporated_sha256": "40c04bc71e156a6d6e9143cb4e4287109fbb4ed09366f82277263d79bcb4fbe4"
+    },
+    {
+      "file": "crates/ocr/Cargo.toml",
+      "source_sha256": "19054736a729509cb1bc57d5bb622ee0f155a320546ce2e62f8fd511c282d334",
+      "incorporated_sha256": "460c2e2885920d15958861d647f0268c661f768232d612112d0c06de60a634d9"
+    },
+    {
+      "file": "crates/ocr/src/lib.rs",
+      "source_sha256": "b305bde48feba672bbe536cd0507a9fcf48683d0c2dcf55a985ae720c71ec1c8",
+      "incorporated_sha256": "38a9d85d63b27902ed9873d7abfd568eaa9173de4b26c224b463fe8150b8f65f"
+    },
+    {
+      "file": "crates/optimize/Cargo.toml",
+      "source_sha256": "de15e5e2e217c1e272dee66d912898c0c1b858fb7e32cfebb9017a80f357357e",
+      "incorporated_sha256": "3b3e45e7515baf2c2d976b35b9378b5d2af5fd35b5cd3560bbefbd03a2625b34"
+    },
+    {
+      "file": "crates/optimize/README.md",
+      "source_sha256": "ecdd102fade6c21b594546bb37b4d4a882b55df1bbf9c5e9cfa25802ce3e8069",
+      "incorporated_sha256": "8549e2289bdd50a5b7fb5673fa25227736610024d8a03166baf49645108e75fa"
+    },
+    {
+      "file": "crates/optimize/src/audit.rs",
+      "source_sha256": "247b72415574b1c1850db579ed9fd4da4a556617c1a12c1702139d28bbb97048",
+      "incorporated_sha256": "cfccce1617c9d0aa111fae14d75df57e837e37611ebe9167146ee8492b68c828"
+    },
+    {
+      "file": "crates/optimize/src/images.rs",
+      "source_sha256": "cb6352b2333b18e2afa4b2a96567c43986bb1d076917a685c65070237c906128",
+      "incorporated_sha256": "89b1bec81cc5174a24a0402d605d64c9e87769635aa72c4033c05b01df2075e9"
+    },
+    {
+      "file": "crates/optimize/src/lib.rs",
+      "source_sha256": "b92b232dd2fb605d363a739bb11c285bccd399cc3ee39cd073bee6aa6be04074",
+      "incorporated_sha256": "30fb4f453248bd2c63068feb760f57d8c415f91e3b3f4e4fee408753325f85d8"
+    },
+    {
+      "file": "crates/optimize/src/links.rs",
+      "source_sha256": "871d8c153731b2b74cc22803e1a2537f09269f5af0624f153e3d45b99093c495",
+      "incorporated_sha256": "e860f374b7484f06893bd60ed9658a1c89264e1ee44dc6507fe79b2f6e91bfd9"
+    },
+    {
+      "file": "crates/optimize/tests/optimize.rs",
+      "source_sha256": "80e74822a504e6b125839fdd88e69527912b949382c6eecbf4d24b26472363bf",
+      "incorporated_sha256": "f189bc054db5bd055da470af61503f55cdb9f127c82fa1fe3b0b2b4dc12507ec"
+    },
+    {
+      "file": "crates/organize/Cargo.toml",
+      "source_sha256": "71f8a6a62cc9070063182b92346807e7a337aba51843b49a03172b5b96b4eef6",
+      "incorporated_sha256": "250543b1988f995b5469b6bed6d066ff6e531a3332f39118a73a65398aff4c60"
+    },
+    {
+      "file": "crates/organize/src/boxes.rs",
+      "source_sha256": "4e939ca848830e2a4a389dd3f6d2062e16c5c61580ef70733a970f05797378aa",
+      "incorporated_sha256": "1498e226030e5fc6f197270ff0f2171ef4a702bc30793e013d637e31b5d13039"
+    },
+    {
+      "file": "crates/organize/src/dedupe.rs",
+      "source_sha256": "1f9eb35564e8a1806354b85bcb4d5f16b73caf37fc7d4a5edc2962dd16600ef9",
+      "incorporated_sha256": "c4cd5d00a2901aafa7958c4a1b53b28f102a5bc058b65c04b6b16ea1f2f44469"
+    },
+    {
+      "file": "crates/organize/src/import.rs",
+      "source_sha256": "4d61784c970a6d7d31589a00f773fac3c14e3a659df41d029be20eb8aef894a7",
+      "incorporated_sha256": "f60ddb6c4937781cc1f3609e8c05ca98351d0b987fac20efc6ab8e7f8e9da4e4"
+    },
+    {
+      "file": "crates/organize/src/labels.rs",
+      "source_sha256": "5a151a5106092341e556d311f699e221f34ceb8459e3d3e4ed99944cae61df85",
+      "incorporated_sha256": "7d58d8aeebe247d7f21a3c4786b9b90b88ce387e932526e17ee3b2a216632478"
+    },
+    {
+      "file": "crates/organize/src/lib.rs",
+      "source_sha256": "988919aae4fa4d05fcf036e34cbbd0c18ba6c9f1410319c1d1e03fc16831976f",
+      "incorporated_sha256": "c90c32be5e1f65672b0a316a10a7a9ba8e01e92d98dbb9ed28fcc8c4cdf6af45"
+    },
+    {
+      "file": "crates/organize/src/outline.rs",
+      "source_sha256": "be732089439a6b16a85fdcbc4f4597c62469cfb200a1a5b00e1372effeac9cec",
+      "incorporated_sha256": "995e4f52e824f029c02a286604a90938a37785849ec0e160f93aef8140a23182"
+    },
+    {
+      "file": "crates/organize/src/tests.rs",
+      "source_sha256": "e0df158b990a5bca7a9dd2ee55b807695d30aeae7aed9644a4ef06ee29788488",
+      "incorporated_sha256": "04f4b0b6eb010d2c285a27c695b705c1c83845e22005d92c7f6446810426aa55"
+    },
+    {
+      "file": "crates/organize/src/view.rs",
+      "source_sha256": "3622ffb46d0a4b5a9aebfa3ebdecd1e82b60e03abd772b5830be8d5d9bc5bfd7",
+      "incorporated_sha256": "6d7d8896d835aef430e5c72f3db3c66e6ddac1713406c994915147498924be58"
+    },
+    {
+      "file": "crates/preflight/Cargo.toml",
+      "source_sha256": "70c7f5d016418d065a07decbcb12d9eebdd380001d605a949acab69c667180b3",
+      "incorporated_sha256": "41ef448568f242295e23535b1190d8233a022bd5322caafc72bf6a892b74baad"
+    },
+    {
+      "file": "crates/preflight/src/icc.rs",
+      "source_sha256": "9c6985b42c93107eabd62604239e7da4da0e3e09af0f0a010af15b6df9b8ec28",
+      "incorporated_sha256": "611a82899d185dfde00b9b6db46be2880aa85e9d066a20ae80b8b90171378566"
+    },
+    {
+      "file": "crates/preflight/src/lib.rs",
+      "source_sha256": "a79e45fa7d7ed9fadae83b6662660e1f3a00a4e29538cd7b2f4d7d48604eeb0a",
+      "incorporated_sha256": "f8801805b42370f2064aa4cd7e9c8ce41295c04e238f8596ec81867cc703e873"
+    },
+    {
+      "file": "crates/preflight/src/tests.rs",
+      "source_sha256": "08de53429f7f53c5fd1793ff508958825ed0ac62499d5b78f1e6b13108c83fca",
+      "incorporated_sha256": "8b70ea741409c2b5bb9dba844d0a8339b04d631aaaa0c823147add9c6141a3b4"
+    },
+    {
+      "file": "crates/preflight/src/xmp.rs",
+      "source_sha256": "bbc7873b0bcdf2d599a3d59c4960a7c7dc3589bbde144f330874bb36d8a067b9",
+      "incorporated_sha256": "a1444d6960e2a9560ca9c3ce123ea0876358dfb99708a8421e8c8f4d93e6779c"
+    },
+    {
+      "file": "crates/print/Cargo.toml",
+      "source_sha256": "6ac2f6615031cbadd41c8331f76883a3bacb9d0e4c521dd0b9cf668d7e7bddf0",
+      "incorporated_sha256": "86806035d56975261d85a7bfaddc78b90186f72694187a548ae3da0989a94f50"
+    },
+    {
+      "file": "crates/print/README.md",
+      "source_sha256": "87d9f670a8e12d22c21b1f372916ed3c8d733192d58a063c8709b38e63210735",
+      "incorporated_sha256": "b86f7a8e5bc9f741dd796c3fea15714359c1019e2bf6b99e2bba92bc70e0307c"
+    },
+    {
+      "file": "crates/print/src/lib.rs",
+      "source_sha256": "6be2dcfef60b3d7a6ca344b9dea6d1e28e28068093e7cd968da0bdca553e7669",
+      "incorporated_sha256": "85c60bb335d4abc1320a88d50db69aefbc57e8075b9dacea17da439819625c3b"
+    },
+    {
+      "file": "crates/print/src/range.rs",
+      "source_sha256": "827dee58f10debe466e6d863b34cdce16de92cf386d8f54dfb7e9282c1cf72c4",
+      "incorporated_sha256": "827dee58f10debe466e6d863b34cdce16de92cf386d8f54dfb7e9282c1cf72c4"
+    },
+    {
+      "file": "crates/print/src/spool.rs",
+      "source_sha256": "eea13662a9e3aabe7eeb6a972dfe0a7ec565bc659452e99bd41b634dda2cab1e",
+      "incorporated_sha256": "2e28b99a4667898f7c5d42e020d1e4b64f7c26c82898c9d8c5de9ab79de7cbb1"
+    },
+    {
+      "file": "crates/print/src/tests.rs",
+      "source_sha256": "9776fa4235392a60daa71d8a71b0adb12eb6a43e8201039504e5f25d4cccfec3",
+      "incorporated_sha256": "6c4917bb70fe84e44eb061f442986763534c17ec6b0b488df35ff558d7bee346"
+    },
+    {
+      "file": "crates/redact/Cargo.toml",
+      "source_sha256": "d235f442a0ad28ef99646be4124993c836aeb199135534aa66c01d63c6227bfa",
+      "incorporated_sha256": "835f5f34720af4e558ec682be4d09c55768dd275f5912888e4579e170c5adbe5"
+    },
+    {
+      "file": "crates/redact/README.md",
+      "source_sha256": "c3fb4f7a14794edddc7c9c4582de3f121c8f5ee8619f58ed6d86a21a8a9ba7cf",
+      "incorporated_sha256": "f3a1eee51889e62c9b87e9b9a9f10276083012ebe38376799e6b32a15073aa8d"
+    },
+    {
+      "file": "crates/redact/src/image.rs",
+      "source_sha256": "3ee7fa8b4d6073e1c5a1171ed9605c85c091ecc05f6d6846da21ecf5d2505ea5",
+      "incorporated_sha256": "ba93e003bbdfe5e222908d7ec9fe67fbd9ea7856db3f5113daf1c3ce17f4687e"
+    },
+    {
+      "file": "crates/redact/src/interp.rs",
+      "source_sha256": "871cea1c7aad38bf96e5ae7b7b016753526a09755e1c11e492c0502b52f606fc",
+      "incorporated_sha256": "1a12cb8c25515ef110235e48a90a26aa3f9537d05568b644774dfe5c0309c0aa"
+    },
+    {
+      "file": "crates/redact/src/lib.rs",
+      "source_sha256": "44f67a210b35c2986fc2dfe5601c9d1702333b3bdf830cceddb6d010feade1a6",
+      "incorporated_sha256": "dc1d16e646812dabce0a1b4b80807c1faba11d2bd314e67f93fd5430d1676b49"
+    },
+    {
+      "file": "crates/redact/src/patterns.rs",
+      "source_sha256": "a78fda5fb9dbacc17526ff5624e6b9e638f7053ab72f72421f9d5db09035351d",
+      "incorporated_sha256": "a78fda5fb9dbacc17526ff5624e6b9e638f7053ab72f72421f9d5db09035351d"
+    },
+    {
+      "file": "crates/redact/src/sanitize.rs",
+      "source_sha256": "47c6acdf914fb083bbb72b8fa8df7b980297e534fc0bfacc46460cb1cc5afa56",
+      "incorporated_sha256": "0b1b94fc20599803187cc4da38949e8555001f04957c6095ac5447ac69bde1f9"
+    },
+    {
+      "file": "crates/redact/src/tags.rs",
+      "source_sha256": "d3c35a980305c384cb6fa9df06d6c4a70bd0cea12e37347625de1353e724cf24",
+      "incorporated_sha256": "6c2bc7484c4f54273ce118550c4a7e81ca80a6c9b34470faf63e7191a56ea475"
+    },
+    {
+      "file": "crates/redact/src/tests.rs",
+      "source_sha256": "a9c62c46fd4b3614ab6caecfd75a4f27352a26c5e802ac2f2894b3fa1dc43885",
+      "incorporated_sha256": "64c1b280fd8779bc20be50bdc7701fde8c163f4965248f06b8fbfeef6fd37ef1"
+    },
+    {
+      "file": "crates/render/Cargo.toml",
+      "source_sha256": "960ee16dd0f9dcf30d99b58445b32ed8b578230b81bfc982c5306889a2f23f04",
+      "incorporated_sha256": "3242d0ba3b53a8a97a43d5ee02a5596da083d985c15a7ac0617dd812d46a94d9"
+    },
+    {
+      "file": "crates/render/src/inspect.rs",
+      "source_sha256": "231fd38a8eb723dfbf0ed32193ad494c33deed2e4d76c42161cedc7b80773f54",
+      "incorporated_sha256": "48688638b2e67ecad0aed11a350f8a32e90e24469185a09dfc9e3cf7f348c077"
+    },
+    {
+      "file": "crates/render/src/lib.rs",
+      "source_sha256": "5d81f8f3d8ee8dadfd5fbe185aea43d6222b9e33e46fb0803e497540348e8318",
+      "incorporated_sha256": "f7328f32a714ae4bcfbcca19044c9e02df21faf44a3a6ed54a159d90407b7180"
+    },
+    {
+      "file": "crates/render/src/raster.rs",
+      "source_sha256": "730ca40c22ad8ad5c406b35aafbe847f43b747df9ce80dacdea4e0df1f7b5bef",
+      "incorporated_sha256": "6202a9800e632270a08889cc2451b9994d0513cbbbe2b55df6d813c4bb58841b"
+    },
+    {
+      "file": "crates/render/src/text.rs",
+      "source_sha256": "bee4956e22828899cefe34f8bb22a8e40baf01c1561ab8f91e9e97902943a718",
+      "incorporated_sha256": "c2bd110d0356d7e194fe3e77418983ce3f2902b9dab1a2593729ac3c6da893e2"
+    },
+    {
+      "file": "crates/sign/Cargo.toml",
+      "source_sha256": "9edac883252162edb224681baedc47fc764a5f35f7d445ec03fb3c048985a34f",
+      "incorporated_sha256": "642b79b679a420ee240145738b6c2f99f87dcd191961d5ed669ed0fd6b2e11e9"
+    },
+    {
+      "file": "crates/sign/README.md",
+      "source_sha256": "ab5171684010cfb99241cf5649b16b65f5863d905257399b2b4a414ccaa78afc",
+      "incorporated_sha256": "07265622d20925f930554fe93ac23a56bb7e40835e9743bf282ba196a0522b44"
+    },
+    {
+      "file": "crates/sign/src/cms.rs",
+      "source_sha256": "7c94f7bb31371153068d1bb25e6a8088af23616dd9d5222b6df7f6659a810554",
+      "incorporated_sha256": "7c94f7bb31371153068d1bb25e6a8088af23616dd9d5222b6df7f6659a810554"
+    },
+    {
+      "file": "crates/sign/src/der.rs",
+      "source_sha256": "d51a58fd21797d07ffb41f96bf60cf5e2fbaa11586bc3dd927470519100e8cfa",
+      "incorporated_sha256": "d51a58fd21797d07ffb41f96bf60cf5e2fbaa11586bc3dd927470519100e8cfa"
+    },
+    {
+      "file": "crates/sign/src/keychain.rs",
+      "source_sha256": "4cd3763aa33ad5a53d272695209872db53f275bc973bf718973f988b953d1358",
+      "incorporated_sha256": "ddc1bb3cb307257458ff0439dd8c62e7ebdc7c0c1ae3ec21bf439b9ca05f925a"
+    },
+    {
+      "file": "crates/sign/src/keys.rs",
+      "source_sha256": "dbdf6fca7a92b1d47c052a7f37e3f1d0efa858e5f6348baf8ee06a13a35fcb42",
+      "incorporated_sha256": "22e3a388f4d5dbcf6bb9cf006bf112a1a06b7402e2d3aefd1a7249b90209c6a5"
+    },
+    {
+      "file": "crates/sign/src/lib.rs",
+      "source_sha256": "ae330e4d3323a7a5372a45723fac036fd4ac5afd2eb8d6f3662555c4089c1d35",
+      "incorporated_sha256": "7e8b25827cffd897951d9ca32d7a0ccf68814d3592a183f50fd32e679c2ded35"
+    },
+    {
+      "file": "crates/sign/src/pdf.rs",
+      "source_sha256": "c2c1529cb8d9776a0ddc84f14d92b9dbad49773e64c94f92d91c9ba7f5379246",
+      "incorporated_sha256": "15866860198daf1f872740f29130bf3ce3633df610136670cd4c9b763563b14b"
+    },
+    {
+      "file": "crates/sign/src/pkcs12.rs",
+      "source_sha256": "bb7cdac0a1ea6f0c0bb0c2b39723e070389f36e72d021739b13235726d7843aa",
+      "incorporated_sha256": "bb7cdac0a1ea6f0c0bb0c2b39723e070389f36e72d021739b13235726d7843aa"
+    },
+    {
+      "file": "crates/sign/src/x509.rs",
+      "source_sha256": "1a0dcbac01c8cb7ff9a861174721ed539b58879ede68c9feeb16be0bb466527d",
+      "incorporated_sha256": "1a0dcbac01c8cb7ff9a861174721ed539b58879ede68c9feeb16be0bb466527d"
+    },
+    {
+      "file": "crates/sign/tests/crypto.rs",
+      "source_sha256": "b6914d091a571b76ed2929c644c5638fc6ab5ed0682dbf748c647a671d1c7b54",
+      "incorporated_sha256": "7028a2786396e5b3ea621037fe86cc0c7a4de778ae3180dd5c85994ff909281e"
+    },
+    {
+      "file": "crates/sign/tests/data/README.md",
+      "source_sha256": "f920e114feaef26e0a6332d6a8ca36b918476b51a6d1081dc9578911ef29aa29",
+      "incorporated_sha256": "8e7825a6a61098a77bb26dde8d1159f26865284964fbb320f88de850f981ad2e"
+    },
+    {
+      "file": "crates/sign/tests/data/ca.crt.pem",
+      "source_sha256": "66e6e48bb904c73d6a98a0bd5a1c94a04caad2869f72e0f9ad2e63bea79171b8",
+      "incorporated_sha256": "66e6e48bb904c73d6a98a0bd5a1c94a04caad2869f72e0f9ad2e63bea79171b8"
+    },
+    {
+      "file": "crates/sign/tests/data/chain.p12",
+      "source_sha256": "ee84857631866918d90e9352c071c91e17181e9a3235d147d0a4e54f26820a10",
+      "incorporated_sha256": "ee84857631866918d90e9352c071c91e17181e9a3235d147d0a4e54f26820a10"
+    },
+    {
+      "file": "crates/sign/tests/data/ec-legacy.p12",
+      "source_sha256": "47de17ef0f8fac5b02080d3e5a917cbdd6f6f8b1af43b3fb498f312800a1fd7a",
+      "incorporated_sha256": "47de17ef0f8fac5b02080d3e5a917cbdd6f6f8b1af43b3fb498f312800a1fd7a"
+    },
+    {
+      "file": "crates/sign/tests/data/ec-p256.p12",
+      "source_sha256": "fbaad3e004e19d86f44d4446e99d885402ea865beb6d0c55bbf8dcb2719da1c0",
+      "incorporated_sha256": "fbaad3e004e19d86f44d4446e99d885402ea865beb6d0c55bbf8dcb2719da1c0"
+    },
+    {
+      "file": "crates/sign/tests/data/ec-p384.p12",
+      "source_sha256": "e50b2c9f59bca47525ae0c4d87000066e041341160e1189bb76c1cfb0816f0a5",
+      "incorporated_sha256": "e50b2c9f59bca47525ae0c4d87000066e041341160e1189bb76c1cfb0816f0a5"
+    },
+    {
+      "file": "crates/sign/tests/data/openssl-signed.pdf",
+      "source_sha256": "8b91c3b4e39c4a31717a0dd0685bd7d0468671df32aee5b9818d44dc72c2bc3c",
+      "incorporated_sha256": "8b91c3b4e39c4a31717a0dd0685bd7d0468671df32aee5b9818d44dc72c2bc3c"
+    },
+    {
+      "file": "crates/sign/tests/data/rsa-aes.p12",
+      "source_sha256": "67b64bd68ae331b176747747edf550d8c48514d4190202711edd53bbacd56d29",
+      "incorporated_sha256": "67b64bd68ae331b176747747edf550d8c48514d4190202711edd53bbacd56d29"
+    },
+    {
+      "file": "crates/sign/tests/data/rsa-legacy.p12",
+      "source_sha256": "b5350ec838e04b923de21f0c4e76b6072b9df15671c63e33a33973dcfabb1eb5",
+      "incorporated_sha256": "b5350ec838e04b923de21f0c4e76b6072b9df15671c63e33a33973dcfabb1eb5"
+    },
+    {
+      "file": "crates/sign/tests/data/rsa.crt.pem",
+      "source_sha256": "1612ef6d2e02861fda69c041cdf489376329870ae102cae8ff277e4be35af275",
+      "incorporated_sha256": "1612ef6d2e02861fda69c041cdf489376329870ae102cae8ff277e4be35af275"
+    },
+    {
+      "file": "crates/sign/tests/pdf.rs",
+      "source_sha256": "f10b54cf7f3f3b05d7c7e8e71d8473e3e3f41499b34148278d6082857c06ce91",
+      "incorporated_sha256": "5c14f5dbba8afa55e6430df3cf30caede18d39bed78fd365af6ec270aa46a8a1"
+    },
+    {
+      "file": "crates/xfdf/Cargo.toml",
+      "source_sha256": "0e04b69c8564195113ce5949e0c0b8445a55ad3e7d5226ce3331d9a3c73ef5d1",
+      "incorporated_sha256": "e264d8e4cbb6cf9ff02597d0de027459772d3f7b5cf6d89199e528a73c2565de"
+    },
+    {
+      "file": "crates/xfdf/README.md",
+      "source_sha256": "639a80557a8ce312fda9823292957995233f7ffe0fa4adeb3cea4a6e9c36e034",
+      "incorporated_sha256": "eeae310a112fda415a48c9389744fe526cb5ded22facb0e824fd2922e908ae91"
+    },
+    {
+      "file": "crates/xfdf/src/lib.rs",
+      "source_sha256": "09c370f30c94733946a3dd1be4672485c3bf6849b83ae5383f520ee2cc67c485",
+      "incorporated_sha256": "70c27f540713a4e9f6579dd05113a69dca9b767ddc3839a7499575cf697f21d3"
+    },
+    {
+      "file": "crates/xfdf/src/tests.rs",
+      "source_sha256": "548a942091df26c433ebaaa356506c886463a80ced27873de6c79d7ab85fc780",
+      "incorporated_sha256": "78d585bf53f39db9879bbc5e7d6fa0b9f6593954043c8f96ccac2f72ab921526"
+    },
+    {
+      "file": "vendor/README.md",
+      "source_sha256": "493e33ceb11f01b590919de6e48d7abaa436d5d6fc0daea97cd40cee6f920fbd",
+      "incorporated_sha256": "493e33ceb11f01b590919de6e48d7abaa436d5d6fc0daea97cd40cee6f920fbd"
+    },
+    {
+      "file": "vendor/hayro-interpret/.cargo-ok",
+      "source_sha256": "afbf9d0f3560b0fd7795e81c42a0a79ee6b6fc67e064f77826aee642cad28d91",
+      "incorporated_sha256": "afbf9d0f3560b0fd7795e81c42a0a79ee6b6fc67e064f77826aee642cad28d91"
+    },
+    {
+      "file": "vendor/hayro-interpret/.cargo_vcs_info.json",
+      "source_sha256": "70d1ae0c04ad449578be4959fe09aab07b50c8e2427b2d8e417292e335a83186",
+      "incorporated_sha256": "70d1ae0c04ad449578be4959fe09aab07b50c8e2427b2d8e417292e335a83186"
+    },
+    {
+      "file": "vendor/hayro-interpret/Cargo.lock",
+      "source_sha256": "a8a0e3460e43e7305385c01c3060ed34e4fdf13495d61b8a6bd1314d8a1c91a1",
+      "incorporated_sha256": "a8a0e3460e43e7305385c01c3060ed34e4fdf13495d61b8a6bd1314d8a1c91a1"
+    },
+    {
+      "file": "vendor/hayro-interpret/Cargo.toml",
+      "source_sha256": "cdb6fc309585747b98c029d2e2d48f31bc06595871aa3cce041786e5f78f61bf",
+      "incorporated_sha256": "cdb6fc309585747b98c029d2e2d48f31bc06595871aa3cce041786e5f78f61bf"
+    },
+    {
+      "file": "vendor/hayro-interpret/Cargo.toml.orig",
+      "source_sha256": "ed55d4a11308de617a457449a4af163d6ba9c5bb80efa7b6ccf237f2f03969a1",
+      "incorporated_sha256": "ed55d4a11308de617a457449a4af163d6ba9c5bb80efa7b6ccf237f2f03969a1"
+    },
+    {
+      "file": "vendor/hayro-interpret/LICENSE-APACHE",
+      "source_sha256": "0cec06e0e55fbc3dc5cee4fca9b607f66cb8f4e4dbcf3b3c013594dd156732e9",
+      "incorporated_sha256": "0cec06e0e55fbc3dc5cee4fca9b607f66cb8f4e4dbcf3b3c013594dd156732e9"
+    },
+    {
+      "file": "vendor/hayro-interpret/LICENSE-MIT",
+      "source_sha256": "51b50e6120c344dcc146bbd6375ca1c78e079d97c8bea76e67a53d6ff0efebac",
+      "incorporated_sha256": "51b50e6120c344dcc146bbd6375ca1c78e079d97c8bea76e67a53d6ff0efebac"
+    },
+    {
+      "file": "vendor/hayro-interpret/README.md",
+      "source_sha256": "08f5ca628e07c0712f5fd0292415691e0917ed14578833d1a9ce5a5505aa8831",
+      "incorporated_sha256": "08f5ca628e07c0712f5fd0292415691e0917ed14578833d1a9ce5a5505aa8831"
+    },
+    {
+      "file": "vendor/hayro-interpret/assets/CGATS001Compat-v2-micro.icc",
+      "source_sha256": "73e1ba37d2bad5bab2a964f40a9eed96209666efc067c3322626214bbef234a0",
+      "incorporated_sha256": "73e1ba37d2bad5bab2a964f40a9eed96209666efc067c3322626214bbef234a0"
+    },
+    {
+      "file": "vendor/hayro-interpret/assets/CGATS_LICENSE.txt",
+      "source_sha256": "469d87b5fa48f8aaf69e25f4fcac3a309c97dbb7d561b917638abdb640e004d9",
+      "incorporated_sha256": "469d87b5fa48f8aaf69e25f4fcac3a309c97dbb7d561b917638abdb640e004d9"
+    },
+    {
+      "file": "vendor/hayro-interpret/assets/FoxitDingbats.pfb",
+      "source_sha256": "845c752392b6c914fb989c75a08b7792b88f542d2499042ef2889f8c814a16ed",
+      "incorporated_sha256": "845c752392b6c914fb989c75a08b7792b88f542d2499042ef2889f8c814a16ed"
+    },
+    {
+      "file": "vendor/hayro-interpret/assets/FoxitFixed.pfb",
+      "source_sha256": "b6c8fe53f134b8b6d4578cd2d544df4cee9624c4efa8d51a560fb40ea296101b",
+      "incorporated_sha256": "b6c8fe53f134b8b6d4578cd2d544df4cee9624c4efa8d51a560fb40ea296101b"
+    },
+    {
+      "file": "vendor/hayro-interpret/assets/FoxitFixedBold.pfb",
+      "source_sha256": "f1b7159702973f54fc86254ea38bcf3712b2a736eb3a0995751e9f4bb45ad603",
+      "incorporated_sha256": "f1b7159702973f54fc86254ea38bcf3712b2a736eb3a0995751e9f4bb45ad603"
+    },
+    {
+      "file": "vendor/hayro-interpret/assets/FoxitFixedBoldItalic.pfb",
+      "source_sha256": "8a000945843bd31add06aee63bf9fd41b7578b4f3242a4b7cd46349ad9d24d4d",
+      "incorporated_sha256": "8a000945843bd31add06aee63bf9fd41b7578b4f3242a4b7cd46349ad9d24d4d"
+    },
+    {
+      "file": "vendor/hayro-interpret/assets/FoxitFixedItalic.pfb",
+      "source_sha256": "5007faf8320fa1fcc08b8894b356ad976f60b992ba29ee5272578bbdebaf3876",
+      "incorporated_sha256": "5007faf8320fa1fcc08b8894b356ad976f60b992ba29ee5272578bbdebaf3876"
+    },
+    {
+      "file": "vendor/hayro-interpret/assets/FoxitSans.pfb",
+      "source_sha256": "a02339e95d20db14cbdfc1c6baf359cd36a091d5434925c3a4040f60e1a1af9e",
+      "incorporated_sha256": "a02339e95d20db14cbdfc1c6baf359cd36a091d5434925c3a4040f60e1a1af9e"
+    },
+    {
+      "file": "vendor/hayro-interpret/assets/FoxitSansBold.pfb",
+      "source_sha256": "7bdfa36de1d5757dcfaf8b8a4be95c6e41c40fa70dbed9d78bf979a7b9959054",
+      "incorporated_sha256": "7bdfa36de1d5757dcfaf8b8a4be95c6e41c40fa70dbed9d78bf979a7b9959054"
+    },
+    {
+      "file": "vendor/hayro-interpret/assets/FoxitSansBoldItalic.pfb",
+      "source_sha256": "555ce45924338e2e4b32821910221ce85da691fd59a9723c4c971a7c5627fc8b",
+      "incorporated_sha256": "555ce45924338e2e4b32821910221ce85da691fd59a9723c4c971a7c5627fc8b"
+    },
+    {
+      "file": "vendor/hayro-interpret/assets/FoxitSansItalic.pfb",
+      "source_sha256": "7751cbefeda351708dae8c4a88db043411bc39ab2ae2097685da845d4d16f307",
+      "incorporated_sha256": "7751cbefeda351708dae8c4a88db043411bc39ab2ae2097685da845d4d16f307"
+    },
+    {
+      "file": "vendor/hayro-interpret/assets/FoxitSerif.pfb",
+      "source_sha256": "4f57d2b9d884af8f907bf22df6019b52d86cbf6214fdbd02b1ae05472a543f35",
+      "incorporated_sha256": "4f57d2b9d884af8f907bf22df6019b52d86cbf6214fdbd02b1ae05472a543f35"
+    },
+    {
+      "file": "vendor/hayro-interpret/assets/FoxitSerifBold.pfb",
+      "source_sha256": "0bdf4b04e964139818d51eda03d566ba999fc3ba2421b1c6c51f9dc969022e80",
+      "incorporated_sha256": "0bdf4b04e964139818d51eda03d566ba999fc3ba2421b1c6c51f9dc969022e80"
+    },
+    {
+      "file": "vendor/hayro-interpret/assets/FoxitSerifBoldItalic.pfb",
+      "source_sha256": "a406cac82583bf98175cb62c87ed5e95c45fbb34eece63a10b0a13e793cb2e10",
+      "incorporated_sha256": "a406cac82583bf98175cb62c87ed5e95c45fbb34eece63a10b0a13e793cb2e10"
+    },
+    {
+      "file": "vendor/hayro-interpret/assets/FoxitSerifItalic.pfb",
+      "source_sha256": "610ae0687198045c4db5d1a6650fd5e92536631706382eb8b72e38df578d0ae9",
+      "incorporated_sha256": "610ae0687198045c4db5d1a6650fd5e92536631706382eb8b72e38df578d0ae9"
+    },
+    {
+      "file": "vendor/hayro-interpret/assets/FoxitSymbol.pfb",
+      "source_sha256": "47967d055530e7357088a08403115425643ec2cdfd6201ba8af0fbd7116c1539",
+      "incorporated_sha256": "47967d055530e7357088a08403115425643ec2cdfd6201ba8af0fbd7116c1539"
+    },
+    {
+      "file": "vendor/hayro-interpret/assets/LAB.icc",
+      "source_sha256": "a6efc5c30ece826eba2a83ddf5aa7026289b0c5ffa90acb129bc59ab8d7f5c59",
+      "incorporated_sha256": "a6efc5c30ece826eba2a83ddf5aa7026289b0c5ffa90acb129bc59ab8d7f5c59"
+    },
+    {
+      "file": "vendor/hayro-interpret/assets/LICENSE_FOXIT",
+      "source_sha256": "b578cdd2345840ada550bd12519533812320d5f1d21cf4c1c7e1b1b0a31c98b7",
+      "incorporated_sha256": "b578cdd2345840ada550bd12519533812320d5f1d21cf4c1c7e1b1b0a31c98b7"
+    },
+    {
+      "file": "vendor/hayro-interpret/assets/README.md",
+      "source_sha256": "060a1d5778f49e9de3050c2bb84e5980a29744d9fe25ce590e76d7614c4f172f",
+      "incorporated_sha256": "060a1d5778f49e9de3050c2bb84e5980a29744d9fe25ce590e76d7614c4f172f"
+    },
+    {
+      "file": "vendor/hayro-interpret/examples/extract_html.rs",
+      "source_sha256": "fd287b7eab4fb1f1efa5a7107342e7466e8e008c088fe528797ecddf10d5d133",
+      "incorporated_sha256": "fd287b7eab4fb1f1efa5a7107342e7466e8e008c088fe528797ecddf10d5d133"
+    },
+    {
+      "file": "vendor/hayro-interpret/examples/extract_images.rs",
+      "source_sha256": "44ac19abe75918ac3a2a22dbe019091be97bb7a08ab2b7323bcbcc5151f86d1b",
+      "incorporated_sha256": "44ac19abe75918ac3a2a22dbe019091be97bb7a08ab2b7323bcbcc5151f86d1b"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/cache.rs",
+      "source_sha256": "2be0c2d377fdd75618268beebc51afd0797f1c39f13ed9767a076bdd9012205b",
+      "incorporated_sha256": "2be0c2d377fdd75618268beebc51afd0797f1c39f13ed9767a076bdd9012205b"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/color.rs",
+      "source_sha256": "b73733769b4c4725f9e70ddebd2402535d3cae872e10aae676e5479a9f76ae2f",
+      "incorporated_sha256": "b73733769b4c4725f9e70ddebd2402535d3cae872e10aae676e5479a9f76ae2f"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/context.rs",
+      "source_sha256": "0f1f733f1b3ecfedf8b4065076519fabed6e7e1bb1f30e3f26afe5e12ea3b704",
+      "incorporated_sha256": "0f1f733f1b3ecfedf8b4065076519fabed6e7e1bb1f30e3f26afe5e12ea3b704"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/convert.rs",
+      "source_sha256": "a361962285ef6153b4c10f75c8c7e31a2267b12481f85e5ff520915e79a6f0ba",
+      "incorporated_sha256": "a361962285ef6153b4c10f75c8c7e31a2267b12481f85e5ff520915e79a6f0ba"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/device.rs",
+      "source_sha256": "42c4be26b0a62ef7851c709f11c40c5c630a869646cca340592c86fc7fcc7f91",
+      "incorporated_sha256": "42c4be26b0a62ef7851c709f11c40c5c630a869646cca340592c86fc7fcc7f91"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/encode.rs",
+      "source_sha256": "41908c134c08be81503ec9ed2b63c49dc06d1a509b8dc6921ece10358a4f4de3",
+      "incorporated_sha256": "41908c134c08be81503ec9ed2b63c49dc06d1a509b8dc6921ece10358a4f4de3"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/font/blob.rs",
+      "source_sha256": "30a9dadf498829ee03eb1ddc6deaeb09a06ee42415f288d46f4a67640582c575",
+      "incorporated_sha256": "30a9dadf498829ee03eb1ddc6deaeb09a06ee42415f288d46f4a67640582c575"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/font/cid.rs",
+      "source_sha256": "d3a9bd6e6b952d02ce810843b7abd39f70fb9ba10e6359da5dc575b0bc9bf11a",
+      "incorporated_sha256": "d3a9bd6e6b952d02ce810843b7abd39f70fb9ba10e6359da5dc575b0bc9bf11a"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/font/generated/glyph_names.rs",
+      "source_sha256": "3ae9e18c10206ce893c50572c6a121db69c3f7f7c0f75ea9607b41b4c5d3dc4b",
+      "incorporated_sha256": "3ae9e18c10206ce893c50572c6a121db69c3f7f7c0f75ea9607b41b4c5d3dc4b"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/font/generated/mac_expert.rs",
+      "source_sha256": "8cee2c1e4957248931f35a813588417b34d6728e24d141e8023044f1bd33c157",
+      "incorporated_sha256": "8cee2c1e4957248931f35a813588417b34d6728e24d141e8023044f1bd33c157"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/font/generated/mac_os_roman.rs",
+      "source_sha256": "5c605359a58cedb98e9c68e09d0efab20b3298f78165bd6fa5448a95a2ffecb1",
+      "incorporated_sha256": "5c605359a58cedb98e9c68e09d0efab20b3298f78165bd6fa5448a95a2ffecb1"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/font/generated/mac_roman.rs",
+      "source_sha256": "0451e6ed0659cda339ef2202f1e4782cac0c4e3ec819446b33c8c5b47575c8e3",
+      "incorporated_sha256": "0451e6ed0659cda339ef2202f1e4782cac0c4e3ec819446b33c8c5b47575c8e3"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/font/generated/metrics.rs",
+      "source_sha256": "2ec9e608573eda459de1e1d9bda3bb494315e36bee885acc88912a11fe0caa41",
+      "incorporated_sha256": "2ec9e608573eda459de1e1d9bda3bb494315e36bee885acc88912a11fe0caa41"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/font/generated/mod.rs",
+      "source_sha256": "1f462b95c1b427704f34bbe42caca37134c14e0654b85f107a442b8bcc819773",
+      "incorporated_sha256": "1f462b95c1b427704f34bbe42caca37134c14e0654b85f107a442b8bcc819773"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/font/generated/standard.rs",
+      "source_sha256": "9094acd2e4b0404104b48b46b28b34bf2a35ae938685ab4a4d2e17ab26bc999e",
+      "incorporated_sha256": "9094acd2e4b0404104b48b46b28b34bf2a35ae938685ab4a4d2e17ab26bc999e"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/font/generated/symbol.rs",
+      "source_sha256": "3b0b7cc198c484fed14c867f033b82ff51257380dcaa72add3e87cd800afe615",
+      "incorporated_sha256": "3b0b7cc198c484fed14c867f033b82ff51257380dcaa72add3e87cd800afe615"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/font/generated/win_ansi.rs",
+      "source_sha256": "b9e4d4251a7c478c56c07ea445ebf179de6c0cbde1f50dff2b9ef9f3ae7f2139",
+      "incorporated_sha256": "b9e4d4251a7c478c56c07ea445ebf179de6c0cbde1f50dff2b9ef9f3ae7f2139"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/font/generated/zapf_dings.rs",
+      "source_sha256": "b3ef29c609b22be4119b4f21a847c9bb7450e2d0155889d9590bca3835d0aba3",
+      "incorporated_sha256": "b3ef29c609b22be4119b4f21a847c9bb7450e2d0155889d9590bca3835d0aba3"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/font/glyph_simulator.rs",
+      "source_sha256": "cc845d34c445e32d7fb63b113dd52c6f95be88c86331ebb25ded3d90bb50316f",
+      "incorporated_sha256": "cc845d34c445e32d7fb63b113dd52c6f95be88c86331ebb25ded3d90bb50316f"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/font/mod.rs",
+      "source_sha256": "940d39f21324292842ee61fa77174b9c81b66525970ed851623bbb28d2d70cd7",
+      "incorporated_sha256": "940d39f21324292842ee61fa77174b9c81b66525970ed851623bbb28d2d70cd7"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/font/outline.rs",
+      "source_sha256": "2462d9ae4008c620afb47103bfa55362e75d84a28cb418240439b147de4ada8c",
+      "incorporated_sha256": "2462d9ae4008c620afb47103bfa55362e75d84a28cb418240439b147de4ada8c"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/font/standard_font.rs",
+      "source_sha256": "fa44eb995a94c52ac20498e158b84663aa237a6fc9e696491d84011654b0c3ff",
+      "incorporated_sha256": "fa44eb995a94c52ac20498e158b84663aa237a6fc9e696491d84011654b0c3ff"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/font/true_type.rs",
+      "source_sha256": "689b280fda639f38cdb8935a344f764d40a94bb827947f4179f0efa451ea571b",
+      "incorporated_sha256": "689b280fda639f38cdb8935a344f764d40a94bb827947f4179f0efa451ea571b"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/font/type1.rs",
+      "source_sha256": "5779b825fa6a5589978ed5b30910b7af0986ace42bac4e3652f7975a479874d4",
+      "incorporated_sha256": "5779b825fa6a5589978ed5b30910b7af0986ace42bac4e3652f7975a479874d4"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/font/type3.rs",
+      "source_sha256": "8d0bdebccb1b82a867a85bdd8542c565aa2fb154a548122b770d48b51e1561b0",
+      "incorporated_sha256": "8d0bdebccb1b82a867a85bdd8542c565aa2fb154a548122b770d48b51e1561b0"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/function/mod.rs",
+      "source_sha256": "c99a8e88072969044154e3089071bb751aef36811fe637636a1c27340196f142",
+      "incorporated_sha256": "c99a8e88072969044154e3089071bb751aef36811fe637636a1c27340196f142"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/function/type0.rs",
+      "source_sha256": "a219d8db6d4b421aa932b7f4c4fa05dcff52e70113e4468ea2f1a5688bee43f0",
+      "incorporated_sha256": "a219d8db6d4b421aa932b7f4c4fa05dcff52e70113e4468ea2f1a5688bee43f0"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/function/type2.rs",
+      "source_sha256": "93fc9da845ad3f4090846a49a49ab2de1e3bda74ee4f6f2d039c2043de8237c5",
+      "incorporated_sha256": "93fc9da845ad3f4090846a49a49ab2de1e3bda74ee4f6f2d039c2043de8237c5"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/function/type3.rs",
+      "source_sha256": "cb127947ea5ecc2e0b262ceec081fe321f829e12204cd7961ed1c9e48eef1133",
+      "incorporated_sha256": "cb127947ea5ecc2e0b262ceec081fe321f829e12204cd7961ed1c9e48eef1133"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/function/type4.rs",
+      "source_sha256": "65ce22688d6ecd9397f0992f6ac6aad0f4488e7fa6bdff7b987b04a8c2cdc9ec",
+      "incorporated_sha256": "65ce22688d6ecd9397f0992f6ac6aad0f4488e7fa6bdff7b987b04a8c2cdc9ec"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/interpret/mod.rs",
+      "source_sha256": "bb40cfaab16bfefb268143cc3cc75b507c30db6bae3b37187502661739d87bba",
+      "incorporated_sha256": "bb40cfaab16bfefb268143cc3cc75b507c30db6bae3b37187502661739d87bba"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/interpret/path.rs",
+      "source_sha256": "2da01f3c5e0d2eb0cd90b9d3091f3c6414736445979547e4934db0aa0d474a3a",
+      "incorporated_sha256": "2da01f3c5e0d2eb0cd90b9d3091f3c6414736445979547e4934db0aa0d474a3a"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/interpret/state.rs",
+      "source_sha256": "dce778291b13f6df83c8c13aee22f60edd033ec9f7d89309ef148d46d3ba9814",
+      "incorporated_sha256": "dce778291b13f6df83c8c13aee22f60edd033ec9f7d89309ef148d46d3ba9814"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/interpret/text.rs",
+      "source_sha256": "e35b823dfb20d1ee34dd18f87495df08288a7341d5542983f9f992f8ddbedfe1",
+      "incorporated_sha256": "e35b823dfb20d1ee34dd18f87495df08288a7341d5542983f9f992f8ddbedfe1"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/lib.rs",
+      "source_sha256": "b669ad0e5b0981843dff6e3f40ab9ca4da40a5d25d0b2d8be29ebd239fb1cc0a",
+      "incorporated_sha256": "b669ad0e5b0981843dff6e3f40ab9ca4da40a5d25d0b2d8be29ebd239fb1cc0a"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/log.rs",
+      "source_sha256": "f5cbe9ee0319d1770e1a12dee4af754937effb3b6fe1780f687f2ff57bbf60e1",
+      "incorporated_sha256": "f5cbe9ee0319d1770e1a12dee4af754937effb3b6fe1780f687f2ff57bbf60e1"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/ocg.rs",
+      "source_sha256": "fbb99d48174c7ed1ade61b7f0284f918ebd93e393b64847125b45d9da07105e2",
+      "incorporated_sha256": "fbb99d48174c7ed1ade61b7f0284f918ebd93e393b64847125b45d9da07105e2"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/pattern.rs",
+      "source_sha256": "6ca0462ee4df7fa743f7906726199a124345e9b6593754397048483f684460d8",
+      "incorporated_sha256": "6ca0462ee4df7fa743f7906726199a124345e9b6593754397048483f684460d8"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/shading.rs",
+      "source_sha256": "ba1e38b602fda77cad91150cf804770dad72b757edbcfaedf50959e15e87f42a",
+      "incorporated_sha256": "ba1e38b602fda77cad91150cf804770dad72b757edbcfaedf50959e15e87f42a"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/soft_mask.rs",
+      "source_sha256": "fcf7a3834c4bbdc7f46f428001e5f9231d10be9adc978b7e7053464ee447e6a7",
+      "incorporated_sha256": "fcf7a3834c4bbdc7f46f428001e5f9231d10be9adc978b7e7053464ee447e6a7"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/types.rs",
+      "source_sha256": "0e66569b8a7dc243b0a384cf1d3615ca62bf660b5324236f2594609bdfddfd46",
+      "incorporated_sha256": "0e66569b8a7dc243b0a384cf1d3615ca62bf660b5324236f2594609bdfddfd46"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/util.rs",
+      "source_sha256": "236c0316abe8aa2ddd37b71f04ebd2ec35fb6a03db8476c3a78fb33b8c953718",
+      "incorporated_sha256": "236c0316abe8aa2ddd37b71f04ebd2ec35fb6a03db8476c3a78fb33b8c953718"
+    },
+    {
+      "file": "vendor/hayro-interpret/src/x_object.rs",
+      "source_sha256": "af13f50eee7be2604f58e73044fc82bd106636d6417fca57e34c39ee478a0e94",
+      "incorporated_sha256": "af13f50eee7be2604f58e73044fc82bd106636d6417fca57e34c39ee478a0e94"
+    },
+    {
+      "file": "vendor/hayro-jbig2/.gitignore",
+      "source_sha256": "e26ccb13f796bd902ec2b34df79e1442e5d50abcb53ca9b7ea66eb2507ef2157",
+      "incorporated_sha256": "e26ccb13f796bd902ec2b34df79e1442e5d50abcb53ca9b7ea66eb2507ef2157"
+    },
+    {
+      "file": "vendor/hayro-jbig2/Cargo.lock",
+      "source_sha256": "45ae502a202a6267a2ebd39eb4d8c12870b2d11701871ac2350e81e886ce2873",
+      "incorporated_sha256": "45ae502a202a6267a2ebd39eb4d8c12870b2d11701871ac2350e81e886ce2873"
+    },
+    {
+      "file": "vendor/hayro-jbig2/Cargo.toml",
+      "source_sha256": "1b77fcad9f4b16874635660a2bba07996f1dec8cc1c3e2a35926b2b0a463bc2e",
+      "incorporated_sha256": "1b77fcad9f4b16874635660a2bba07996f1dec8cc1c3e2a35926b2b0a463bc2e"
+    },
+    {
+      "file": "vendor/hayro-jbig2/Cargo.toml.orig",
+      "source_sha256": "e38a00d34fec56c1b7737f0fcaf974e0a98c36d64629d27370f3c89c0f285430",
+      "incorporated_sha256": "e38a00d34fec56c1b7737f0fcaf974e0a98c36d64629d27370f3c89c0f285430"
+    },
+    {
+      "file": "vendor/hayro-jbig2/LICENSE-APACHE",
+      "source_sha256": "0cec06e0e55fbc3dc5cee4fca9b607f66cb8f4e4dbcf3b3c013594dd156732e9",
+      "incorporated_sha256": "0cec06e0e55fbc3dc5cee4fca9b607f66cb8f4e4dbcf3b3c013594dd156732e9"
+    },
+    {
+      "file": "vendor/hayro-jbig2/LICENSE-MIT",
+      "source_sha256": "51b50e6120c344dcc146bbd6375ca1c78e079d97c8bea76e67a53d6ff0efebac",
+      "incorporated_sha256": "51b50e6120c344dcc146bbd6375ca1c78e079d97c8bea76e67a53d6ff0efebac"
+    },
+    {
+      "file": "vendor/hayro-jbig2/README.md",
+      "source_sha256": "9402ef9028cfb46c86df4fe4ae6d63d6a3e8f212cbf02ed831f7850b19900fa6",
+      "incorporated_sha256": "9402ef9028cfb46c86df4fe4ae6d63d6a3e8f212cbf02ed831f7850b19900fa6"
+    },
+    {
+      "file": "vendor/hayro-jbig2/examples/jbig2png.rs",
+      "source_sha256": "e7bc8f6b820af6874beeba23d042ecf8028d39de2f2b9779bd5a510d5cbe282f",
+      "incorporated_sha256": "e7bc8f6b820af6874beeba23d042ecf8028d39de2f2b9779bd5a510d5cbe282f"
+    },
+    {
+      "file": "vendor/hayro-jbig2/src/arithmetic_decoder.rs",
+      "source_sha256": "8d2c365a9499900e4538f2f79d74e9a56f2c24d92229abb1317ed8988d1b4624",
+      "incorporated_sha256": "8d2c365a9499900e4538f2f79d74e9a56f2c24d92229abb1317ed8988d1b4624"
+    },
+    {
+      "file": "vendor/hayro-jbig2/src/bitmap.rs",
+      "source_sha256": "185feac748fe3b065a3d8f6d9d769cd4fc9215935929184b05f0fcf4a5afc00c",
+      "incorporated_sha256": "185feac748fe3b065a3d8f6d9d769cd4fc9215935929184b05f0fcf4a5afc00c"
+    },
+    {
+      "file": "vendor/hayro-jbig2/src/decode/generic.rs",
+      "source_sha256": "6646417cbea6b4563f47f6fa01d521f4654d609aa86713d34b4474963d222f81",
+      "incorporated_sha256": "6646417cbea6b4563f47f6fa01d521f4654d609aa86713d34b4474963d222f81"
+    },
+    {
+      "file": "vendor/hayro-jbig2/src/decode/generic_refinement.rs",
+      "source_sha256": "625075671e510e8ff1d7c3cade857792413c091d57a35561ad0591d7f04c2ea5",
+      "incorporated_sha256": "625075671e510e8ff1d7c3cade857792413c091d57a35561ad0591d7f04c2ea5"
+    },
+    {
+      "file": "vendor/hayro-jbig2/src/decode/halftone.rs",
+      "source_sha256": "0e55ec810ae4ccad91b3963172927ca8da46a61e3515127a95b4af3cf96011f7",
+      "incorporated_sha256": "0e55ec810ae4ccad91b3963172927ca8da46a61e3515127a95b4af3cf96011f7"
+    },
+    {
+      "file": "vendor/hayro-jbig2/src/decode/mod.rs",
+      "source_sha256": "09f1e329bedf8d0defa22450a7d8c9f4e2cef7fede533763a2354ad79fa18fe1",
+      "incorporated_sha256": "09f1e329bedf8d0defa22450a7d8c9f4e2cef7fede533763a2354ad79fa18fe1"
+    },
+    {
+      "file": "vendor/hayro-jbig2/src/decode/pattern.rs",
+      "source_sha256": "abdd326c08dee0488678d74915e6bb4138c9b0c07d44f24c3a5794ff640799ba",
+      "incorporated_sha256": "abdd326c08dee0488678d74915e6bb4138c9b0c07d44f24c3a5794ff640799ba"
+    },
+    {
+      "file": "vendor/hayro-jbig2/src/decode/symbol.rs",
+      "source_sha256": "af4c0f8cd6aa0b97affea68ec2d56e760071a5d5b9b48b6da69c1c133e6311d9",
+      "incorporated_sha256": "af4c0f8cd6aa0b97affea68ec2d56e760071a5d5b9b48b6da69c1c133e6311d9"
+    },
+    {
+      "file": "vendor/hayro-jbig2/src/decode/text.rs",
+      "source_sha256": "01863cdcd48ab68b5230948d12212a815d293c7c9d5382a140772088bfb1c405",
+      "incorporated_sha256": "01863cdcd48ab68b5230948d12212a815d293c7c9d5382a140772088bfb1c405"
+    },
+    {
+      "file": "vendor/hayro-jbig2/src/error.rs",
+      "source_sha256": "39b6ec8fa058bc5c1722892290882e123d193d3844ed5846b30b742b94ba72b0",
+      "incorporated_sha256": "39b6ec8fa058bc5c1722892290882e123d193d3844ed5846b30b742b94ba72b0"
+    },
+    {
+      "file": "vendor/hayro-jbig2/src/file.rs",
+      "source_sha256": "10467a415ab2e8b92a8951a86f4c02c5c74f5a005629a11865a20bc23b26ca55",
+      "incorporated_sha256": "10467a415ab2e8b92a8951a86f4c02c5c74f5a005629a11865a20bc23b26ca55"
+    },
+    {
+      "file": "vendor/hayro-jbig2/src/gray_scale.rs",
+      "source_sha256": "154b491fca10188c51019cec5a9837512b75aad2d4fc896c6ea4f1c8f22dcd46",
+      "incorporated_sha256": "154b491fca10188c51019cec5a9837512b75aad2d4fc896c6ea4f1c8f22dcd46"
+    },
+    {
+      "file": "vendor/hayro-jbig2/src/huffman_table.rs",
+      "source_sha256": "8c0dc0681351b9573fedd00afed26173be8bd4583210063bff75c4e95e9d8054",
+      "incorporated_sha256": "8c0dc0681351b9573fedd00afed26173be8bd4583210063bff75c4e95e9d8054"
+    },
+    {
+      "file": "vendor/hayro-jbig2/src/huffman_tables_generated.rs",
+      "source_sha256": "030a09fc699f15034b5cc6a10cb138284d2c7423fb86c0ef5a69b1c02d690ec9",
+      "incorporated_sha256": "030a09fc699f15034b5cc6a10cb138284d2c7423fb86c0ef5a69b1c02d690ec9"
+    },
+    {
+      "file": "vendor/hayro-jbig2/src/integer_decoder.rs",
+      "source_sha256": "6a5a89d8df1ab6c011f7a92223fbd384bbf274ccb1f15705c994d7bd55d1a680",
+      "incorporated_sha256": "6a5a89d8df1ab6c011f7a92223fbd384bbf274ccb1f15705c994d7bd55d1a680"
+    },
+    {
+      "file": "vendor/hayro-jbig2/src/integration.rs",
+      "source_sha256": "196ae7e63e863f92a431679a032835c45992fca686c494bab2b98566ae044187",
+      "incorporated_sha256": "196ae7e63e863f92a431679a032835c45992fca686c494bab2b98566ae044187"
+    },
+    {
+      "file": "vendor/hayro-jbig2/src/lazy.rs",
+      "source_sha256": "6996be0661d8bb4fc6ec2c9623fee8a7a1221ff612d0e9f37b01ac711f0b921e",
+      "incorporated_sha256": "6996be0661d8bb4fc6ec2c9623fee8a7a1221ff612d0e9f37b01ac711f0b921e"
+    },
+    {
+      "file": "vendor/hayro-jbig2/src/lib.rs",
+      "source_sha256": "22463230cc82543ee93791b642566a308f0f4eb14d3089b24dc2e7f06d0f784c",
+      "incorporated_sha256": "22463230cc82543ee93791b642566a308f0f4eb14d3089b24dc2e7f06d0f784c"
+    },
+    {
+      "file": "vendor/hayro-jbig2/src/page_info.rs",
+      "source_sha256": "2406719e3bcccaea574b26cb87c9ee235ade96c7aaaa67b1301e2327a308284e",
+      "incorporated_sha256": "2406719e3bcccaea574b26cb87c9ee235ade96c7aaaa67b1301e2327a308284e"
+    },
+    {
+      "file": "vendor/hayro-jbig2/src/reader.rs",
+      "source_sha256": "990f01b0dbec60df52bc779da14c5af765172eb243b11d2c74fb0d5eb4d07175",
+      "incorporated_sha256": "990f01b0dbec60df52bc779da14c5af765172eb243b11d2c74fb0d5eb4d07175"
+    },
+    {
+      "file": "vendor/hayro-jbig2/src/segment.rs",
+      "source_sha256": "58d9fd05a15358b4ca945ffa3b8c1872f4ea57f8bbe50e8db3c6fce5bcac2914",
+      "incorporated_sha256": "58d9fd05a15358b4ca945ffa3b8c1872f4ea57f8bbe50e8db3c6fce5bcac2914"
+    },
+    {
+      "file": "vendor/hayro-jbig2/src/simd.rs",
+      "source_sha256": "0bf2996ae8e49e0fe9a396997312017d6b6bd3d1385c30a65755da9b51ebea3d",
+      "incorporated_sha256": "0bf2996ae8e49e0fe9a396997312017d6b6bd3d1385c30a65755da9b51ebea3d"
+    },
+    {
+      "file": "vendor/hayro-jbig2/src/symbol_id_decoder.rs",
+      "source_sha256": "8db13cb84a359ecea5bc56a1d15b8ef28e35329733e4a691f44877172f5b671f",
+      "incorporated_sha256": "8db13cb84a359ecea5bc56a1d15b8ef28e35329733e4a691f44877172f5b671f"
+    },
+    {
+      "file": "vendor/hayro-syntax/Cargo.lock",
+      "source_sha256": "d73da432072780b3d1fc725da68ad174c75f1720d0ed903521f664bfc16c70a8",
+      "incorporated_sha256": "d73da432072780b3d1fc725da68ad174c75f1720d0ed903521f664bfc16c70a8"
+    },
+    {
+      "file": "vendor/hayro-syntax/Cargo.toml",
+      "source_sha256": "289a1dc73723b036b9e43d5fcef5792dd82b25457829297dfb55ff8ca0f94e81",
+      "incorporated_sha256": "289a1dc73723b036b9e43d5fcef5792dd82b25457829297dfb55ff8ca0f94e81"
+    },
+    {
+      "file": "vendor/hayro-syntax/Cargo.toml.orig",
+      "source_sha256": "4d011edd25ba0cd22252643cc8f9c967c64e3480735cabcba3d10b1798f72e83",
+      "incorporated_sha256": "4d011edd25ba0cd22252643cc8f9c967c64e3480735cabcba3d10b1798f72e83"
+    },
+    {
+      "file": "vendor/hayro-syntax/LICENSE-APACHE",
+      "source_sha256": "0cec06e0e55fbc3dc5cee4fca9b607f66cb8f4e4dbcf3b3c013594dd156732e9",
+      "incorporated_sha256": "0cec06e0e55fbc3dc5cee4fca9b607f66cb8f4e4dbcf3b3c013594dd156732e9"
+    },
+    {
+      "file": "vendor/hayro-syntax/LICENSE-MIT",
+      "source_sha256": "51b50e6120c344dcc146bbd6375ca1c78e079d97c8bea76e67a53d6ff0efebac",
+      "incorporated_sha256": "51b50e6120c344dcc146bbd6375ca1c78e079d97c8bea76e67a53d6ff0efebac"
+    },
+    {
+      "file": "vendor/hayro-syntax/README.md",
+      "source_sha256": "fc541ca0e9c3a74ea719cd0ded4a0bcc5886ed3d94376248cc98340b2448a3c8",
+      "incorporated_sha256": "fc541ca0e9c3a74ea719cd0ded4a0bcc5886ed3d94376248cc98340b2448a3c8"
+    },
+    {
+      "file": "vendor/hayro-syntax/examples/iterate.rs",
+      "source_sha256": "f311d2d624032b7ca72300f23bd4961885386c15473026852fae6a8242448be6",
+      "incorporated_sha256": "f311d2d624032b7ca72300f23bd4961885386c15473026852fae6a8242448be6"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/bit_reader.rs",
+      "source_sha256": "ed776feb5048a26e45661e1d35c92b9d20faa8b7bcb0e92b36b0872d532cc6b1",
+      "incorporated_sha256": "ed776feb5048a26e45661e1d35c92b9d20faa8b7bcb0e92b36b0872d532cc6b1"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/byte_reader.rs",
+      "source_sha256": "fa76c87843da98d84eceb58eb34bb3dca84414767467e0a474e3161f656e6fbe",
+      "incorporated_sha256": "fa76c87843da98d84eceb58eb34bb3dca84414767467e0a474e3161f656e6fbe"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/content/gen_ops.py",
+      "source_sha256": "ac3949287de7c7b187a62611f763662e230210ab39630d6a86511a70cdd6c523",
+      "incorporated_sha256": "ac3949287de7c7b187a62611f763662e230210ab39630d6a86511a70cdd6c523"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/content/mod.rs",
+      "source_sha256": "d42f922acde0ec830cb252348407f177cc34d99b9a76f9c98539fb1a5c0f6fad",
+      "incorporated_sha256": "d42f922acde0ec830cb252348407f177cc34d99b9a76f9c98539fb1a5c0f6fad"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/content/ops.rs",
+      "source_sha256": "b29f00f4570a2dc061b2189cf2a96a499ffe424abfb846dd4cec99cc1ef8901f",
+      "incorporated_sha256": "b29f00f4570a2dc061b2189cf2a96a499ffe424abfb846dd4cec99cc1ef8901f"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/content/ops_generated.rs",
+      "source_sha256": "7229ddbe9f4e76b8cc792f428c5d3c9070b393d592916a0f007dabd417eda7ae",
+      "incorporated_sha256": "7229ddbe9f4e76b8cc792f428c5d3c9070b393d592916a0f007dabd417eda7ae"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/crypto/aes.rs",
+      "source_sha256": "2eece3570a553613c3203d444cf7c466036c87a9ba8f905dc153046ca3da6486",
+      "incorporated_sha256": "2eece3570a553613c3203d444cf7c466036c87a9ba8f905dc153046ca3da6486"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/crypto/md5.rs",
+      "source_sha256": "619d740c54d70adb98ceb45a163df0197b54e74d5ed7a4d4ef4081f9992030f7",
+      "incorporated_sha256": "619d740c54d70adb98ceb45a163df0197b54e74d5ed7a4d4ef4081f9992030f7"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/crypto/mod.rs",
+      "source_sha256": "14190836871b4dfe8e46075d89f8cf24e335d10fab2e153f9783a929095ceec7",
+      "incorporated_sha256": "14190836871b4dfe8e46075d89f8cf24e335d10fab2e153f9783a929095ceec7"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/crypto/rc4.rs",
+      "source_sha256": "4a37d4a2fc75663a280d4d17197d326696f29dd300b5c066d5d9c73431ed220b",
+      "incorporated_sha256": "4a37d4a2fc75663a280d4d17197d326696f29dd300b5c066d5d9c73431ed220b"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/crypto/sha256.rs",
+      "source_sha256": "fb87c10a1c658916e7eef01934a26666529f08d70be4de4531e33c9d4308f3ae",
+      "incorporated_sha256": "fb87c10a1c658916e7eef01934a26666529f08d70be4de4531e33c9d4308f3ae"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/crypto/sha384.rs",
+      "source_sha256": "a0653063b53dd65cc9e487c5f91a800ca6282b1077873f5e4a68523ed6e21e2d",
+      "incorporated_sha256": "a0653063b53dd65cc9e487c5f91a800ca6282b1077873f5e4a68523ed6e21e2d"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/crypto/sha512.rs",
+      "source_sha256": "e6cdb0d530a2d424199437a75ce4a97471090b3ef3d5a2d572778caa04fb61c8",
+      "incorporated_sha256": "e6cdb0d530a2d424199437a75ce4a97471090b3ef3d5a2d572778caa04fb61c8"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/data.rs",
+      "source_sha256": "05c8f4ace91df45d5f5f980bb3eb2df9fe4e2b60ccd6ff0b437af78ecb4d5e9c",
+      "incorporated_sha256": "05c8f4ace91df45d5f5f980bb3eb2df9fe4e2b60ccd6ff0b437af78ecb4d5e9c"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/filter/ascii_85.rs",
+      "source_sha256": "df32c6783b1c1969f9b6b03de3bf204384dfdba767f7beefdd8baa8590387d24",
+      "incorporated_sha256": "df32c6783b1c1969f9b6b03de3bf204384dfdba767f7beefdd8baa8590387d24"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/filter/ascii_hex.rs",
+      "source_sha256": "3943384166df1f81f76c8f64a28766131dc947311d672d01ffa5fef05b0a30c8",
+      "incorporated_sha256": "3943384166df1f81f76c8f64a28766131dc947311d672d01ffa5fef05b0a30c8"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/filter/ccitt.rs",
+      "source_sha256": "e44cf401943de4bb1267e93d87d422fde0864ae3748d3142ee5cc8e9d55eef50",
+      "incorporated_sha256": "e44cf401943de4bb1267e93d87d422fde0864ae3748d3142ee5cc8e9d55eef50"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/filter/dct.rs",
+      "source_sha256": "48452c1817b0a95b079aff068c8a625078c90354978af1de4ff97142e6bb0dd2",
+      "incorporated_sha256": "48452c1817b0a95b079aff068c8a625078c90354978af1de4ff97142e6bb0dd2"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/filter/jbig2.rs",
+      "source_sha256": "0ac3c16e02cb13f2d5fe401edd35949320662906c3906cb39fe743acd5e32b09",
+      "incorporated_sha256": "0ac3c16e02cb13f2d5fe401edd35949320662906c3906cb39fe743acd5e32b09"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/filter/jpx.rs",
+      "source_sha256": "771ecc721f1cac64a980105b132258e9b6f2135d2d8176b4c756a507f20e5f8a",
+      "incorporated_sha256": "771ecc721f1cac64a980105b132258e9b6f2135d2d8176b4c756a507f20e5f8a"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/filter/lzw_flate.rs",
+      "source_sha256": "861c576971d1e1c3e9f8290bd76d5cef0e72143278080848810fdf04c127738e",
+      "incorporated_sha256": "861c576971d1e1c3e9f8290bd76d5cef0e72143278080848810fdf04c127738e"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/filter/mod.rs",
+      "source_sha256": "f8d7e1f52f229a1f14f1563622506207dc4ed09b5f9530ac0602db59d29037d5",
+      "incorporated_sha256": "f8d7e1f52f229a1f14f1563622506207dc4ed09b5f9530ac0602db59d29037d5"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/filter/run_length.rs",
+      "source_sha256": "8f25d6d2398c2574f642b78eadcc6c0b36b1e2053ee3b1ea874d000a1c8ee3c7",
+      "incorporated_sha256": "8f25d6d2398c2574f642b78eadcc6c0b36b1e2053ee3b1ea874d000a1c8ee3c7"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/lib.rs",
+      "source_sha256": "0439293354fe274dd0a956f7d8840f512b18b5a84cabcea63452dfddb6629c7e",
+      "incorporated_sha256": "0439293354fe274dd0a956f7d8840f512b18b5a84cabcea63452dfddb6629c7e"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/log.rs",
+      "source_sha256": "f32705bc40d499540f2d473087b75db707e4ce4c0f80d6f997432dfa64e4dba2",
+      "incorporated_sha256": "f32705bc40d499540f2d473087b75db707e4ce4c0f80d6f997432dfa64e4dba2"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/math.rs",
+      "source_sha256": "df8573f9147368f464d35ba40a02cfbd388d68bc7b18a046afdc55131cc1177b",
+      "incorporated_sha256": "df8573f9147368f464d35ba40a02cfbd388d68bc7b18a046afdc55131cc1177b"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/metadata.rs",
+      "source_sha256": "e7324559c77181ffd297f877f5eb00222ee0739ff8f2a83d1ebd4a948383af6d",
+      "incorporated_sha256": "e7324559c77181ffd297f877f5eb00222ee0739ff8f2a83d1ebd4a948383af6d"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/object/array.rs",
+      "source_sha256": "8d6156da77d7171f36188c604a53a418e59c24084280904edc67df860b4d08b0",
+      "incorporated_sha256": "8d6156da77d7171f36188c604a53a418e59c24084280904edc67df860b4d08b0"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/object/bool.rs",
+      "source_sha256": "67089f2d24e281a2106a8e2ab1bb452edaabf8f406ba31605fd9b62c88b3094a",
+      "incorporated_sha256": "67089f2d24e281a2106a8e2ab1bb452edaabf8f406ba31605fd9b62c88b3094a"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/object/date.rs",
+      "source_sha256": "3a6361f527f94c68d77c8164ab5286f78e669310adf9f034dc0eed88375ef213",
+      "incorporated_sha256": "3a6361f527f94c68d77c8164ab5286f78e669310adf9f034dc0eed88375ef213"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/object/dict.rs",
+      "source_sha256": "80b9a6d42446012202c1781cd33afb4aa0a23b147d8bfdee71c851054a95eaaf",
+      "incorporated_sha256": "80b9a6d42446012202c1781cd33afb4aa0a23b147d8bfdee71c851054a95eaaf"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/object/indirect.rs",
+      "source_sha256": "4058b7f23880aab1cb0149fcfae225904afec180af521885608e0543c2dffc50",
+      "incorporated_sha256": "4058b7f23880aab1cb0149fcfae225904afec180af521885608e0543c2dffc50"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/object/mod.rs",
+      "source_sha256": "20290b2434467e33eb763d380d7d7410b3c7abe3b539b2a3ee589cfd8cb0666b",
+      "incorporated_sha256": "20290b2434467e33eb763d380d7d7410b3c7abe3b539b2a3ee589cfd8cb0666b"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/object/name.rs",
+      "source_sha256": "88fe01a07a8ece502b2e36d5def5cb042fce12d63e260f1677b45cd1dcbea3e4",
+      "incorporated_sha256": "88fe01a07a8ece502b2e36d5def5cb042fce12d63e260f1677b45cd1dcbea3e4"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/object/null.rs",
+      "source_sha256": "55ea533359e2c35decfd157977141adc87afcbdb5ef000d366439238cb6b5d38",
+      "incorporated_sha256": "55ea533359e2c35decfd157977141adc87afcbdb5ef000d366439238cb6b5d38"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/object/number.rs",
+      "source_sha256": "2bc1a84779c8428560c38b4eb553c430e6dd8be8470ee4d08eb4477419536912",
+      "incorporated_sha256": "2bc1a84779c8428560c38b4eb553c430e6dd8be8470ee4d08eb4477419536912"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/object/rect.rs",
+      "source_sha256": "0deae0ab94968507764d1943d5380289e84881e2994152f933bcdcf1d1495992",
+      "incorporated_sha256": "0deae0ab94968507764d1943d5380289e84881e2994152f933bcdcf1d1495992"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/object/ref.rs",
+      "source_sha256": "b5ff0720a3946ef6e77922c8f56e4a0cacd7bbdb13280b9583740b5fd8a7c8fd",
+      "incorporated_sha256": "b5ff0720a3946ef6e77922c8f56e4a0cacd7bbdb13280b9583740b5fd8a7c8fd"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/object/stream.rs",
+      "source_sha256": "49158a7b16f896feb6250760c7f6a383094808ef9a81c6ef194f193e5c78ab2f",
+      "incorporated_sha256": "49158a7b16f896feb6250760c7f6a383094808ef9a81c6ef194f193e5c78ab2f"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/object/string.rs",
+      "source_sha256": "cc0b8c7de9b665fe00b59608c97e3c10c8ec4e9ca8d5497789d2edcda7d6d5e9",
+      "incorporated_sha256": "cc0b8c7de9b665fe00b59608c97e3c10c8ec4e9ca8d5497789d2edcda7d6d5e9"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/object/tuple.rs",
+      "source_sha256": "eeaf3f14a962fc98a109d1a74d7e70e069816d909e5e55766361658ef7b26aea",
+      "incorporated_sha256": "eeaf3f14a962fc98a109d1a74d7e70e069816d909e5e55766361658ef7b26aea"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/page.rs",
+      "source_sha256": "9acdf72c6a9ea8794f363bc1f12072250601575c1c14960713e321de3a884f85",
+      "incorporated_sha256": "9acdf72c6a9ea8794f363bc1f12072250601575c1c14960713e321de3a884f85"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/pdf.rs",
+      "source_sha256": "b6938cd27757a20dca83b49db46d73ab32a0ca2a474a0c4517d1d82b71a1be1c",
+      "incorporated_sha256": "b6938cd27757a20dca83b49db46d73ab32a0ca2a474a0c4517d1d82b71a1be1c"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/reader.rs",
+      "source_sha256": "f2f10a5cddecd70dae36304f432d052f4d7fdf5113dc4473a06de502375c4f2e",
+      "incorporated_sha256": "f2f10a5cddecd70dae36304f432d052f4d7fdf5113dc4473a06de502375c4f2e"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/sync.rs",
+      "source_sha256": "994d45cc6ac8f458852bbf79ad27ff22f5f3aab3441f4f0c81d4b386b88251ee",
+      "incorporated_sha256": "994d45cc6ac8f458852bbf79ad27ff22f5f3aab3441f4f0c81d4b386b88251ee"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/transform.rs",
+      "source_sha256": "40cf670b296220e7a7737dacc80eff888d42275d026fe17269a2458866a60fc8",
+      "incorporated_sha256": "40cf670b296220e7a7737dacc80eff888d42275d026fe17269a2458866a60fc8"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/trivia.rs",
+      "source_sha256": "0e90f8a7c82627cfeb2cbe0922bff15a9a2a1929da5f59549cfdd09792df357e",
+      "incorporated_sha256": "0e90f8a7c82627cfeb2cbe0922bff15a9a2a1929da5f59549cfdd09792df357e"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/util.rs",
+      "source_sha256": "11b6575e6482a184f35e1cce81d64eb39420fbe4e79fde97f63d37884a7cdaa7",
+      "incorporated_sha256": "11b6575e6482a184f35e1cce81d64eb39420fbe4e79fde97f63d37884a7cdaa7"
+    },
+    {
+      "file": "vendor/hayro-syntax/src/xref.rs",
+      "source_sha256": "f3e70ece29599ffdc77dea43684fd272e436d73ea01f1fbface24125edcf5f27",
+      "incorporated_sha256": "f3e70ece29599ffdc77dea43684fd272e436d73ea01f1fbface24125edcf5f27"
+    },
+    {
+      "file": "vendor/hayro/.cargo-ok",
+      "source_sha256": "afbf9d0f3560b0fd7795e81c42a0a79ee6b6fc67e064f77826aee642cad28d91",
+      "incorporated_sha256": "afbf9d0f3560b0fd7795e81c42a0a79ee6b6fc67e064f77826aee642cad28d91"
+    },
+    {
+      "file": "vendor/hayro/.cargo_vcs_info.json",
+      "source_sha256": "92782bf02a2f42784dd2bf7cc6037780fff2974d6d66a32539a405b5ff527b4f",
+      "incorporated_sha256": "92782bf02a2f42784dd2bf7cc6037780fff2974d6d66a32539a405b5ff527b4f"
+    },
+    {
+      "file": "vendor/hayro/Cargo.lock",
+      "source_sha256": "e74d97562bd37a010ecc49af9aa5fde2a22c8c9ae551f83a446c68def200bf6c",
+      "incorporated_sha256": "e74d97562bd37a010ecc49af9aa5fde2a22c8c9ae551f83a446c68def200bf6c"
+    },
+    {
+      "file": "vendor/hayro/Cargo.toml",
+      "source_sha256": "821ec2851fe87773584b58a5885ea23086f0cec3f32934bc59ed0265224d4ed6",
+      "incorporated_sha256": "821ec2851fe87773584b58a5885ea23086f0cec3f32934bc59ed0265224d4ed6"
+    },
+    {
+      "file": "vendor/hayro/Cargo.toml.orig",
+      "source_sha256": "03b45155cd6973223de560b86f69940f962ceffdba937a24c9af63bb5db5cafa",
+      "incorporated_sha256": "03b45155cd6973223de560b86f69940f962ceffdba937a24c9af63bb5db5cafa"
+    },
+    {
+      "file": "vendor/hayro/LICENSE-APACHE",
+      "source_sha256": "0cec06e0e55fbc3dc5cee4fca9b607f66cb8f4e4dbcf3b3c013594dd156732e9",
+      "incorporated_sha256": "0cec06e0e55fbc3dc5cee4fca9b607f66cb8f4e4dbcf3b3c013594dd156732e9"
+    },
+    {
+      "file": "vendor/hayro/LICENSE-MIT",
+      "source_sha256": "51b50e6120c344dcc146bbd6375ca1c78e079d97c8bea76e67a53d6ff0efebac",
+      "incorporated_sha256": "51b50e6120c344dcc146bbd6375ca1c78e079d97c8bea76e67a53d6ff0efebac"
+    },
+    {
+      "file": "vendor/hayro/README.md",
+      "source_sha256": "3c9a96f92225ed01e5135ccddfeeb9084eb45678932105f03e8145c8487c12d4",
+      "incorporated_sha256": "3c9a96f92225ed01e5135ccddfeeb9084eb45678932105f03e8145c8487c12d4"
+    },
+    {
+      "file": "vendor/hayro/examples/render.rs",
+      "source_sha256": "0b512c65652e56267bb1928548ab49f8ae997107a55fb4db50debe5f94ace910",
+      "incorporated_sha256": "0b512c65652e56267bb1928548ab49f8ae997107a55fb4db50debe5f94ace910"
+    },
+    {
+      "file": "vendor/hayro/src/lib.rs",
+      "source_sha256": "9392610a4aeecba014d8b3425fb1c00c22cdbfd18308608ddc4efcd02b058874",
+      "incorporated_sha256": "9392610a4aeecba014d8b3425fb1c00c22cdbfd18308608ddc4efcd02b058874"
+    },
+    {
+      "file": "vendor/hayro/src/renderer.rs",
+      "source_sha256": "9874ad420b541c67ae15df05c0fa141528993bf39c9c3eff705f6dc1674f27c8",
+      "incorporated_sha256": "9874ad420b541c67ae15df05c0fa141528993bf39c9c3eff705f6dc1674f27c8"
+    },
+    {
+      "file": "vendor/lopdf/.editorconfig",
+      "source_sha256": "6c3dcf02c40a8ef91f1678124ca0687cbcf555424fb225515e79b86b6d7f5e0e",
+      "incorporated_sha256": "6c3dcf02c40a8ef91f1678124ca0687cbcf555424fb225515e79b86b6d7f5e0e"
+    },
+    {
+      "file": "vendor/lopdf/.gitattributes",
+      "source_sha256": "44835b8a9c5f53076e7311b08f6629ba1f9ced0deda5b8006d1fe369c3bacc89",
+      "incorporated_sha256": "44835b8a9c5f53076e7311b08f6629ba1f9ced0deda5b8006d1fe369c3bacc89"
+    },
+    {
+      "file": "vendor/lopdf/.gitignore",
+      "source_sha256": "55be28a9a835cc05869490ce451515f9bd361eff47c72837a9ba9164c841113a",
+      "incorporated_sha256": "55be28a9a835cc05869490ce451515f9bd361eff47c72837a9ba9164c841113a"
+    },
+    {
+      "file": "vendor/lopdf/CHANGELOG.md",
+      "source_sha256": "63359d6fd00b6cefc22bacc192fb0c1dba6e9d546f9398bd46d8c139bb275e39",
+      "incorporated_sha256": "63359d6fd00b6cefc22bacc192fb0c1dba6e9d546f9398bd46d8c139bb275e39"
+    },
+    {
+      "file": "vendor/lopdf/Cargo.toml",
+      "source_sha256": "271a88255c99418241b9beae196ebb857eda8a9e5fb03c6ae954d2b6d2290aff",
+      "incorporated_sha256": "271a88255c99418241b9beae196ebb857eda8a9e5fb03c6ae954d2b6d2290aff"
+    },
+    {
+      "file": "vendor/lopdf/Cargo.toml.orig",
+      "source_sha256": "326dd4f426a1951a505aff239fc5db29e267e242408cebf9918ffb8c5ffbbe63",
+      "incorporated_sha256": "326dd4f426a1951a505aff239fc5db29e267e242408cebf9918ffb8c5ffbbe63"
+    },
+    {
+      "file": "vendor/lopdf/LICENSE",
+      "source_sha256": "2fb01e6708ea9d53e8b7e74bd82af23bce5256f19f4de93915027a53173c50d8",
+      "incorporated_sha256": "2fb01e6708ea9d53e8b7e74bd82af23bce5256f19f4de93915027a53173c50d8"
+    },
+    {
+      "file": "vendor/lopdf/README.md",
+      "source_sha256": "7532cef2998afbcaaf1dd0351ebccd9a028d2b6873cf76260847168a75d7e4aa",
+      "incorporated_sha256": "7532cef2998afbcaaf1dd0351ebccd9a028d2b6873cf76260847168a75d7e4aa"
+    },
+    {
+      "file": "vendor/lopdf/examples/add_barcode.rs",
+      "source_sha256": "dbbd19d753ddb3585c3dcfa3c229390f4bc4e186bd0e85e017e0f4b1993d3dfe",
+      "incorporated_sha256": "dbbd19d753ddb3585c3dcfa3c229390f4bc4e186bd0e85e017e0f4b1993d3dfe"
+    },
+    {
+      "file": "vendor/lopdf/examples/analyze_object_streams.rs",
+      "source_sha256": "29b4ab135ca3e3b0544741e31ed13e60cf866672672024286fb7f3b95180b5e4",
+      "incorporated_sha256": "29b4ab135ca3e3b0544741e31ed13e60cf866672672024286fb7f3b95180b5e4"
+    },
+    {
+      "file": "vendor/lopdf/examples/analyze_page_contents.rs",
+      "source_sha256": "b7926ffeea47469976aa4fb26e867cd137c42564925a3fe12a03d1583161b59a",
+      "incorporated_sha256": "b7926ffeea47469976aa4fb26e867cd137c42564925a3fe12a03d1583161b59a"
+    },
+    {
+      "file": "vendor/lopdf/examples/analyze_pdf.rs",
+      "source_sha256": "bc79d9e21e6b086001886e718f03f7df32fc3f43bc741389cd9f5411d53e2b7a",
+      "incorporated_sha256": "bc79d9e21e6b086001886e718f03f7df32fc3f43bc741389cd9f5411d53e2b7a"
+    },
+    {
+      "file": "vendor/lopdf/examples/analyze_references.rs",
+      "source_sha256": "e59551adfd15329ece931ef3735de41a0b6b502490219b6ecb884b400f1fd27f",
+      "incorporated_sha256": "e59551adfd15329ece931ef3735de41a0b6b502490219b6ecb884b400f1fd27f"
+    },
+    {
+      "file": "vendor/lopdf/examples/check_raw_objstream.rs",
+      "source_sha256": "ab2714ba4e3e90d6227287fb7d5c179a0403e6cdadc58ce69917bedfd100de14",
+      "incorporated_sha256": "ab2714ba4e3e90d6227287fb7d5c179a0403e6cdadc58ce69917bedfd100de14"
+    },
+    {
+      "file": "vendor/lopdf/examples/compress_existing_pdf.rs",
+      "source_sha256": "ca11744bd85e2c40a41329dba39e81b175ae793d69e626262c23e6d9c91e3c4f",
+      "incorporated_sha256": "ca11744bd85e2c40a41329dba39e81b175ae793d69e626262c23e6d9c91e3c4f"
+    },
+    {
+      "file": "vendor/lopdf/examples/create.rs",
+      "source_sha256": "3cb69464d1aceacba8962eea5485584757a2e534466c1cfc997c52aa9f014b9d",
+      "incorporated_sha256": "3cb69464d1aceacba8962eea5485584757a2e534466c1cfc997c52aa9f014b9d"
+    },
+    {
+      "file": "vendor/lopdf/examples/create_text_heavy_pdf.rs",
+      "source_sha256": "f6a4584cf7c1c713d639852d944025e10104bb9ac3d8292e316370a574c2a2b5",
+      "incorporated_sha256": "f6a4584cf7c1c713d639852d944025e10104bb9ac3d8292e316370a574c2a2b5"
+    },
+    {
+      "file": "vendor/lopdf/examples/debug_compression_detailed.rs",
+      "source_sha256": "89540ee5a4bdf9fdcb067221a1db072ee6511f3b993413a9ab2b2e5a2e8ef8a1",
+      "incorporated_sha256": "89540ee5a4bdf9fdcb067221a1db072ee6511f3b993413a9ab2b2e5a2e8ef8a1"
+    },
+    {
+      "file": "vendor/lopdf/examples/debug_compression_full.rs",
+      "source_sha256": "24ca138587e30276bf8c1a6914c713decbfb121a4787d639d0bab45935873e13",
+      "incorporated_sha256": "24ca138587e30276bf8c1a6914c713decbfb121a4787d639d0bab45935873e13"
+    },
+    {
+      "file": "vendor/lopdf/examples/debug_object_stream.rs",
+      "source_sha256": "deaa0222abbb26376a051e6c8a7364f34136768a6907f96e0fcbc72381765438",
+      "incorporated_sha256": "deaa0222abbb26376a051e6c8a7364f34136768a6907f96e0fcbc72381765438"
+    },
+    {
+      "file": "vendor/lopdf/examples/debug_save_with_objstreams.rs",
+      "source_sha256": "29fbf437fd2eb6ba73152e793acf6f8873c5c8f1b7684f075f20169c7d4ad754",
+      "incorporated_sha256": "29fbf437fd2eb6ba73152e793acf6f8873c5c8f1b7684f075f20169c7d4ad754"
+    },
+    {
+      "file": "vendor/lopdf/examples/decompression_bomb.rs",
+      "source_sha256": "8d35111090c3dd1bd05dbf77d432a0ab482df7232cabf74515b99f2e5168b084",
+      "incorporated_sha256": "8d35111090c3dd1bd05dbf77d432a0ab482df7232cabf74515b99f2e5168b084"
+    },
+    {
+      "file": "vendor/lopdf/examples/decrypt.rs",
+      "source_sha256": "bc83b2089bc855938df0906486e2e0c53067623b81a63df1f1f78ac22583374d",
+      "incorporated_sha256": "bc83b2089bc855938df0906486e2e0c53067623b81a63df1f1f78ac22583374d"
+    },
+    {
+      "file": "vendor/lopdf/examples/delete_outlines.rs",
+      "source_sha256": "4cd096a2d8270b080c25601982ab3fb2befdd8c99c14faf885d8730d8980efc4",
+      "incorporated_sha256": "4cd096a2d8270b080c25601982ab3fb2befdd8c99c14faf885d8730d8980efc4"
+    },
+    {
+      "file": "vendor/lopdf/examples/encrypt.rs",
+      "source_sha256": "2779640070af697a048ea37c9978db72116b28116abbee5b0d2bd27587e85726",
+      "incorporated_sha256": "2779640070af697a048ea37c9978db72116b28116abbee5b0d2bd27587e85726"
+    },
+    {
+      "file": "vendor/lopdf/examples/extract_text.rs",
+      "source_sha256": "ffcdda9322fe7970c4094b4231ba9df9c0733f635283ba2dcae1daa23cec5696",
+      "incorporated_sha256": "ffcdda9322fe7970c4094b4231ba9df9c0733f635283ba2dcae1daa23cec5696"
+    },
+    {
+      "file": "vendor/lopdf/examples/extract_toc.rs",
+      "source_sha256": "b45c7e7dd737c1ab78027530546e43d7fb34ea58101db7cb6a3e68ac0b975605",
+      "incorporated_sha256": "b45c7e7dd737c1ab78027530546e43d7fb34ea58101db7cb6a3e68ac0b975605"
+    },
+    {
+      "file": "vendor/lopdf/examples/final_compression_test.rs",
+      "source_sha256": "e1a8b70443287b189cc2be98850915c3a11c9c79bae76589ae78d8ea1894dd13",
+      "incorporated_sha256": "e1a8b70443287b189cc2be98850915c3a11c9c79bae76589ae78d8ea1894dd13"
+    },
+    {
+      "file": "vendor/lopdf/examples/inspect_object_stream.rs",
+      "source_sha256": "d52e489a311c2bfc370fd318680057522f91665c9f177da6bfcfd175b3f886c8",
+      "incorporated_sha256": "d52e489a311c2bfc370fd318680057522f91665c9f177da6bfcfd175b3f886c8"
+    },
+    {
+      "file": "vendor/lopdf/examples/merge.rs",
+      "source_sha256": "a2cd09a2471acf1a06aaa0aa248eafa66cc6457609ad9f8265528740430eff0c",
+      "incorporated_sha256": "a2cd09a2471acf1a06aaa0aa248eafa66cc6457609ad9f8265528740430eff0c"
+    },
+    {
+      "file": "vendor/lopdf/examples/object_streams.rs",
+      "source_sha256": "2227653ef6983ca73c9a5173deccb0c0661f19bf184db4e78fa96375d24820eb",
+      "incorporated_sha256": "2227653ef6983ca73c9a5173deccb0c0661f19bf184db4e78fa96375d24820eb"
+    },
+    {
+      "file": "vendor/lopdf/examples/print_annotations.rs",
+      "source_sha256": "93ca000e472e3eeb09027806f8a9e5271848b79252db66918994df59ff4c7bde",
+      "incorporated_sha256": "93ca000e472e3eeb09027806f8a9e5271848b79252db66918994df59ff4c7bde"
+    },
+    {
+      "file": "vendor/lopdf/examples/replace_partial_text.rs",
+      "source_sha256": "7aeb9ff6840a913016bf17cd68cd77224e95d51cf53568e9cb3bd6d5a047f0e4",
+      "incorporated_sha256": "7aeb9ff6840a913016bf17cd68cd77224e95d51cf53568e9cb3bd6d5a047f0e4"
+    },
+    {
+      "file": "vendor/lopdf/examples/rotate.rs",
+      "source_sha256": "b97efd3ea355faedc82b4fdcfd9e364c5dd79d51c607b00a6ad679357791a79f",
+      "incorporated_sha256": "b97efd3ea355faedc82b4fdcfd9e364c5dd79d51c607b00a6ad679357791a79f"
+    },
+    {
+      "file": "vendor/lopdf/examples/test_better_compression.rs",
+      "source_sha256": "0b627f5a82537fab14f6386efecae41b4525ed59bbae6c5c6266af0c58a5d4a5",
+      "incorporated_sha256": "0b627f5a82537fab14f6386efecae41b4525ed59bbae6c5c6266af0c58a5d4a5"
+    },
+    {
+      "file": "vendor/lopdf/examples/test_decryption.rs",
+      "source_sha256": "e71dbaf96837db123d2326779508a72236ce6d9eeef6a74c565dc65993b0871c",
+      "incorporated_sha256": "e71dbaf96837db123d2326779508a72236ce6d9eeef6a74c565dc65993b0871c"
+    },
+    {
+      "file": "vendor/lopdf/examples/test_direct_objstream.rs",
+      "source_sha256": "8802791c12caca394be0fd4edacc4cec16cdb8e77cb84bbce084d155f60d6d93",
+      "incorporated_sha256": "8802791c12caca394be0fd4edacc4cec16cdb8e77cb84bbce084d155f60d6d93"
+    },
+    {
+      "file": "vendor/lopdf/examples/test_filter_roundtrip.rs",
+      "source_sha256": "a26118999ddb3cc13322fc4e55626d305846256037184c81734ed14c29673ab8",
+      "incorporated_sha256": "a26118999ddb3cc13322fc4e55626d305846256037184c81734ed14c29673ab8"
+    },
+    {
+      "file": "vendor/lopdf/examples/test_metadata.rs",
+      "source_sha256": "4229d95e7119ad3575b7afcdfd98b51e6a2e9c960682782d33d967d673bc61c6",
+      "incorporated_sha256": "4229d95e7119ad3575b7afcdfd98b51e6a2e9c960682782d33d967d673bc61c6"
+    },
+    {
+      "file": "vendor/lopdf/examples/test_object_stream_creation.rs",
+      "source_sha256": "63377325e512dc2ff77728351c50ea82ffe679341ea555ff7258a6c77697a213",
+      "incorporated_sha256": "63377325e512dc2ff77728351c50ea82ffe679341ea555ff7258a6c77697a213"
+    },
+    {
+      "file": "vendor/lopdf/examples/test_object_stream_roundtrip.rs",
+      "source_sha256": "f4961a3961bcee5f15ea8d4e94fa66ce558e030efff173531a1e2f17757050ae",
+      "incorporated_sha256": "f4961a3961bcee5f15ea8d4e94fa66ce558e030efff173531a1e2f17757050ae"
+    },
+    {
+      "file": "vendor/lopdf/examples/test_real_pdf_compression_with_fix.rs",
+      "source_sha256": "fb95bd4305ecad48069f58e94a661563b189a316d8a7ee18a7dd12a56d4f3e59",
+      "incorporated_sha256": "fb95bd4305ecad48069f58e94a661563b189a316d8a7ee18a7dd12a56d4f3e59"
+    },
+    {
+      "file": "vendor/lopdf/examples/test_structural_compression.rs",
+      "source_sha256": "f19714257ed6e5605b2949a5d85ecff827f5211c4f6bc56388843f1b4e628e47",
+      "incorporated_sha256": "f19714257ed6e5605b2949a5d85ecff827f5211c4f6bc56388843f1b4e628e47"
+    },
+    {
+      "file": "vendor/lopdf/examples/verify_decryption.rs",
+      "source_sha256": "5c6b9da638a69942a65cbd4d391e3a31ec970856ac6a05adc4d384aae09f9688",
+      "incorporated_sha256": "5c6b9da638a69942a65cbd4d391e3a31ec970856ac6a05adc4d384aae09f9688"
+    },
+    {
+      "file": "vendor/lopdf/examples/verify_page_compression.rs",
+      "source_sha256": "a0fc0ebd9710fcdd175d3aff1f94f439afae7cd24529fbc0af1845f3a0a39705",
+      "incorporated_sha256": "a0fc0ebd9710fcdd175d3aff1f94f439afae7cd24529fbc0af1845f3a0a39705"
+    },
+    {
+      "file": "vendor/lopdf/examples/verify_pdf.rs",
+      "source_sha256": "f9d156b7b35b65a054dd5087a1a015a55ed23cfba379b9317bdf1a45fd070fe2",
+      "incorporated_sha256": "f9d156b7b35b65a054dd5087a1a015a55ed23cfba379b9317bdf1a45fd070fe2"
+    },
+    {
+      "file": "vendor/lopdf/examples/verify_trailer_compression_fix.rs",
+      "source_sha256": "9ef8445d5748274c9656fdde5df149428c68bc839ef21f176b3037936dbbdcfd",
+      "incorporated_sha256": "9ef8445d5748274c9656fdde5df149428c68bc839ef21f176b3037936dbbdcfd"
+    },
+    {
+      "file": "vendor/lopdf/rustfmt.toml",
+      "source_sha256": "f79a930ec559297dd8ad4bae5fa5414f0a5366e30a098bfa17507ac90056645c",
+      "incorporated_sha256": "f79a930ec559297dd8ad4bae5fa5414f0a5366e30a098bfa17507ac90056645c"
+    },
+    {
+      "file": "vendor/lopdf/src/bookmarks.rs",
+      "source_sha256": "492d77a65f1d7844b99a2a41ce223a722ba1b252df89f15074788b5d225e133a",
+      "incorporated_sha256": "492d77a65f1d7844b99a2a41ce223a722ba1b252df89f15074788b5d225e133a"
+    },
+    {
+      "file": "vendor/lopdf/src/cmap_section.rs",
+      "source_sha256": "7fdb371b11309f5818353bd5697b73037166b40b81f1d23942e73d27763ca5cf",
+      "incorporated_sha256": "7fdb371b11309f5818353bd5697b73037166b40b81f1d23942e73d27763ca5cf"
+    },
+    {
+      "file": "vendor/lopdf/src/common_data_structures/mod.rs",
+      "source_sha256": "83db74da563246d1ed2258828fa463b2fde740be75b8f4aeb4ede8bc28ff43c2",
+      "incorporated_sha256": "83db74da563246d1ed2258828fa463b2fde740be75b8f4aeb4ede8bc28ff43c2"
+    },
+    {
+      "file": "vendor/lopdf/src/content.rs",
+      "source_sha256": "0d3c85c101396e87da191de3691b908d7335f179c990a5b8b768f2fb6a28fd78",
+      "incorporated_sha256": "0d3c85c101396e87da191de3691b908d7335f179c990a5b8b768f2fb6a28fd78"
+    },
+    {
+      "file": "vendor/lopdf/src/creator.rs",
+      "source_sha256": "1c218cf58b9690685cb761a146301cd9977d0774647e5dcad0d2b488a9150df5",
+      "incorporated_sha256": "1c218cf58b9690685cb761a146301cd9977d0774647e5dcad0d2b488a9150df5"
+    },
+    {
+      "file": "vendor/lopdf/src/datetime.rs",
+      "source_sha256": "96edb2605a344707eae776dd65142d92dd09aee878cda16e12c5223fc197bd7e",
+      "incorporated_sha256": "96edb2605a344707eae776dd65142d92dd09aee878cda16e12c5223fc197bd7e"
+    },
+    {
+      "file": "vendor/lopdf/src/destinations.rs",
+      "source_sha256": "6dd1426497cf4270b1f371c1d136ab287bbd8216875ed4ac081591ecb2944821",
+      "incorporated_sha256": "6dd1426497cf4270b1f371c1d136ab287bbd8216875ed4ac081591ecb2944821"
+    },
+    {
+      "file": "vendor/lopdf/src/document.rs",
+      "source_sha256": "734216343aba19ff45c137e2930a1aee4e8b3ae023cfe488dd966996674c5a10",
+      "incorporated_sha256": "734216343aba19ff45c137e2930a1aee4e8b3ae023cfe488dd966996674c5a10"
+    },
+    {
+      "file": "vendor/lopdf/src/encodings/cmap.rs",
+      "source_sha256": "434b56c6b19ae698225d9d0281e0dddd530242e123a52133b9981fdddcfa2229",
+      "incorporated_sha256": "434b56c6b19ae698225d9d0281e0dddd530242e123a52133b9981fdddcfa2229"
+    },
+    {
+      "file": "vendor/lopdf/src/encodings/differences.rs",
+      "source_sha256": "84839b01402769e1ce9a8b1ce7fc3bc3051ffdb4ee016eccc18cde9bf47b68be",
+      "incorporated_sha256": "84839b01402769e1ce9a8b1ce7fc3bc3051ffdb4ee016eccc18cde9bf47b68be"
+    },
+    {
+      "file": "vendor/lopdf/src/encodings/glyphnames.rs",
+      "source_sha256": "96b882b9b0bb1ab8afd1209846e9ce540272ecb8f648e4b58cfb14d6ef57525e",
+      "incorporated_sha256": "96b882b9b0bb1ab8afd1209846e9ce540272ecb8f648e4b58cfb14d6ef57525e"
+    },
+    {
+      "file": "vendor/lopdf/src/encodings/mappings.rs",
+      "source_sha256": "6dfd019c536641196cc746ef34ab8badde1dbeff26be69320236cad2539bbca4",
+      "incorporated_sha256": "6dfd019c536641196cc746ef34ab8badde1dbeff26be69320236cad2539bbca4"
+    },
+    {
+      "file": "vendor/lopdf/src/encodings/mod.rs",
+      "source_sha256": "dbc88a278b271ea2add3198152c516a76a967eca113d85783877a1fc00d77d38",
+      "incorporated_sha256": "dbc88a278b271ea2add3198152c516a76a967eca113d85783877a1fc00d77d38"
+    },
+    {
+      "file": "vendor/lopdf/src/encryption.rs",
+      "source_sha256": "85bbba13ad16aab5ed7a7170c6556b81fd56d0ff2b7b7e24f8a82af0b84860c5",
+      "incorporated_sha256": "85bbba13ad16aab5ed7a7170c6556b81fd56d0ff2b7b7e24f8a82af0b84860c5"
+    },
+    {
+      "file": "vendor/lopdf/src/encryption/algorithms.rs",
+      "source_sha256": "183ba3a2e0a83b7e484251a37588def9c37a481029f7519cca6b4ade69d52167",
+      "incorporated_sha256": "183ba3a2e0a83b7e484251a37588def9c37a481029f7519cca6b4ade69d52167"
+    },
+    {
+      "file": "vendor/lopdf/src/encryption/crypt_filters.rs",
+      "source_sha256": "8bcb100a3f58dfdc824b6179a9503a0dd4007c24d9ec01b130e085bc1a74731f",
+      "incorporated_sha256": "8bcb100a3f58dfdc824b6179a9503a0dd4007c24d9ec01b130e085bc1a74731f"
+    },
+    {
+      "file": "vendor/lopdf/src/encryption/pkcs5.rs",
+      "source_sha256": "d272b7e1c2ba14a939b28fc67177bc34e42342f537f21c83270a38462c60dc8a",
+      "incorporated_sha256": "d272b7e1c2ba14a939b28fc67177bc34e42342f537f21c83270a38462c60dc8a"
+    },
+    {
+      "file": "vendor/lopdf/src/encryption/rc4.rs",
+      "source_sha256": "72470d82ab6cd8e94941d8919669123c2ec12989e7443024b45e1b7cb8c541f0",
+      "incorporated_sha256": "72470d82ab6cd8e94941d8919669123c2ec12989e7443024b45e1b7cb8c541f0"
+    },
+    {
+      "file": "vendor/lopdf/src/error.rs",
+      "source_sha256": "4dc55ebac7b73a002f462156cb15d00522f656419310a4d28e0a7a0f1b9f903d",
+      "incorporated_sha256": "4dc55ebac7b73a002f462156cb15d00522f656419310a4d28e0a7a0f1b9f903d"
+    },
+    {
+      "file": "vendor/lopdf/src/filters/mod.rs",
+      "source_sha256": "e10a3126a4ef0a018b21ae8cdce9cdd10dcd7bed25274f8680ce9242dec6d181",
+      "incorporated_sha256": "e10a3126a4ef0a018b21ae8cdce9cdd10dcd7bed25274f8680ce9242dec6d181"
+    },
+    {
+      "file": "vendor/lopdf/src/filters/png.rs",
+      "source_sha256": "b641d64a3e79306e3d0ffed94b1290cf6c3e44ee866a93e67fc342e63f69290e",
+      "incorporated_sha256": "b641d64a3e79306e3d0ffed94b1290cf6c3e44ee866a93e67fc342e63f69290e"
+    },
+    {
+      "file": "vendor/lopdf/src/font.rs",
+      "source_sha256": "a83e5c8e42fc3f8f558d3477b578cc18e4a7545bd68692060b04412c4122500b",
+      "incorporated_sha256": "a83e5c8e42fc3f8f558d3477b578cc18e4a7545bd68692060b04412c4122500b"
+    },
+    {
+      "file": "vendor/lopdf/src/incremental_document.rs",
+      "source_sha256": "99addd95e94ae275fd2136035b6b657bba8ad4c812a34499c530ec8bec5fd9eb",
+      "incorporated_sha256": "99addd95e94ae275fd2136035b6b657bba8ad4c812a34499c530ec8bec5fd9eb"
+    },
+    {
+      "file": "vendor/lopdf/src/lib.rs",
+      "source_sha256": "496c0f671a3e8062e80217fa32e7aaf4bb6d6ff546284fc94ad54da23f9ff45d",
+      "incorporated_sha256": "496c0f671a3e8062e80217fa32e7aaf4bb6d6ff546284fc94ad54da23f9ff45d"
+    },
+    {
+      "file": "vendor/lopdf/src/load_options.rs",
+      "source_sha256": "3c1d77defc936afb2378612059ae9c84432da0873f214ba3d95eaa132d569a07",
+      "incorporated_sha256": "3c1d77defc936afb2378612059ae9c84432da0873f214ba3d95eaa132d569a07"
+    },
+    {
+      "file": "vendor/lopdf/src/object.rs",
+      "source_sha256": "62ac3cec9af8b3a762169eb53e83d29e75e100c9971b15fd5dc06bf7ab81a964",
+      "incorporated_sha256": "62ac3cec9af8b3a762169eb53e83d29e75e100c9971b15fd5dc06bf7ab81a964"
+    },
+    {
+      "file": "vendor/lopdf/src/object_stream.rs",
+      "source_sha256": "2f680fa64af0075c7dbf40f894a40306e3ab8da19ba397bbef21c7ef118627ab",
+      "incorporated_sha256": "2f680fa64af0075c7dbf40f894a40306e3ab8da19ba397bbef21c7ef118627ab"
+    },
+    {
+      "file": "vendor/lopdf/src/outlines.rs",
+      "source_sha256": "7a4e44e89772b0a4192ded65424952255ac10ce585425160a8ef1b13086a1310",
+      "incorporated_sha256": "7a4e44e89772b0a4192ded65424952255ac10ce585425160a8ef1b13086a1310"
+    },
+    {
+      "file": "vendor/lopdf/src/parser/cmap_parser.rs",
+      "source_sha256": "4afa0eac6154b7f7fa2e6fc5572d02f802be540f3c0a3b23658143930e6c8a20",
+      "incorporated_sha256": "4afa0eac6154b7f7fa2e6fc5572d02f802be540f3c0a3b23658143930e6c8a20"
+    },
+    {
+      "file": "vendor/lopdf/src/parser/mod.rs",
+      "source_sha256": "9e289dabee9e9445d23b5b70ad4ccbf9bd861d4e846aebb2861b8d2af3821a1b",
+      "incorporated_sha256": "9e289dabee9e9445d23b5b70ad4ccbf9bd861d4e846aebb2861b8d2af3821a1b"
+    },
+    {
+      "file": "vendor/lopdf/src/parser_aux.rs",
+      "source_sha256": "a2f56978abd8f6cf52816768577a5dd7326da30b5e58a26f56da1716e8ea8d01",
+      "incorporated_sha256": "a2f56978abd8f6cf52816768577a5dd7326da30b5e58a26f56da1716e8ea8d01"
+    },
+    {
+      "file": "vendor/lopdf/src/processor.rs",
+      "source_sha256": "306465f380b0b232606ae9287c81df4cb9cd131e38331e606f7a89893cc0e148",
+      "incorporated_sha256": "306465f380b0b232606ae9287c81df4cb9cd131e38331e606f7a89893cc0e148"
+    },
+    {
+      "file": "vendor/lopdf/src/reader.rs",
+      "source_sha256": "a8cc0990a27d17c80f769009e731256f178c12b835139be8cfd2d1438379069d",
+      "incorporated_sha256": "a8cc0990a27d17c80f769009e731256f178c12b835139be8cfd2d1438379069d"
+    },
+    {
+      "file": "vendor/lopdf/src/save_options.rs",
+      "source_sha256": "97a67124a146ede643540e4e6a039b07f3521c571bf72204a991d347092ba4aa",
+      "incorporated_sha256": "97a67124a146ede643540e4e6a039b07f3521c571bf72204a991d347092ba4aa"
+    },
+    {
+      "file": "vendor/lopdf/src/toc.rs",
+      "source_sha256": "8975eb5907c0e35480a6906dd516346bdc1d73b224b3c8f05df6a072cc363629",
+      "incorporated_sha256": "8975eb5907c0e35480a6906dd516346bdc1d73b224b3c8f05df6a072cc363629"
+    },
+    {
+      "file": "vendor/lopdf/src/writer.rs",
+      "source_sha256": "6df2d6ba3ca3cc3b55c7aaa2e0c72596fcbb63a4a0902e95c9d5a49001688263",
+      "incorporated_sha256": "6df2d6ba3ca3cc3b55c7aaa2e0c72596fcbb63a4a0902e95c9d5a49001688263"
+    },
+    {
+      "file": "vendor/lopdf/src/xobject.rs",
+      "source_sha256": "cb77c22436f9bba51b9f49af1c10b7244816f55355c303d083cc59c71ce94d47",
+      "incorporated_sha256": "cb77c22436f9bba51b9f49af1c10b7244816f55355c303d083cc59c71ce94d47"
+    },
+    {
+      "file": "vendor/lopdf/src/xref.rs",
+      "source_sha256": "53286dd4aede03c1258207c72866296a13bece7cef2b6007c9a5ddedc9defdc8",
+      "incorporated_sha256": "53286dd4aede03c1258207c72866296a13bece7cef2b6007c9a5ddedc9defdc8"
+    },
+    {
+      "file": "vendor/lopdf/tests/annotation.rs",
+      "source_sha256": "91e980a177c5f7052691087a6c6e7d149f18ac5fc78d101c88fce3b7b4bc8c82",
+      "incorporated_sha256": "91e980a177c5f7052691087a6c6e7d149f18ac5fc78d101c88fce3b7b4bc8c82"
+    },
+    {
+      "file": "vendor/lopdf/tests/brotli_decode.rs",
+      "source_sha256": "3f7306382b07b44458e4ce84f95fd0e20baee62663ff6c27a86af2ba219f5cda",
+      "incorporated_sha256": "3f7306382b07b44458e4ce84f95fd0e20baee62663ff6c27a86af2ba219f5cda"
+    },
+    {
+      "file": "vendor/lopdf/tests/catalog_compression_integration_test.rs",
+      "source_sha256": "d0d366960ff337f524dca24470bfee3d4b441c3b4ad0ea8e77df6ec95261bdf2",
+      "incorporated_sha256": "d0d366960ff337f524dca24470bfee3d4b441c3b4ad0ea8e77df6ec95261bdf2"
+    },
+    {
+      "file": "vendor/lopdf/tests/decompression_bomb.rs",
+      "source_sha256": "9dc52fcffc71f2f1cf5957eac71631aa794360532f6ee313ff96ecdde5d72c35",
+      "incorporated_sha256": "9dc52fcffc71f2f1cf5957eac71631aa794360532f6ee313ff96ecdde5d72c35"
+    },
+    {
+      "file": "vendor/lopdf/tests/decryption.rs",
+      "source_sha256": "753b4f2c4cd9ed13659bfc79c6e7bacf6c5b494df9ff18382b43bdcbbd4d8ef5",
+      "incorporated_sha256": "753b4f2c4cd9ed13659bfc79c6e7bacf6c5b494df9ff18382b43bdcbbd4d8ef5"
+    },
+    {
+      "file": "vendor/lopdf/tests/document_load_performance.rs",
+      "source_sha256": "2cc2ad26101495217c4beb7a97b9d463c1a36ab45b43ecf2ba6cd7af8e52d9f2",
+      "incorporated_sha256": "2cc2ad26101495217c4beb7a97b9d463c1a36ab45b43ecf2ba6cd7af8e52d9f2"
+    },
+    {
+      "file": "vendor/lopdf/tests/encrypted_object_stream_test.rs",
+      "source_sha256": "24ff2d85545b8020bc503c3a17023b387748b7b6645a7f685a014b213299ba4d",
+      "incorporated_sha256": "24ff2d85545b8020bc503c3a17023b387748b7b6645a7f685a014b213299ba4d"
+    },
+    {
+      "file": "vendor/lopdf/tests/extract_test.rs",
+      "source_sha256": "a805b50d57fa1c393c383bbda3c87c82427f9c21ac948ac13da2fbdb786e3d50",
+      "incorporated_sha256": "a805b50d57fa1c393c383bbda3c87c82427f9c21ac948ac13da2fbdb786e3d50"
+    },
+    {
+      "file": "vendor/lopdf/tests/font_test.rs",
+      "source_sha256": "2e3f734613f74ddaeb5fbd37fba7b34f55b73291f2644e59d08ef04724c30522",
+      "incorporated_sha256": "2e3f734613f74ddaeb5fbd37fba7b34f55b73291f2644e59d08ef04724c30522"
+    },
+    {
+      "file": "vendor/lopdf/tests/incremental_document.rs",
+      "source_sha256": "b207ca300e265ede6371c4468f8275a5b9aad0080ad5b09e651b7a2ca6f971f2",
+      "incorporated_sha256": "b207ca300e265ede6371c4468f8275a5b9aad0080ad5b09e651b7a2ca6f971f2"
+    },
+    {
+      "file": "vendor/lopdf/tests/linearized_objstm_test.rs",
+      "source_sha256": "d47544aec0b61cb6e30d6f6f05414400a048990c1c6a17507f08f0b198dbd23e",
+      "incorporated_sha256": "d47544aec0b61cb6e30d6f6f05414400a048990c1c6a17507f08f0b198dbd23e"
+    },
+    {
+      "file": "vendor/lopdf/tests/load_options_test.rs",
+      "source_sha256": "ea987b4c2fa41ced33829078b8ab3ba9bd2728803a7c2dea3657ced713487a60",
+      "incorporated_sha256": "ea987b4c2fa41ced33829078b8ab3ba9bd2728803a7c2dea3657ced713487a60"
+    },
+    {
+      "file": "vendor/lopdf/tests/metadata_test.rs",
+      "source_sha256": "98fe8e5ae5376b97ea1876297912d9d7f43011e16f5f25837a5b89a60e7876b1",
+      "incorporated_sha256": "98fe8e5ae5376b97ea1876297912d9d7f43011e16f5f25837a5b89a60e7876b1"
+    },
+    {
+      "file": "vendor/lopdf/tests/modify.rs",
+      "source_sha256": "3df4bff34f3590e6d9bf2aac131f38568b9ddbea84bd19d157dd1d1325366b3b",
+      "incorporated_sha256": "3df4bff34f3590e6d9bf2aac131f38568b9ddbea84bd19d157dd1d1325366b3b"
+    },
+    {
+      "file": "vendor/lopdf/tests/object_stream_comprehensive_test.rs",
+      "source_sha256": "bf928d88df457eadad3f1b4d8f6a738b88acb4f4d366623b34ae39bddc7b1106",
+      "incorporated_sha256": "bf928d88df457eadad3f1b4d8f6a738b88acb4f4d366623b34ae39bddc7b1106"
+    },
+    {
+      "file": "vendor/lopdf/tests/object_stream_edge_cases_test.rs",
+      "source_sha256": "e79bf5d30976a1c3690f8cbf63763f87361b718f5658bd24c7da504367f95a83",
+      "incorporated_sha256": "e79bf5d30976a1c3690f8cbf63763f87361b718f5658bd24c7da504367f95a83"
+    },
+    {
+      "file": "vendor/lopdf/tests/object_stream_methods_test.rs",
+      "source_sha256": "af5e010b7d47060bbe90c924a29021f5edb67984c78711fe956c74b882d77259",
+      "incorporated_sha256": "af5e010b7d47060bbe90c924a29021f5edb67984c78711fe956c74b882d77259"
+    },
+    {
+      "file": "vendor/lopdf/tests/object_stream_performance_test.rs",
+      "source_sha256": "4379ad993dceca2419153bfa9050851f9d7a1af18f3f9d0897682c10730b1905",
+      "incorporated_sha256": "4379ad993dceca2419153bfa9050851f9d7a1af18f3f9d0897682c10730b1905"
+    },
+    {
+      "file": "vendor/lopdf/tests/page_content.rs",
+      "source_sha256": "33b7615f0a070497385e6ee06963b5a1fb01aeb1de4723987194a3872c45181c",
+      "incorporated_sha256": "33b7615f0a070497385e6ee06963b5a1fb01aeb1de4723987194a3872c45181c"
+    },
+    {
+      "file": "vendor/lopdf/tests/save_options_xref_streams_test.rs",
+      "source_sha256": "edf6c89368f8e1d6f0e6d1df003c72e5e69d4465f8244bffa157c555622e061b",
+      "incorporated_sha256": "edf6c89368f8e1d6f0e6d1df003c72e5e69d4465f8244bffa157c555622e061b"
+    },
+    {
+      "file": "vendor/lopdf/tests/simple_object_stream_test.rs",
+      "source_sha256": "9c41feaeefc50ce7f575bec70a80ae5cca9d90839e6b5f35184f204bfed5a85d",
+      "incorporated_sha256": "9c41feaeefc50ce7f575bec70a80ae5cca9d90839e6b5f35184f204bfed5a85d"
+    },
+    {
+      "file": "vendor/lopdf/tests/stream_length_recovery.rs",
+      "source_sha256": "31b22b36047c9257e0c48ec95fdcc87afb74fe66f1fc56b343d75287ba18c163",
+      "incorporated_sha256": "31b22b36047c9257e0c48ec95fdcc87afb74fe66f1fc56b343d75287ba18c163"
+    },
+    {
+      "file": "vendor/lopdf/tests/trailer_reference_compression_test.rs",
+      "source_sha256": "25fd31a5a8fd5fb61001cb74dce47d624b5cec030cbc36feb746fb03e6e802b2",
+      "incorporated_sha256": "25fd31a5a8fd5fb61001cb74dce47d624b5cec030cbc36feb746fb03e6e802b2"
+    },
+    {
+      "file": "vendor/lopdf/tests/unicode.rs",
+      "source_sha256": "d7f833c73d05cbea05fa0b527004d5953156cc242a6157a6135d0ec4c38d78d5",
+      "incorporated_sha256": "d7f833c73d05cbea05fa0b527004d5953156cc242a6157a6135d0ec4c38d78d5"
+    },
+    {
+      "file": "vendor/lopdf/tests/utils.rs",
+      "source_sha256": "c3af32905cae0e2f83cdc9f9b47ddcf4b8bcc76bc6deb936ccb32af6711f9e6e",
+      "incorporated_sha256": "c3af32905cae0e2f83cdc9f9b47ddcf4b8bcc76bc6deb936ccb32af6711f9e6e"
+    },
+    {
+      "file": "vendor/lopdf/tests/xref_reconstruction.rs",
+      "source_sha256": "ec8b3f0a82f14a8a910c4b2469d94a685a7b4627a196fe0cccc6f678a8238690",
+      "incorporated_sha256": "ec8b3f0a82f14a8a910c4b2469d94a685a7b4627a196fe0cccc6f678a8238690"
+    },
+    {
+      "file": "vendor/lopdf/tests/xref_stream_bounds.rs",
+      "source_sha256": "6d3c8dc160a59e03334e0c8cb37ec6f9a702b28abc299849fad24365c33386cc",
+      "incorporated_sha256": "6d3c8dc160a59e03334e0c8cb37ec6f9a702b28abc299849fad24365c33386cc"
+    }
+  ],
+  "changes": [
+    "Own crate identities and PDF producer labels",
+    "Own JSON batch host",
+    "Only local workspace dependencies",
+    "Help links point to Kafka; original public operation aliases retained",
+    "Third-party patched library source and notices preserved"
+  ]
+}

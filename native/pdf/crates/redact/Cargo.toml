@@ -1,0 +1,21 @@
+[package]
+name = "kafka-pdf-redact"
+description = "Redaction (architecture §11.2): marks, apply (glyphs, images, vectors, XObjects, annotations, fields), verification"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+kafka-pdf-cos = { workspace = true }
+kafka-pdf-content = { workspace = true }
+kafka-pdf-fonts = { workspace = true }
+kafka-pdf-model = { workspace = true }
+kafka-pdf-forms = { workspace = true }
+kafka-pdf-edit = { workspace = true }
+kafka-pdf-annot = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]

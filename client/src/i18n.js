@@ -440,11 +440,11 @@ const D = {
   // workshop (Taller)
   nav_workshop: ["Taller", "Workshop"],
   workshop_intro: ["PDF e imágenes: unir, dividir, comprimir, proteger y convertir. Siempre se crea un fichero nuevo; los originales no se tocan.", "PDF and images: merge, split, compress, protect and convert. A new file is always created; the originals are never touched."],
-  pc_title: ["Editor local PrintCraft", "PrintCraft local editor"],
+  pc_title: ["Editor PDF de Kafka", "Kafka PDF editor"],
   pc_intro: ["Edita un PDF archivado en Kafka. Inspecciona el catálogo, revisa párrafos, inserta o gira páginas y descarga cada revisión; el original se conserva.", "Edit a PDF filed in Kafka. Inspect the catalog, review paragraphs, insert or rotate pages, and download each revision; the original is preserved."],
   pc_tools: ["herramientas", "tools"],
   pc_unavailable: ["CLI no configurado", "CLI not configured"],
-  pc_setup: ["Configura la ruta del CLI en Ajustes → Taller de PDF. También acepta KAFKA_PRINTCRAFT_CLI.", "Set the CLI path in Settings → PDF workshop. KAFKA_PRINTCRAFT_CLI is also supported."],
+  pc_setup: ["El motor PDF incorporado no está instalado. Comprueba la instalación de Kafka.", "The incorporated PDF engine is not installed. Check the Kafka installation."],
   pc_document: ["Id del documento", "Document id"],
   pc_document_hint: ["Usa el id d_… de un PDF archivado o pc_… de una revisión anterior.", "Use d_… for a filed PDF or pc_… for an earlier revision."],
   pc_page: ["Página del párrafo", "Paragraph page"],
@@ -452,7 +452,7 @@ const D = {
   pc_replacement: ["Texto nuevo del párrafo", "Replacement paragraph text"],
   pc_replacement_hint: ["Vacío: no se edita texto.", "Empty: leave text unchanged."],
   pc_insert_path: ["Ruta absoluta a un PDF para insertar", "Absolute path to a PDF to insert"],
-  pc_insert_path_hint: ["El ejecutable local debe poder leer esta ruta.", "The local executable must be able to read this path."],
+  pc_insert_path_hint: ["El archivo se copiará para crear la revisión; el original se conserva.", "The file is copied into the revision; the original is preserved."],
   pc_insert_at: ["Insertar antes de la página", "Insert before page"],
   pc_rotate_pages: ["Páginas a girar", "Pages to rotate"],
   pc_rotate_pages_hint: ["Números separados por comas; vacío: no girar.", "Comma-separated page numbers; empty: no rotation."],
@@ -622,8 +622,8 @@ const D = {
   set_workshop: ["Taller de PDF", "PDF workshop"],
   tl_workshop_dir: ["Carpeta del taller", "Workshop folder"],
   tl_workshop_dir_hint: ["Donde se guardan los resultados de los documentos archivados en Kafka. Vacío: Documentos\\Kafka's Hoard\\Taller.", "Where results of documents filed in Kafka are saved. Empty: Documents\\Kafka's Hoard\\Taller."],
-  printcraft_cli: ["PrintCraft CLI portable", "PrintCraft portable CLI"],
-  printcraft_cli_hint: ["Ruta absoluta al ejecutable local printcraft-cli.exe. También puedes usar KAFKA_PRINTCRAFT_CLI o colocar el bundle portable en native-craft-bundles.", "Absolute path to the local printcraft-cli.exe. You can also use KAFKA_PRINTCRAFT_CLI or place the portable bundle in native-craft-bundles."],
+  printcraft_cli: ["Ruta del motor anterior", "Previous engine path"],
+  printcraft_cli_hint: ["Se conserva como dato histórico. Kafka utiliza su motor PDF incorporado y no ejecuta esta ruta.", "Preserved as historical data. Kafka uses its incorporated PDF engine and does not execute this path."],
 };
 
 export function initialLang() {

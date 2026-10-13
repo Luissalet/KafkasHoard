@@ -34,7 +34,7 @@ const DEFAULTS = {
   limit: "5", unit: "MB", recursive: true, lossless: false, skip_small: false,
 };
 
-function PrintCraftEditor({ status, doc }) {
+function KafkaPdfEditor({ status, doc }) {
   const { t, notify } = useApp();
   const [busy, run] = useBusy();
   const [docRef, setDocRef] = useState(doc?.id || "");
@@ -55,15 +55,15 @@ function PrintCraftEditor({ status, doc }) {
 
   const showError = (e) => setError(e);
   const inspect = () => run("inspect", async () => {
-    try { setError(null); setParagraphs(await api.call("printcraft_text_paragraphs", { doc: docRef.trim(), page: Number(page) })); }
+    try { setError(null); setParagraphs(await api.call("pdf_text_paragraphs", { doc: docRef.trim(), page: Number(page) })); }
     catch (e) { showError(e); }
   });
   const inspectCatalog = () => run("catalog", async () => {
-    try { setError(null); setCatalog(await api.call("printcraft_catalog", {})); }
+    try { setError(null); setCatalog(await api.call("pdf_catalog", {})); }
     catch (e) { showError(e); }
   });
   const loadRevisions = () => run("revisions", async () => {
-    try { setError(null); setRevisions(await api.call("printcraft_artifacts", { doc: docRef.trim() })); }
+    try { setError(null); setRevisions(await api.call("pdf_artifacts", { doc: docRef.trim() })); }
     catch (e) { showError(e); }
   });
   const edit = () => run("edit", async () => {
@@ -78,7 +78,7 @@ function PrintCraftEditor({ status, doc }) {
         actions.push({ tool: "page_rotate", arguments: { pages, degrees: Number(degrees) } });
       }
       if (!docRef.trim() || !actions.length) throw new Error(t("pc_need_action"));
-      const next = await api.call("printcraft_workflow", { doc: docRef.trim(), actions });
+      const next = await api.call("pdf_workflow", { doc: docRef.trim(), actions });
       setResult(next);
       setParagraphs(null);
       setRevisions(null);
@@ -94,7 +94,6 @@ function PrintCraftEditor({ status, doc }) {
         <p className="help">{t("pc_intro")}</p>
         <div className="flex flex-wrap items-center gap-2">
           <Chip className={available ? "chip-ok" : "chip-amber"}>{available ? `${status.engine} · ${status.tool_count} ${t("pc_tools")}` : t("pc_unavailable")}</Chip>
-          {status?.path && <span className="help mono" style={{ overflowWrap: "anywhere" }}>{status.path}</span>}
         </div>
         {!available && <p className="help">{t("pc_setup")}</p>}
         <div className="grid gap-3 sm:grid-cols-2">
@@ -682,7 +681,7 @@ export default function Taller({ query }) {
           <p className="help">{t("workshop_intro")}</p>
         </header>
         {doc && <div className="banner banner-info">{t("tl_pre_doc", { name: doc.title })}</div>}
-        <PrintCraftEditor status={status.data?.printcraft} doc={doc} />
+        <KafkaPdfEditor status={status.data?.printcraft} doc={doc} />
         <Section id="sec-tools" title={t("tl_all_tools")}>
           <div className="tl-grid">
             {OPS.map((x) => (

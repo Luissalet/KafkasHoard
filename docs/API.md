@@ -975,10 +975,10 @@ Annotations: readOnlyHint, idempotentHint.
 
 ## `printcraft_doc_open`
 
-PrintCraft doc_open on a PDF. Operación PDF doc_open.
+Kafka PDF doc_open. Operación PDF doc_open.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -988,40 +988,40 @@ Undo: no.
 |---|---|---|
 | `password` (string) | no | User or owner password for encrypted files. |
 | `path` (string) | no | Absolute path to a PDF, or use doc for a filed Kafka document. |
-| `doc` (string) | no | Optional Kafka document id (d_…) or prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | no | Optional Kafka document id (d_…) or prior PDF artifact id (pc_…). |
 
 ## `printcraft_doc_list`
 
-PrintCraft doc_list on a PDF. Operación PDF doc_list.
+Kafka PDF doc_list. Operación PDF doc_list.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: readOnlyHint, idempotentHint.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | no | Optional Kafka document id (d_…) or prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | no | Optional Kafka document id (d_…) or prior PDF artifact id (pc_…). |
 
 ## `printcraft_doc_info`
 
-PrintCraft doc_info on a PDF. Operación PDF doc_info.
+Kafka PDF doc_info. Operación PDF doc_info.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: readOnlyHint, idempotentHint.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 
 ## `printcraft_doc_close`
 
-PrintCraft doc_close on a PDF. Operación PDF doc_close.
+Kafka PDF doc_close. Operación PDF doc_close.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1030,14 +1030,14 @@ Undo: no.
 | Argument | Required | Description |
 |---|---|---|
 | `discard_changes` (boolean) | no |  |
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 
 ## `printcraft_doc_save`
 
-PrintCraft doc_save on a PDF. Operación PDF doc_save.
+Kafka PDF doc_save. Operación PDF doc_save.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1045,16 +1045,16 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `full` (boolean) | no | Force a full rewrite (or, with false, an incremental update). |
 | `path` (string) | no | Save as this file. Omit to save in place. |
 
 ## `printcraft_doc_set_info`
 
-PrintCraft doc_set_info on a PDF. Operación PDF doc_set_info.
+Kafka PDF doc_set_info. Operación PDF doc_set_info.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1062,60 +1062,60 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `key` (string) | yes |  |
 | `value` (string) | yes |  |
 
 ## `printcraft_page_render`
 
-PrintCraft page_render on a PDF. Operación PDF page_render.
+Kafka PDF page_render. Operación PDF page_render.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: readOnlyHint, idempotentHint.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `dpi` (number) | no |  |
 | `page` (integer) | yes |  |
 
 ## `printcraft_text_extract`
 
-PrintCraft text_extract on a PDF. Operación PDF text_extract.
+Kafka PDF text_extract. Operación PDF text_extract.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: readOnlyHint, idempotentHint.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `pages` (array) | no | 1-based page numbers to extract (default: all). |
 
 ## `printcraft_text_find`
 
-PrintCraft text_find on a PDF. Operación PDF text_find.
+Kafka PDF text_find. Operación PDF text_find.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: readOnlyHint, idempotentHint.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `limit` (integer) | no | Maximum matches (default 500). |
 | `query` (string) | yes |  |
 
 ## `printcraft_page_rotate`
 
-PrintCraft page_rotate on a PDF. Operación PDF page_rotate.
+Kafka PDF page_rotate. Operación PDF page_rotate.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1124,17 +1124,17 @@ Undo: no.
 | Argument | Required | Description |
 |---|---|---|
 | `degrees` (integer) | yes |  |
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `orientation` (all \| landscape \| portrait) | no |  |
 | `pages` (array) | no | 1-based page numbers to rotate (default: all). |
 | `subset` (all \| even \| odd) | no |  |
 
 ## `printcraft_page_delete`
 
-PrintCraft page_delete on a PDF. Operación PDF page_delete.
+Kafka PDF page_delete. Operación PDF page_delete.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1142,15 +1142,15 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `pages` (array) | yes | 1-based page numbers to delete. |
 
 ## `printcraft_page_move`
 
-PrintCraft page_move on a PDF. Operación PDF page_move.
+Kafka PDF page_move. Operación PDF page_move.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1158,16 +1158,16 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `pages` (array) | yes | 1-based page numbers to move. |
 | `to` (integer) | yes |  |
 
 ## `printcraft_page_insert_blank`
 
-PrintCraft page_insert_blank on a PDF. Operación PDF page_insert_blank.
+Kafka PDF page_insert_blank. Operación PDF page_insert_blank.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1176,16 +1176,16 @@ Undo: no.
 | Argument | Required | Description |
 |---|---|---|
 | `at` (integer) | yes |  |
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `height` (number) | no | Points. |
 | `width` (number) | no | Points. |
 
 ## `printcraft_page_insert_file`
 
-PrintCraft page_insert_file on a PDF. Operación PDF page_insert_file.
+Kafka PDF page_insert_file. Operación PDF page_insert_file.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1194,16 +1194,16 @@ Undo: no.
 | Argument | Required | Description |
 |---|---|---|
 | `at` (integer) | yes |  |
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `pages` (array) | no | 1-based page numbers of the source file (default: all). |
 | `path` (string) | yes |  |
 
 ## `printcraft_page_extract`
 
-PrintCraft page_extract on a PDF. Operación PDF page_extract.
+Kafka PDF page_extract. Operación PDF page_extract.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1212,7 +1212,7 @@ Undo: no.
 | Argument | Required | Description |
 |---|---|---|
 | `delete` (boolean) | no |  |
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `open` (boolean) | no | Also open the result as a new document (default: only when out is omitted). |
 | `out` (string) | no | File to write. Omit to open the result as a new unsaved document instead. |
 | `out_dir` (string) | no |  |
@@ -1221,10 +1221,10 @@ Undo: no.
 
 ## `printcraft_doc_combine`
 
-PrintCraft doc_combine on a PDF. Operación PDF doc_combine.
+Kafka PDF doc_combine. Operación PDF doc_combine.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1236,14 +1236,14 @@ Undo: no.
 | `out` (string) | no | File to write. Omit to open the result as a new unsaved document instead. |
 | `pages` (array) | no |  |
 | `paths` (array) | yes |  |
-| `doc` (string) | no | Optional Kafka document id (d_…) or prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | no | Optional Kafka document id (d_…) or prior PDF artifact id (pc_…). |
 
 ## `printcraft_doc_split`
 
-PrintCraft doc_split on a PDF. Operación PDF doc_split.
+Kafka PDF doc_split. Operación PDF doc_split.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1253,30 +1253,30 @@ Undo: no.
 |---|---|---|
 | `before` (array) | no | 1-based page numbers that start a new part. |
 | `bookmarks` (boolean) | no |  |
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `every` (integer) | no |  |
 | `max_mb` (number) | no |  |
 | `out_dir` (string) | yes |  |
 
 ## `printcraft_bookmark_list`
 
-PrintCraft bookmark_list on a PDF. Operación PDF bookmark_list.
+Kafka PDF bookmark_list. Operación PDF bookmark_list.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: readOnlyHint, idempotentHint.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 
 ## `printcraft_bookmark_add`
 
-PrintCraft bookmark_add on a PDF. Operación PDF bookmark_add.
+Kafka PDF bookmark_add. Operación PDF bookmark_add.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1284,7 +1284,7 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `page` (integer) | yes |  |
 | `parent` (array) | no | Parent bookmark (omit for the top level): 1-based positions from the top level, e.g. [2, 1] = the first child of the second bookmark. |
 | `position` (integer) | no | 1-based position among the parent's children (default: last). |
@@ -1292,10 +1292,10 @@ Undo: no.
 
 ## `printcraft_bookmark_rename`
 
-PrintCraft bookmark_rename on a PDF. Operación PDF bookmark_rename.
+Kafka PDF bookmark_rename. Operación PDF bookmark_rename.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1303,16 +1303,16 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `path` (array) | yes | The bookmark: 1-based positions from the top level, e.g. [2, 1] = the first child of the second bookmark. |
 | `title` (string) | yes |  |
 
 ## `printcraft_bookmark_delete`
 
-PrintCraft bookmark_delete on a PDF. Operación PDF bookmark_delete.
+Kafka PDF bookmark_delete. Operación PDF bookmark_delete.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1320,15 +1320,15 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `path` (array) | yes | The bookmark: 1-based positions from the top level, e.g. [2, 1] = the first child of the second bookmark. |
 
 ## `printcraft_bookmark_move`
 
-PrintCraft bookmark_move on a PDF. Operación PDF bookmark_move.
+Kafka PDF bookmark_move. Operación PDF bookmark_move.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1336,17 +1336,17 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `parent` (array) | no | New parent (omit for the top level): 1-based positions from the top level, e.g. [2, 1] = the first child of the second bookmark. |
 | `path` (array) | yes | The bookmark to move: 1-based positions from the top level, e.g. [2, 1] = the first child of the second bookmark. |
 | `position` (integer) | no | 1-based position among the new parent's children, counted after the bookmark is removed (default: last). |
 
 ## `printcraft_bookmark_set_page`
 
-PrintCraft bookmark_set_page on a PDF. Operación PDF bookmark_set_page.
+Kafka PDF bookmark_set_page. Operación PDF bookmark_set_page.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1354,16 +1354,16 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `page` (integer) | yes |  |
 | `path` (array) | yes | The bookmark: 1-based positions from the top level, e.g. [2, 1] = the first child of the second bookmark. |
 
 ## `printcraft_page_number`
 
-PrintCraft page_number on a PDF. Operación PDF page_number.
+Kafka PDF page_number. Operación PDF page_number.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1371,7 +1371,7 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `from` (integer) | yes |  |
 | `prefix` (string) | no |  |
 | `start` (integer) | no | Number of the first page in the range (default 1). |
@@ -1380,23 +1380,23 @@ Undo: no.
 
 ## `printcraft_form_fields`
 
-PrintCraft form_fields on a PDF. Operación PDF form_fields.
+Kafka PDF form_fields. Operación PDF form_fields.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: readOnlyHint, idempotentHint.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 
 ## `printcraft_form_fill`
 
-PrintCraft form_fill on a PDF. Operación PDF form_fill.
+Kafka PDF form_fill. Operación PDF form_fill.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1404,15 +1404,15 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `values` (object) | yes | Field name → value. |
 
 ## `printcraft_form_reset`
 
-PrintCraft form_reset on a PDF. Operación PDF form_reset.
+Kafka PDF form_reset. Operación PDF form_reset.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1420,15 +1420,15 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `fields` (array) | no |  |
 
 ## `printcraft_form_add_field`
 
-PrintCraft form_add_field on a PDF. Operación PDF form_add_field.
+Kafka PDF form_add_field. Operación PDF form_add_field.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1437,7 +1437,7 @@ Undo: no.
 | Argument | Required | Description |
 |---|---|---|
 | `caption` (string) | no | Button label. |
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `editable` (boolean) | no | Combo box accepts typed text. |
 | `export` (string) | no | Radio button export value (default Choice1). |
 | `group` (string) | no | Radio group to join. |
@@ -1451,10 +1451,10 @@ Undo: no.
 
 ## `printcraft_stamp_custom`
 
-PrintCraft stamp_custom on a PDF. Operación PDF stamp_custom.
+Kafka PDF stamp_custom. Operación PDF stamp_custom.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1464,7 +1464,7 @@ Undo: no.
 |---|---|---|
 | `at` (array) | yes |  |
 | `author` (string) | no |  |
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `file_page` (integer) | no |  |
 | `name` (string) | no |  |
 | `page` (integer) | yes |  |
@@ -1472,10 +1472,10 @@ Undo: no.
 
 ## `printcraft_form_set_image`
 
-PrintCraft form_set_image on a PDF. Operación PDF form_set_image.
+Kafka PDF form_set_image. Operación PDF form_set_image.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1483,16 +1483,16 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `field` (string) | yes |  |
 | `path` (string) | yes |  |
 
 ## `printcraft_form_set_props`
 
-PrintCraft form_set_props on a PDF. Operación PDF form_set_props.
+Kafka PDF form_set_props. Operación PDF form_set_props.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1504,7 +1504,7 @@ Undo: no.
 | `appearance` (object) | no | Appearance tab: border, fill, text_color (#RRGGBB, a name or "none"), width (1 thin, 2 medium, 3 thick), style (solid, dashed, beveled, inset, underline), font (helvetica, times, courier). |
 | `calculate` () | no | Calculate tab: {"op": "sum"\|"product"\|"average"\|"min"\|"max", "fields": ["a", "b"]}, {"notation": "Price * Qty"} (simplified field notation), or "none". |
 | `default` (string) | no |  |
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `field` (string) | yes | The field's current name. |
 | `flags` (object) | no |  |
 | `font_size` (number) | no |  |
@@ -1522,10 +1522,10 @@ Undo: no.
 
 ## `printcraft_form_tab_order`
 
-PrintCraft form_tab_order on a PDF. Operación PDF form_tab_order.
+Kafka PDF form_tab_order. Operación PDF form_tab_order.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1533,7 +1533,7 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `field` (string) | no |  |
 | `move` (earlier \| later) | no |  |
 | `order` (row \| column \| structure \| annotations) | no |  |
@@ -1541,25 +1541,25 @@ Undo: no.
 
 ## `printcraft_doc_export_data`
 
-PrintCraft doc_export_data on a PDF. Operación PDF doc_export_data.
+Kafka PDF doc_export_data. Operación PDF doc_export_data.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: readOnlyHint, idempotentHint.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `path` (string) | yes |  |
 | `what` (all \| comments \| fields) | no |  |
 
 ## `printcraft_doc_import_data`
 
-PrintCraft doc_import_data on a PDF. Operación PDF doc_import_data.
+Kafka PDF doc_import_data. Operación PDF doc_import_data.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1567,15 +1567,15 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `path` (string) | yes |  |
 
 ## `printcraft_form_delete_field`
 
-PrintCraft form_delete_field on a PDF. Operación PDF form_delete_field.
+Kafka PDF form_delete_field. Operación PDF form_delete_field.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1583,15 +1583,15 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `field` (string) | yes |  |
 
 ## `printcraft_redact_mark`
 
-PrintCraft redact_mark on a PDF. Operación PDF redact_mark.
+Kafka PDF redact_mark. Operación PDF redact_mark.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1600,7 +1600,7 @@ Undo: no.
 | Argument | Required | Description |
 |---|---|---|
 | `author` (string) | no |  |
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `fill` (string) | no | #RRGGBB or a colour name. |
 | `find` (string) | no |  |
 | `overlay` (string) | no |  |
@@ -1612,10 +1612,10 @@ Undo: no.
 
 ## `printcraft_redact_apply`
 
-PrintCraft redact_apply on a PDF. Operación PDF redact_apply.
+Kafka PDF redact_apply. Operación PDF redact_apply.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: destructiveHint.
 
@@ -1623,15 +1623,15 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `pages` (array) | no | 1-based page numbers whose marks to apply (default: all). |
 
 ## `printcraft_redact_clear`
 
-PrintCraft redact_clear on a PDF. Operación PDF redact_clear.
+Kafka PDF redact_clear. Operación PDF redact_clear.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1639,27 +1639,27 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 
 ## `printcraft_doc_hidden_info`
 
-PrintCraft doc_hidden_info on a PDF. Operación PDF doc_hidden_info.
+Kafka PDF doc_hidden_info. Operación PDF doc_hidden_info.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: readOnlyHint, idempotentHint.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 
 ## `printcraft_doc_remove_hidden`
 
-PrintCraft doc_remove_hidden on a PDF. Operación PDF doc_remove_hidden.
+Kafka PDF doc_remove_hidden. Operación PDF doc_remove_hidden.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1668,27 +1668,27 @@ Undo: no.
 | Argument | Required | Description |
 |---|---|---|
 | `categories` (array) | no |  |
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 
 ## `printcraft_printers`
 
-PrintCraft printers on a PDF. Operación PDF printers.
+Kafka PDF printers. Operación PDF printers.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: readOnlyHint, idempotentHint.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | no | Optional Kafka document id (d_…) or prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | no | Optional Kafka document id (d_…) or prior PDF artifact id (pc_…). |
 
 ## `printcraft_doc_print`
 
-PrintCraft doc_print on a PDF. Operación PDF doc_print.
+Kafka PDF doc_print. Operación PDF doc_print.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1704,7 +1704,7 @@ Undo: no.
 | `comments_forms` (document \| document-and-markups \| document-and-stamps \| form-fields-only) | no |  |
 | `copies` (integer) | no |  |
 | `cut_marks` (boolean) | no |  |
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `duplex` (off \| long-edge \| short-edge) | no |  |
 | `grayscale` (boolean) | no |  |
 | `layout` (fit \| actual \| shrink \| custom \| multiple \| booklet \| poster) | no |  |
@@ -1722,23 +1722,23 @@ Undo: no.
 
 ## `printcraft_content_list`
 
-PrintCraft content_list on a PDF. Operación PDF content_list.
+Kafka PDF content_list. Operación PDF content_list.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: readOnlyHint, idempotentHint.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 
 ## `printcraft_page_add_text`
 
-PrintCraft page_add_text on a PDF. Operación PDF page_add_text.
+Kafka PDF page_add_text. Operación PDF page_add_text.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1750,7 +1750,7 @@ Undo: no.
 | `at` (array) | no |  |
 | `bold` (boolean) | no |  |
 | `color` (string) | no |  |
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `font` (helvetica \| times \| courier) | no |  |
 | `italic` (boolean) | no |  |
 | `page` (integer) | yes |  |
@@ -1761,10 +1761,10 @@ Undo: no.
 
 ## `printcraft_page_add_image`
 
-PrintCraft page_add_image on a PDF. Operación PDF page_add_image.
+Kafka PDF page_add_image. Operación PDF page_add_image.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1772,17 +1772,17 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `page` (integer) | yes |  |
 | `path` (string) | yes |  |
 | `rect` (array) | no |  |
 
 ## `printcraft_content_update`
 
-PrintCraft content_update on a PDF. Operación PDF content_update.
+Kafka PDF content_update. Operación PDF content_update.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1794,7 +1794,7 @@ Undo: no.
 | `bold` (boolean) | no |  |
 | `color` (string) | no |  |
 | `crop` (array) | no |  |
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `flip_h` (boolean) | no |  |
 | `flip_v` (boolean) | no |  |
 | `font` (helvetica \| times \| courier) | no |  |
@@ -1809,10 +1809,10 @@ Undo: no.
 
 ## `printcraft_content_delete`
 
-PrintCraft content_delete on a PDF. Operación PDF content_delete.
+Kafka PDF content_delete. Operación PDF content_delete.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1820,29 +1820,29 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `index` (integer) | yes |  |
 | `page` (integer) | yes |  |
 
 ## `printcraft_link_list`
 
-PrintCraft link_list on a PDF. Operación PDF link_list.
+Kafka PDF link_list. Operación PDF link_list.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: readOnlyHint, idempotentHint.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 
 ## `printcraft_link_add`
 
-PrintCraft link_add on a PDF. Operación PDF link_add.
+Kafka PDF link_add. Operación PDF link_add.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1851,7 +1851,7 @@ Undo: no.
 | Argument | Required | Description |
 |---|---|---|
 | `color` (string) | no |  |
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `highlight` (none \| invert \| outline \| inset) | no |  |
 | `page` (integer) | yes |  |
 | `rect` (array) | yes |  |
@@ -1862,10 +1862,10 @@ Undo: no.
 
 ## `printcraft_link_edit`
 
-PrintCraft link_edit on a PDF. Operación PDF link_edit.
+Kafka PDF link_edit. Operación PDF link_edit.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1874,7 +1874,7 @@ Undo: no.
 | Argument | Required | Description |
 |---|---|---|
 | `color` (string) | no |  |
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `highlight` (none \| invert \| outline \| inset) | no |  |
 | `index` (integer) | yes |  |
 | `page` (integer) | yes |  |
@@ -1886,10 +1886,10 @@ Undo: no.
 
 ## `printcraft_link_delete`
 
-PrintCraft link_delete on a PDF. Operación PDF link_delete.
+Kafka PDF link_delete. Operación PDF link_delete.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1897,16 +1897,16 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `index` (integer) | yes |  |
 | `page` (integer) | yes |  |
 
 ## `printcraft_links_from_urls`
 
-PrintCraft links_from_urls on a PDF. Operación PDF links_from_urls.
+Kafka PDF links_from_urls. Operación PDF links_from_urls.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1914,14 +1914,14 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 
 ## `printcraft_links_remove`
 
-PrintCraft links_remove on a PDF. Operación PDF links_remove.
+Kafka PDF links_remove. Operación PDF links_remove.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1929,28 +1929,28 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 
 ## `printcraft_comment_list`
 
-PrintCraft comment_list on a PDF. Operación PDF comment_list.
+Kafka PDF comment_list. Operación PDF comment_list.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: readOnlyHint, idempotentHint.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `page` (integer) | no | Only this page. |
 
 ## `printcraft_comment_add`
 
-PrintCraft comment_add on a PDF. Operación PDF comment_add.
+Kafka PDF comment_add. Operación PDF comment_add.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1963,7 +1963,7 @@ Undo: no.
 | `author` (string) | no |  |
 | `color` (string) | no | #RRGGBB or a name: yellow, red, orange, green, blue, purple, pink, black, gray, white. |
 | `contents` (string) | no | The comment text (what a text box shows). |
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `dynamic` (boolean) | no |  |
 | `fill` (string) | no | #RRGGBB or a name: yellow, red, orange, green, blue, purple, pink, black, gray, white. |
 | `find` (string) | no | Text on the page to mark up (case-insensitive). |
@@ -1985,10 +1985,10 @@ Undo: no.
 
 ## `printcraft_comment_reply`
 
-PrintCraft comment_reply on a PDF. Operación PDF comment_reply.
+Kafka PDF comment_reply. Operación PDF comment_reply.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -1997,7 +1997,7 @@ Undo: no.
 | Argument | Required | Description |
 |---|---|---|
 | `author` (string) | no |  |
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `id` (string) | no | The comment's id (from comment_list). |
 | `index` (integer) | no | 1-based position on the page, as comment_list reports. |
 | `page` (integer) | no | With `index`, instead of `id`. |
@@ -2005,10 +2005,10 @@ Undo: no.
 
 ## `printcraft_comment_set_status`
 
-PrintCraft comment_set_status on a PDF. Operación PDF comment_set_status.
+Kafka PDF comment_set_status. Operación PDF comment_set_status.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2017,7 +2017,7 @@ Undo: no.
 | Argument | Required | Description |
 |---|---|---|
 | `author` (string) | no |  |
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `id` (string) | no | The comment's id (from comment_list). |
 | `index` (integer) | no | 1-based position on the page, as comment_list reports. |
 | `page` (integer) | no | With `index`, instead of `id`. |
@@ -2025,23 +2025,23 @@ Undo: no.
 
 ## `printcraft_sign_list`
 
-PrintCraft sign_list on a PDF. Operación PDF sign_list.
+Kafka PDF sign_list. Operación PDF sign_list.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: readOnlyHint, idempotentHint.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 
 ## `printcraft_sign_id_create`
 
-PrintCraft sign_id_create on a PDF. Operación PDF sign_id_create.
+Kafka PDF sign_id_create. Operación PDF sign_id_create.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2058,27 +2058,27 @@ Undo: no.
 | `path` (string) | yes | The .p12 file to write. |
 | `unit` (string) | no |  |
 | `years` (integer) | no |  |
-| `doc` (string) | no | Optional Kafka document id (d_…) or prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | no | Optional Kafka document id (d_…) or prior PDF artifact id (pc_…). |
 
 ## `printcraft_sign_keychain_ids`
 
-PrintCraft sign_keychain_ids on a PDF. Operación PDF sign_keychain_ids.
+Kafka PDF sign_keychain_ids. Operación PDF sign_keychain_ids.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: readOnlyHint, idempotentHint.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | no | Optional Kafka document id (d_…) or prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | no | Optional Kafka document id (d_…) or prior PDF artifact id (pc_…). |
 
 ## `printcraft_sign_document`
 
-PrintCraft sign_document on a PDF. Operación PDF sign_document.
+Kafka PDF sign_document. Operación PDF sign_document.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2088,7 +2088,7 @@ Undo: no.
 |---|---|---|
 | `certify` (no_changes \| form_fill \| comments) | no |  |
 | `contact` (string) | no |  |
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `field` (string) | no |  |
 | `id` (string) | yes | Path of the digital ID (.p12 / .pfx). |
 | `location` (string) | no |  |
@@ -2100,10 +2100,10 @@ Undo: no.
 
 ## `printcraft_sign_trust`
 
-PrintCraft sign_trust on a PDF. Operación PDF sign_trust.
+Kafka PDF sign_trust. Operación PDF sign_trust.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2114,14 +2114,14 @@ Undo: no.
 | `clear` (boolean) | no |  |
 | `password` (string) | no |  |
 | `paths` (array) | no |  |
-| `doc` (string) | no | Optional Kafka document id (d_…) or prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | no | Optional Kafka document id (d_…) or prior PDF artifact id (pc_…). |
 
 ## `printcraft_comment_mark`
 
-PrintCraft comment_mark on a PDF. Operación PDF comment_mark.
+Kafka PDF comment_mark. Operación PDF comment_mark.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2130,7 +2130,7 @@ Undo: no.
 | Argument | Required | Description |
 |---|---|---|
 | `author` (string) | no |  |
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `id` (string) | no | The comment's id (from comment_list). |
 | `index` (integer) | no | 1-based position on the page, as comment_list reports. |
 | `marked` (boolean) | no | Default true. |
@@ -2138,10 +2138,10 @@ Undo: no.
 
 ## `printcraft_comment_lock`
 
-PrintCraft comment_lock on a PDF. Operación PDF comment_lock.
+Kafka PDF comment_lock. Operación PDF comment_lock.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2149,7 +2149,7 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `id` (string) | no | The comment's id (from comment_list). |
 | `index` (integer) | no | 1-based position on the page, as comment_list reports. |
 | `locked` (boolean) | no | Default true. |
@@ -2157,10 +2157,10 @@ Undo: no.
 
 ## `printcraft_comments_hide`
 
-PrintCraft comments_hide on a PDF. Operación PDF comments_hide.
+Kafka PDF comments_hide. Operación PDF comments_hide.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2168,15 +2168,15 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `hidden` (boolean) | no | Default true. |
 
 ## `printcraft_comments_summarize`
 
-PrintCraft comments_summarize on a PDF. Operación PDF comments_summarize.
+Kafka PDF comments_summarize. Operación PDF comments_summarize.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2184,17 +2184,17 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `open` (boolean) | no | Also open the result as a new document (default: only when out is omitted). |
 | `out` (string) | no | File to write. Omit to open the result as a new unsaved document instead. |
 | `sort` (page \| author \| date \| type) | no |  |
 
 ## `printcraft_comment_edit`
 
-PrintCraft comment_edit on a PDF. Operación PDF comment_edit.
+Kafka PDF comment_edit. Operación PDF comment_edit.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2204,7 +2204,7 @@ Undo: no.
 |---|---|---|
 | `color` (string) | no | #RRGGBB or a name: yellow, red, orange, green, blue, purple, pink, black, gray, white. |
 | `contents` (string) | no |  |
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `id` (string) | no | The comment's id (from comment_list). |
 | `index` (integer) | no | 1-based position on the page, as comment_list reports. |
 | `move` (array) | no | [x, y] in points from the top-left of the displayed page. |
@@ -2215,10 +2215,10 @@ Undo: no.
 
 ## `printcraft_comment_delete`
 
-PrintCraft comment_delete on a PDF. Operación PDF comment_delete.
+Kafka PDF comment_delete. Operación PDF comment_delete.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2226,17 +2226,17 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `id` (string) | no | The comment's id (from comment_list). |
 | `index` (integer) | no | 1-based position on the page, as comment_list reports. |
 | `page` (integer) | no | With `index`, instead of `id`. |
 
 ## `printcraft_doc_protect`
 
-PrintCraft doc_protect on a PDF. Operación PDF doc_protect.
+Kafka PDF doc_protect. Operación PDF doc_protect.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2248,7 +2248,7 @@ Undo: no.
 | `changes` (none \| pages \| fill-sign \| comment-fill-sign \| any-except-extract) | no | Default none. |
 | `compatibility` (aes-256 \| aes-128 \| rc4-128 \| rc4-40) | no | Default aes-256 (Acrobat X and later). |
 | `copy` (boolean) | no | Allow copying text and images (default false). |
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `encrypt_metadata` (boolean) | no | Default true. |
 | `open_password` (string) | no |  |
 | `permissions_password` (string) | no |  |
@@ -2256,10 +2256,10 @@ Undo: no.
 
 ## `printcraft_doc_unprotect`
 
-PrintCraft doc_unprotect on a PDF. Operación PDF doc_unprotect.
+Kafka PDF doc_unprotect. Operación PDF doc_unprotect.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2267,14 +2267,14 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 
 ## `printcraft_page_replace`
 
-PrintCraft page_replace on a PDF. Operación PDF page_replace.
+Kafka PDF page_replace. Operación PDF page_replace.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2282,17 +2282,17 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `from_pages` (array) | no | 1-based page numbers of the other file, in order (default: its first pages). |
 | `pages` (array) | yes | 1-based page numbers to replace. |
 | `path` (string) | yes | A file path (relative to --root when set). |
 
 ## `printcraft_page_duplicate`
 
-PrintCraft page_duplicate on a PDF. Operación PDF page_duplicate.
+Kafka PDF page_duplicate. Operación PDF page_duplicate.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2300,15 +2300,15 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `pages` (array) | yes | 1-based page numbers to duplicate. |
 
 ## `printcraft_page_set_box`
 
-PrintCraft page_set_box on a PDF. Operación PDF page_set_box.
+Kafka PDF page_set_box. Operación PDF page_set_box.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2317,17 +2317,17 @@ Undo: no.
 | Argument | Required | Description |
 |---|---|---|
 | `box` (crop \| trim \| bleed \| art \| media) | no |  |
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `margins` (array) | no |  |
 | `pages` (array) | no | 1-based page numbers to change (default: all). |
 | `rect` (array) | no |  |
 
 ## `printcraft_doc_header_footer`
 
-PrintCraft doc_header_footer on a PDF. Operación PDF doc_header_footer.
+Kafka PDF doc_header_footer. Operación PDF doc_header_footer.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2336,7 +2336,7 @@ Undo: no.
 | Argument | Required | Description |
 |---|---|---|
 | `color` (string) | no | #RRGGBB or a colour name. |
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `font_size` (number) | no |  |
 | `footer_center` (string) | no |  |
 | `footer_left` (string) | no |  |
@@ -2351,10 +2351,10 @@ Undo: no.
 
 ## `printcraft_doc_watermark`
 
-PrintCraft doc_watermark on a PDF. Operación PDF doc_watermark.
+Kafka PDF doc_watermark. Operación PDF doc_watermark.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2364,7 +2364,7 @@ Undo: no.
 |---|---|---|
 | `behind` (boolean) | no |  |
 | `color` (string) | no |  |
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `file` (string) | no |  |
 | `file_page` (integer) | no |  |
 | `font_size` (number) | no |  |
@@ -2377,10 +2377,10 @@ Undo: no.
 
 ## `printcraft_doc_background`
 
-PrintCraft doc_background on a PDF. Operación PDF doc_background.
+Kafka PDF doc_background. Operación PDF doc_background.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2389,7 +2389,7 @@ Undo: no.
 | Argument | Required | Description |
 |---|---|---|
 | `color` (string) | no |  |
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `file` (string) | no |  |
 | `file_page` (integer) | no |  |
 | `opacity` (number) | no |  |
@@ -2399,10 +2399,10 @@ Undo: no.
 
 ## `printcraft_doc_remove_marks`
 
-PrintCraft doc_remove_marks on a PDF. Operación PDF doc_remove_marks.
+Kafka PDF doc_remove_marks. Operación PDF doc_remove_marks.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2410,15 +2410,15 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `kind` (header_footer \| watermark \| background) | yes |  |
 
 ## `printcraft_doc_export_images`
 
-PrintCraft doc_export_images on a PDF. Operación PDF doc_export_images.
+Kafka PDF doc_export_images. Operación PDF doc_export_images.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2426,7 +2426,7 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `dpi` (number) | no |  |
 | `folder` (string) | yes |  |
 | `format` (png \| jpeg \| tiff) | no |  |
@@ -2435,10 +2435,10 @@ Undo: no.
 
 ## `printcraft_accessibility_check`
 
-PrintCraft accessibility_check on a PDF. Operación PDF accessibility_check.
+Kafka PDF accessibility_check. Operación PDF accessibility_check.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: readOnlyHint, idempotentHint.
 
@@ -2446,16 +2446,16 @@ Annotations: readOnlyHint, idempotentHint.
 |---|---|---|
 | `all` (boolean) | no | Include rules that are off by default (colour contrast). |
 | `categories` (array) | no |  |
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `pages` (array) | no | 1-based page numbers for the page rules (default: all). |
 | `rules` (array) | no |  |
 
 ## `printcraft_accessibility_report`
 
-PrintCraft accessibility_report on a PDF. Operación PDF accessibility_report.
+Kafka PDF accessibility_report. Operación PDF accessibility_report.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: readOnlyHint, idempotentHint.
 
@@ -2463,17 +2463,17 @@ Annotations: readOnlyHint, idempotentHint.
 |---|---|---|
 | `all` (boolean) | no |  |
 | `categories` (array) | no |  |
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `pages` (array) | no | 1-based page numbers for the page rules (default: all). |
 | `path` (string) | yes |  |
 | `rules` (array) | no |  |
 
 ## `printcraft_accessibility_fix`
 
-PrintCraft accessibility_fix on a PDF. Operación PDF accessibility_fix.
+Kafka PDF accessibility_fix. Operación PDF accessibility_fix.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2481,29 +2481,29 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `rule` (primary-language \| title \| tab-order) | yes |  |
 | `value` (string) | no |  |
 
 ## `printcraft_accessibility_figures`
 
-PrintCraft accessibility_figures on a PDF. Operación PDF accessibility_figures.
+Kafka PDF accessibility_figures. Operación PDF accessibility_figures.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: readOnlyHint, idempotentHint.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 
 ## `printcraft_accessibility_set_alt`
 
-PrintCraft accessibility_set_alt on a PDF. Operación PDF accessibility_set_alt.
+Kafka PDF accessibility_set_alt. Operación PDF accessibility_set_alt.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2513,15 +2513,15 @@ Undo: no.
 |---|---|---|
 | `alt` (string) | no |  |
 | `decorative` (boolean) | no |  |
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `figure` (integer) | yes |  |
 
 ## `printcraft_form_merge_data`
 
-PrintCraft form_merge_data on a PDF. Operación PDF form_merge_data.
+Kafka PDF form_merge_data. Operación PDF form_merge_data.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2531,14 +2531,14 @@ Undo: no.
 |---|---|---|
 | `path` (string) | yes |  |
 | `paths` (array) | yes |  |
-| `doc` (string) | no | Optional Kafka document id (d_…) or prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | no | Optional Kafka document id (d_…) or prior PDF artifact id (pc_…). |
 
 ## `printcraft_js_run`
 
-PrintCraft js_run on a PDF. Operación PDF js_run.
+Kafka PDF js_run. Operación PDF js_run.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2546,29 +2546,29 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `field` (string) | no | Run as this button's Mouse Up event. |
 | `script` (string) | yes |  |
 
 ## `printcraft_js_document_scripts`
 
-PrintCraft js_document_scripts on a PDF. Operación PDF js_document_scripts.
+Kafka PDF js_document_scripts. Operación PDF js_document_scripts.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: readOnlyHint, idempotentHint.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 
 ## `printcraft_js_set_document_script`
 
-PrintCraft js_set_document_script on a PDF. Operación PDF js_set_document_script.
+Kafka PDF js_set_document_script. Operación PDF js_set_document_script.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2576,16 +2576,16 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `name` (string) | yes |  |
 | `script` (string) | no |  |
 
 ## `printcraft_form_set_script`
 
-PrintCraft form_set_script on a PDF. Operación PDF form_set_script.
+Kafka PDF form_set_script. Operación PDF form_set_script.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2593,17 +2593,17 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `event` (keystroke \| format \| validate \| calculate \| mouse_up) | yes |  |
 | `field` (string) | yes |  |
 | `script` (string) | no |  |
 
 ## `printcraft_doc_export_office`
 
-PrintCraft doc_export_office on a PDF. Operación PDF doc_export_office.
+Kafka PDF doc_export_office. Operación PDF doc_export_office.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2611,29 +2611,29 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `path` (string) | yes |  |
 
 ## `printcraft_pdfa_verify`
 
-PrintCraft pdfa_verify on a PDF. Operación PDF pdfa_verify.
+Kafka PDF pdfa_verify. Operación PDF pdfa_verify.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: readOnlyHint, idempotentHint.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `level` (2b \| 3b) | no | Default 2b. |
 
 ## `printcraft_pdfa_convert`
 
-PrintCraft pdfa_convert on a PDF. Operación PDF pdfa_convert.
+Kafka PDF pdfa_convert. Operación PDF pdfa_convert.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2641,28 +2641,28 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `level` (2b \| 3b) | no |  |
 
 ## `printcraft_action_list`
 
-PrintCraft action_list on a PDF. Operación PDF action_list.
+Kafka PDF action_list. Operación PDF action_list.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: readOnlyHint, idempotentHint.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | no | Optional Kafka document id (d_…) or prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | no | Optional Kafka document id (d_…) or prior PDF artifact id (pc_…). |
 
 ## `printcraft_action_run`
 
-PrintCraft action_run on a PDF. Operación PDF action_run.
+Kafka PDF action_run. Operación PDF action_run.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2674,30 +2674,30 @@ Undo: no.
 | `folder` (string) | yes |  |
 | `paths` (array) | yes |  |
 | `steps` (array) | no |  |
-| `doc` (string) | no | Optional Kafka document id (d_…) or prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | no | Optional Kafka document id (d_…) or prior PDF artifact id (pc_…). |
 
 ## `printcraft_doc_compare`
 
-PrintCraft doc_compare on a PDF. Operación PDF doc_compare.
+Kafka PDF doc_compare. Operación PDF doc_compare.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: readOnlyHint, idempotentHint.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `limit` (integer) | no | List at most this many changes (default 500). |
 | `other` (integer) | yes | The older document (from doc_open). |
 | `visual` (boolean) | no | Also compare how pages look (page n with page n): regions that differ visually. |
 
 ## `printcraft_doc_compare_report`
 
-PrintCraft doc_compare_report on a PDF. Operación PDF doc_compare_report.
+Kafka PDF doc_compare_report. Operación PDF doc_compare_report.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2705,16 +2705,16 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `other` (integer) | yes |  |
 | `path` (string) | yes |  |
 
 ## `printcraft_doc_compare_mark`
 
-PrintCraft doc_compare_mark on a PDF. Operación PDF doc_compare_mark.
+Kafka PDF doc_compare_mark. Operación PDF doc_compare_mark.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2722,15 +2722,15 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `other` (integer) | yes |  |
 
 ## `printcraft_form_detect_fields`
 
-PrintCraft form_detect_fields on a PDF. Operación PDF form_detect_fields.
+Kafka PDF form_detect_fields. Operación PDF form_detect_fields.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2739,29 +2739,29 @@ Undo: no.
 | Argument | Required | Description |
 |---|---|---|
 | `add` (boolean) | no |  |
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `pages` (array) | no | 1-based page numbers to look at (default: all). |
 
 ## `printcraft_form_actions`
 
-PrintCraft form_actions on a PDF. Operación PDF form_actions.
+Kafka PDF form_actions. Operación PDF form_actions.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: readOnlyHint, idempotentHint.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `field` (string) | yes |  |
 
 ## `printcraft_form_set_actions`
 
-PrintCraft form_set_actions on a PDF. Operación PDF form_set_actions.
+Kafka PDF form_set_actions. Operación PDF form_set_actions.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2770,15 +2770,15 @@ Undo: no.
 | Argument | Required | Description |
 |---|---|---|
 | `actions` (array) | yes |  |
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `field` (string) | yes |  |
 
 ## `printcraft_js_enabled`
 
-PrintCraft js_enabled on a PDF. Operación PDF js_enabled.
+Kafka PDF js_enabled. Operación PDF js_enabled.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2787,14 +2787,14 @@ Undo: no.
 | Argument | Required | Description |
 |---|---|---|
 | `enabled` (boolean) | no |  |
-| `doc` (string) | no | Optional Kafka document id (d_…) or prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | no | Optional Kafka document id (d_…) or prior PDF artifact id (pc_…). |
 
 ## `printcraft_ocr_recognize`
 
-PrintCraft ocr_recognize on a PDF. Operación PDF ocr_recognize.
+Kafka PDF ocr_recognize. Operación PDF ocr_recognize.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2802,7 +2802,7 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `dpi` (number) | no | Resolution pages are read at (default 300; a scanned page is read at most at its own resolution). |
 | `language` (en) | no | Document language (default en). |
 | `pages` (array) | no | 1-based page numbers to recognise (default: all). |
@@ -2810,10 +2810,10 @@ Undo: no.
 
 ## `printcraft_ocr_recognize_files`
 
-PrintCraft ocr_recognize_files on a PDF. Operación PDF ocr_recognize_files.
+Kafka PDF ocr_recognize_files. Operación PDF ocr_recognize_files.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2825,27 +2825,27 @@ Undo: no.
 | `folder` (string) | yes |  |
 | `language` (en) | no |  |
 | `paths` (array) | yes |  |
-| `doc` (string) | no | Optional Kafka document id (d_…) or prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | no | Optional Kafka document id (d_…) or prior PDF artifact id (pc_…). |
 
 ## `printcraft_ocr_status`
 
-PrintCraft ocr_status on a PDF. Operación PDF ocr_status.
+Kafka PDF ocr_status. Operación PDF ocr_status.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: readOnlyHint, idempotentHint.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | no | Optional Kafka document id (d_…) or prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | no | Optional Kafka document id (d_…) or prior PDF artifact id (pc_…). |
 
 ## `printcraft_doc_export_all_images`
 
-PrintCraft doc_export_all_images on a PDF. Operación PDF doc_export_all_images.
+Kafka PDF doc_export_all_images. Operación PDF doc_export_all_images.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2853,17 +2853,17 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `folder` (string) | yes |  |
 | `min_size` (integer) | no | Skip images smaller than this many pixels on their shorter side (default 0). |
 | `pages` (array) | no | 1-based page numbers whose images to export (default: all). |
 
 ## `printcraft_doc_export_text`
 
-PrintCraft doc_export_text on a PDF. Operación PDF doc_export_text.
+Kafka PDF doc_export_text. Operación PDF doc_export_text.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2871,16 +2871,16 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `pages` (array) | no | 1-based page numbers to export (default: all). |
 | `path` (string) | yes |  |
 
 ## `printcraft_fill_sign_add`
 
-PrintCraft fill_sign_add on a PDF. Operación PDF fill_sign_add.
+Kafka PDF fill_sign_add. Operación PDF fill_sign_add.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2890,17 +2890,17 @@ Undo: no.
 |---|---|---|
 | `at` (array) | yes | [x, y] in points from the top-left of the displayed page. |
 | `author` (string) | no |  |
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `page` (integer) | yes |  |
 | `text` (string) | no |  |
 | `type` (text \| check \| cross \| dot \| line \| date \| signature \| initials) | yes |  |
 
 ## `printcraft_doc_create`
 
-PrintCraft doc_create on a PDF. Operación PDF doc_create.
+Kafka PDF doc_create. Operación PDF doc_create.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2916,14 +2916,14 @@ Undo: no.
 | `paths` (array) | no |  |
 | `text` (string) | no |  |
 | `width` (number) | no |  |
-| `doc` (string) | no | Optional Kafka document id (d_…) or prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | no | Optional Kafka document id (d_…) or prior PDF artifact id (pc_…). |
 
 ## `printcraft_doc_reduce`
 
-PrintCraft doc_reduce on a PDF. Operación PDF doc_reduce.
+Kafka PDF doc_reduce. Operación PDF doc_reduce.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2931,15 +2931,15 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `path` (string) | yes |  |
 
 ## `printcraft_doc_initial_view`
 
-PrintCraft doc_initial_view on a PDF. Operación PDF doc_initial_view.
+Kafka PDF doc_initial_view. Operación PDF doc_initial_view.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -2950,7 +2950,7 @@ Undo: no.
 | `binding` (left \| right) | no |  |
 | `center_window` (boolean) | no |  |
 | `display_title` (boolean) | no |  |
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `fit_window` (boolean) | no |  |
 | `full_screen` (boolean) | no |  |
 | `hide_menubar` (boolean) | no |  |
@@ -2964,51 +2964,51 @@ Undo: no.
 
 ## `printcraft_doc_audit_space`
 
-PrintCraft doc_audit_space on a PDF. Operación PDF doc_audit_space.
+Kafka PDF doc_audit_space. Operación PDF doc_audit_space.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: readOnlyHint, idempotentHint.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 
 ## `printcraft_text_lines`
 
-PrintCraft text_lines on a PDF. Operación PDF text_lines.
+Kafka PDF text_lines. Operación PDF text_lines.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: readOnlyHint, idempotentHint.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `page` (integer) | yes |  |
 
 ## `printcraft_page_images`
 
-PrintCraft page_images on a PDF. Operación PDF page_images.
+Kafka PDF page_images. Operación PDF page_images.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: readOnlyHint, idempotentHint.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `page` (integer) | yes |  |
 
 ## `printcraft_image_edit`
 
-PrintCraft image_edit on a PDF. Operación PDF image_edit.
+Kafka PDF image_edit. Operación PDF image_edit.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -3017,7 +3017,7 @@ Undo: no.
 | Argument | Required | Description |
 |---|---|---|
 | `action` (move \| rotate \| flip_horizontal \| flip_vertical \| replace \| delete) | yes |  |
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `image` (integer) | yes |  |
 | `page` (integer) | yes |  |
 | `path` (string) | no |  |
@@ -3026,40 +3026,40 @@ Undo: no.
 
 ## `printcraft_image_save`
 
-PrintCraft image_save on a PDF. Operación PDF image_save.
+Kafka PDF image_save. Operación PDF image_save.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: readOnlyHint, idempotentHint.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `image` (integer) | yes |  |
 | `page` (integer) | yes |  |
 | `path` (string) | yes |  |
 
 ## `printcraft_text_paragraphs`
 
-PrintCraft text_paragraphs on a PDF. Operación PDF text_paragraphs.
+Kafka PDF text_paragraphs. Operación PDF text_paragraphs.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: readOnlyHint, idempotentHint.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `page` (integer) | yes |  |
 
 ## `printcraft_text_edit`
 
-PrintCraft text_edit on a PDF. Operación PDF text_edit.
+Kafka PDF text_edit. Operación PDF text_edit.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -3071,7 +3071,7 @@ Undo: no.
 | `bold` (boolean) | no |  |
 | `char_spacing` (number) | no | Points. |
 | `color` (string) | no | #rrggbb |
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `dx` (number) | no | Paragraph only: move right by this many points (negative: left). |
 | `dy` (number) | no | Paragraph only: move up by this many points (negative: down). |
 | `font` (helvetica \| times \| courier) | no |  |
@@ -3088,10 +3088,10 @@ Undo: no.
 
 ## `printcraft_doc_revisions`
 
-PrintCraft doc_revisions on a PDF. Operación PDF doc_revisions.
+Kafka PDF doc_revisions. Operación PDF doc_revisions.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -3099,14 +3099,14 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 
 ## `printcraft_doc_open_revision`
 
-PrintCraft doc_open_revision on a PDF. Operación PDF doc_open_revision.
+Kafka PDF doc_open_revision. Operación PDF doc_open_revision.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -3114,15 +3114,15 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `revision` (integer) | yes |  |
 
 ## `printcraft_doc_optimize`
 
-PrintCraft doc_optimize on a PDF. Operación PDF doc_optimize.
+Kafka PDF doc_optimize. Operación PDF doc_optimize.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -3136,7 +3136,7 @@ Undo: no.
 | `discard_print_settings` (boolean) | no |  |
 | `discard_tags` (boolean) | no |  |
 | `discard_thumbnails` (boolean) | no |  |
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `flate_unencoded` (boolean) | no |  |
 | `gray` (object) | no |  |
 | `path` (string) | yes |  |
@@ -3145,10 +3145,10 @@ Undo: no.
 
 ## `printcraft_doc_flatten`
 
-PrintCraft doc_flatten on a PDF. Operación PDF doc_flatten.
+Kafka PDF doc_flatten. Operación PDF doc_flatten.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: destructiveHint.
 
@@ -3157,15 +3157,15 @@ Undo: no.
 | Argument | Required | Description |
 |---|---|---|
 | `comments` (boolean) | no | Default true. |
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 | `fields` (boolean) | no | Default true. |
 
 ## `printcraft_edit_undo`
 
-PrintCraft edit_undo on a PDF. Operación PDF edit_undo.
+Kafka PDF edit_undo. Operación PDF edit_undo.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -3173,14 +3173,14 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 
 ## `printcraft_edit_redo`
 
-PrintCraft edit_redo on a PDF. Operación PDF edit_redo.
+Kafka PDF edit_redo. Operación PDF edit_redo.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: none.
 
@@ -3188,26 +3188,26 @@ Undo: no.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | yes | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 
 ## `printcraft_command_list`
 
-PrintCraft command_list on a PDF. Operación PDF command_list.
+Kafka PDF command_list. Operación PDF command_list.
 
-PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
-Sinónimos: PrintCraft, PDF editable, taller de PDF
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
 
 Annotations: readOnlyHint, idempotentHint.
 
 | Argument | Required | Description |
 |---|---|---|
-| `doc` (string) | no | Kafka document id (d_…) or a prior PrintCraft artifact id (pc_…). |
+| `doc` (string) | no | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
 
 ## `printcraft_workflow`
 
 Edit a filed PDF in one saved workflow. Editar párrafos y páginas de un PDF.
 
-Use an existing Kafka PDF id (d_…) or PrintCraft revision (pc_…). actions is an ordered list of {tool, arguments}; each tool is one of the printcraft_* tools. The source is copied, edits are saved as a new PDF, and an artifact receipt links it to the document. Original files are preserved.
+Use an existing Kafka PDF id (d_…) or revision (pc_…). actions is an ordered list of {tool, arguments}. The source is copied, edits are saved as a new PDF, and an artifact receipt links it to the document. Original files are preserved.
 Sinónimos: editar texto de un PDF, cambiar párrafo, insertar páginas, girar páginas, componer documento
 
 Annotations: none.
@@ -3222,9 +3222,9 @@ Undo: no.
 
 ## `printcraft_status`
 
-PrintCraft CLI availability and optional live 123-tool discovery. Estado y descubrimiento PrintCraft.
+Owned PDF engine and live operation discovery. Motor PDF incorporado y operaciones.
 
-Set printcraft.cli in Settings or KAFKA_PRINTCRAFT_CLI; otherwise Kafka searches PATH and its portable bundle folder.
+Kafka builds and runs its own PDF worker from incorporated source. Historical CLI paths are preserved as data and ignored for execution.
 Sinónimos: motor PDF editable local
 
 Annotations: readOnlyHint, idempotentHint.
@@ -3235,7 +3235,7 @@ Annotations: readOnlyHint, idempotentHint.
 
 ## `printcraft_artifacts`
 
-List PDF revisions and receipt hashes linked to a Kafka document. Ver revisiones PrintCraft.
+List PDF revisions and receipt hashes linked to a Kafka document. Ver revisiones PDF.
 
 Pass doc=d_… or pc_…; omit doc to list the 100 newest receipts.
 Sinónimos: revisiones de PDF, recibos de edición
@@ -3248,10 +3248,2292 @@ Annotations: readOnlyHint, idempotentHint.
 
 ## `printcraft_catalog`
 
-Inspect all 123 PrintCraft tool schemas. Consultar catálogo PrintCraft.
+Inspect all 123 owned PDF operation schemas. Consultar catálogo del motor PDF.
 
-Returns the pinned JSON schemas used by API, UI and MCP dispatch.
-Sinónimos: descubrir herramientas PDF, schemas PrintCraft
+Returns the JSON schemas used by API, UI and MCP dispatch. The historical printcraft_* names remain aliases.
+Sinónimos: descubrir herramientas PDF, schemas PDF
+
+Annotations: readOnlyHint, idempotentHint.
+
+## `pdf_doc_open`
+
+Kafka PDF doc_open. Operación PDF doc_open.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `password` (string) | no | User or owner password for encrypted files. |
+| `path` (string) | no | Absolute path to a PDF, or use doc for a filed Kafka document. |
+| `doc` (string) | no | Optional Kafka document id (d_…) or prior PDF artifact id (pc_…). |
+
+## `pdf_doc_list`
+
+Kafka PDF doc_list. Operación PDF doc_list.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | no | Optional Kafka document id (d_…) or prior PDF artifact id (pc_…). |
+
+## `pdf_doc_info`
+
+Kafka PDF doc_info. Operación PDF doc_info.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+
+## `pdf_doc_close`
+
+Kafka PDF doc_close. Operación PDF doc_close.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `discard_changes` (boolean) | no |  |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+
+## `pdf_doc_save`
+
+Kafka PDF doc_save. Operación PDF doc_save.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `full` (boolean) | no | Force a full rewrite (or, with false, an incremental update). |
+| `path` (string) | no | Save as this file. Omit to save in place. |
+
+## `pdf_doc_set_info`
+
+Kafka PDF doc_set_info. Operación PDF doc_set_info.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `key` (string) | yes |  |
+| `value` (string) | yes |  |
+
+## `pdf_page_render`
+
+Kafka PDF page_render. Operación PDF page_render.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `dpi` (number) | no |  |
+| `page` (integer) | yes |  |
+
+## `pdf_text_extract`
+
+Kafka PDF text_extract. Operación PDF text_extract.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `pages` (array) | no | 1-based page numbers to extract (default: all). |
+
+## `pdf_text_find`
+
+Kafka PDF text_find. Operación PDF text_find.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `limit` (integer) | no | Maximum matches (default 500). |
+| `query` (string) | yes |  |
+
+## `pdf_page_rotate`
+
+Kafka PDF page_rotate. Operación PDF page_rotate.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `degrees` (integer) | yes |  |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `orientation` (all \| landscape \| portrait) | no |  |
+| `pages` (array) | no | 1-based page numbers to rotate (default: all). |
+| `subset` (all \| even \| odd) | no |  |
+
+## `pdf_page_delete`
+
+Kafka PDF page_delete. Operación PDF page_delete.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `pages` (array) | yes | 1-based page numbers to delete. |
+
+## `pdf_page_move`
+
+Kafka PDF page_move. Operación PDF page_move.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `pages` (array) | yes | 1-based page numbers to move. |
+| `to` (integer) | yes |  |
+
+## `pdf_page_insert_blank`
+
+Kafka PDF page_insert_blank. Operación PDF page_insert_blank.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `at` (integer) | yes |  |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `height` (number) | no | Points. |
+| `width` (number) | no | Points. |
+
+## `pdf_page_insert_file`
+
+Kafka PDF page_insert_file. Operación PDF page_insert_file.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `at` (integer) | yes |  |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `pages` (array) | no | 1-based page numbers of the source file (default: all). |
+| `path` (string) | yes |  |
+
+## `pdf_page_extract`
+
+Kafka PDF page_extract. Operación PDF page_extract.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `delete` (boolean) | no |  |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `open` (boolean) | no | Also open the result as a new document (default: only when out is omitted). |
+| `out` (string) | no | File to write. Omit to open the result as a new unsaved document instead. |
+| `out_dir` (string) | no |  |
+| `pages` (array) | yes | 1-based page numbers to extract. |
+| `separate` (boolean) | no |  |
+
+## `pdf_doc_combine`
+
+Kafka PDF doc_combine. Operación PDF doc_combine.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `open` (boolean) | no | Also open the result as a new document (default: only when out is omitted). |
+| `out` (string) | no | File to write. Omit to open the result as a new unsaved document instead. |
+| `pages` (array) | no |  |
+| `paths` (array) | yes |  |
+| `doc` (string) | no | Optional Kafka document id (d_…) or prior PDF artifact id (pc_…). |
+
+## `pdf_doc_split`
+
+Kafka PDF doc_split. Operación PDF doc_split.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `before` (array) | no | 1-based page numbers that start a new part. |
+| `bookmarks` (boolean) | no |  |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `every` (integer) | no |  |
+| `max_mb` (number) | no |  |
+| `out_dir` (string) | yes |  |
+
+## `pdf_bookmark_list`
+
+Kafka PDF bookmark_list. Operación PDF bookmark_list.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+
+## `pdf_bookmark_add`
+
+Kafka PDF bookmark_add. Operación PDF bookmark_add.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `page` (integer) | yes |  |
+| `parent` (array) | no | Parent bookmark (omit for the top level): 1-based positions from the top level, e.g. [2, 1] = the first child of the second bookmark. |
+| `position` (integer) | no | 1-based position among the parent's children (default: last). |
+| `title` (string) | yes |  |
+
+## `pdf_bookmark_rename`
+
+Kafka PDF bookmark_rename. Operación PDF bookmark_rename.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `path` (array) | yes | The bookmark: 1-based positions from the top level, e.g. [2, 1] = the first child of the second bookmark. |
+| `title` (string) | yes |  |
+
+## `pdf_bookmark_delete`
+
+Kafka PDF bookmark_delete. Operación PDF bookmark_delete.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `path` (array) | yes | The bookmark: 1-based positions from the top level, e.g. [2, 1] = the first child of the second bookmark. |
+
+## `pdf_bookmark_move`
+
+Kafka PDF bookmark_move. Operación PDF bookmark_move.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `parent` (array) | no | New parent (omit for the top level): 1-based positions from the top level, e.g. [2, 1] = the first child of the second bookmark. |
+| `path` (array) | yes | The bookmark to move: 1-based positions from the top level, e.g. [2, 1] = the first child of the second bookmark. |
+| `position` (integer) | no | 1-based position among the new parent's children, counted after the bookmark is removed (default: last). |
+
+## `pdf_bookmark_set_page`
+
+Kafka PDF bookmark_set_page. Operación PDF bookmark_set_page.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `page` (integer) | yes |  |
+| `path` (array) | yes | The bookmark: 1-based positions from the top level, e.g. [2, 1] = the first child of the second bookmark. |
+
+## `pdf_page_number`
+
+Kafka PDF page_number. Operación PDF page_number.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `from` (integer) | yes |  |
+| `prefix` (string) | no |  |
+| `start` (integer) | no | Number of the first page in the range (default 1). |
+| `style` (decimal \| upper-roman \| lower-roman \| upper-alpha \| lower-alpha \| none) | no | Numbering style (default decimal; none = prefix only). |
+| `to` (integer) | yes |  |
+
+## `pdf_form_fields`
+
+Kafka PDF form_fields. Operación PDF form_fields.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+
+## `pdf_form_fill`
+
+Kafka PDF form_fill. Operación PDF form_fill.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `values` (object) | yes | Field name → value. |
+
+## `pdf_form_reset`
+
+Kafka PDF form_reset. Operación PDF form_reset.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `fields` (array) | no |  |
+
+## `pdf_form_add_field`
+
+Kafka PDF form_add_field. Operación PDF form_add_field.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `caption` (string) | no | Button label. |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `editable` (boolean) | no | Combo box accepts typed text. |
+| `export` (string) | no | Radio button export value (default Choice1). |
+| `group` (string) | no | Radio group to join. |
+| `multi_select` (boolean) | no |  |
+| `multiline` (boolean) | no |  |
+| `name` (string) | no |  |
+| `options` (array) | no | Combo box / list box items. |
+| `page` (integer) | yes |  |
+| `rect` (array) | yes |  |
+| `type` (text \| date \| checkbox \| radio \| combo \| list \| button \| image \| signature) | yes |  |
+
+## `pdf_stamp_custom`
+
+Kafka PDF stamp_custom. Operación PDF stamp_custom.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `at` (array) | yes |  |
+| `author` (string) | no |  |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `file_page` (integer) | no |  |
+| `name` (string) | no |  |
+| `page` (integer) | yes |  |
+| `path` (string) | yes |  |
+
+## `pdf_form_set_image`
+
+Kafka PDF form_set_image. Operación PDF form_set_image.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `field` (string) | yes |  |
+| `path` (string) | yes |  |
+
+## `pdf_form_set_props`
+
+Kafka PDF form_set_props. Operación PDF form_set_props.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `align` (left \| center \| right) | no |  |
+| `appearance` (object) | no | Appearance tab: border, fill, text_color (#RRGGBB, a name or "none"), width (1 thin, 2 medium, 3 thick), style (solid, dashed, beveled, inset, underline), font (helvetica, times, courier). |
+| `calculate` () | no | Calculate tab: {"op": "sum"\|"product"\|"average"\|"min"\|"max", "fields": ["a", "b"]}, {"notation": "Price * Qty"} (simplified field notation), or "none". |
+| `default` (string) | no |  |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `field` (string) | yes | The field's current name. |
+| `flags` (object) | no |  |
+| `font_size` (number) | no |  |
+| `format` () | no | Format tab: {"type": "number", "decimals": 2, "currency": "$", "separator": 0-4, "negative": 0-3}, {"type": "percent"}, {"type": "date"\|"time", "pattern": "mm/dd/yyyy"}, {"type": "zip"\|"zip4"\|"phone"\|"ssn"}, {"type": "mask", "mask": "AA-9999"}, or "none". |
+| `locked` (boolean) | no | Lock the field's properties (only unlocking is accepted while locked). |
+| `max_length` (integer) | no |  |
+| `multiline` (boolean) | no |  |
+| `name` (string) | no |  |
+| `options` (array) | no |  |
+| `read_only` (boolean) | no |  |
+| `rect` (array) | no | Move/resize: points from the top-left of the displayed page. |
+| `required` (boolean) | no |  |
+| `tooltip` (string) | no |  |
+| `validate` () | no | Validate tab: {"min": 0, "max": 100} (either may be left out) or "none". |
+
+## `pdf_form_tab_order`
+
+Kafka PDF form_tab_order. Operación PDF form_tab_order.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `field` (string) | no |  |
+| `move` (earlier \| later) | no |  |
+| `order` (row \| column \| structure \| annotations) | no |  |
+| `pages` (array) | no | 1-based page numbers to set (default: all). |
+
+## `pdf_doc_export_data`
+
+Kafka PDF doc_export_data. Operación PDF doc_export_data.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `path` (string) | yes |  |
+| `what` (all \| comments \| fields) | no |  |
+
+## `pdf_doc_import_data`
+
+Kafka PDF doc_import_data. Operación PDF doc_import_data.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `path` (string) | yes |  |
+
+## `pdf_form_delete_field`
+
+Kafka PDF form_delete_field. Operación PDF form_delete_field.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `field` (string) | yes |  |
+
+## `pdf_redact_mark`
+
+Kafka PDF redact_mark. Operación PDF redact_mark.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `author` (string) | no |  |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `fill` (string) | no | #RRGGBB or a colour name. |
+| `find` (string) | no |  |
+| `overlay` (string) | no |  |
+| `page` (integer) | no |  |
+| `pages` (array) | no | 1-based page numbers to search or mark (default: all). |
+| `pattern` (phone \| email \| credit-card \| ssn \| date) | no |  |
+| `rect` (array) | no |  |
+| `whole_pages` (boolean) | no |  |
+
+## `pdf_redact_apply`
+
+Kafka PDF redact_apply. Operación PDF redact_apply.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: destructiveHint.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `pages` (array) | no | 1-based page numbers whose marks to apply (default: all). |
+
+## `pdf_redact_clear`
+
+Kafka PDF redact_clear. Operación PDF redact_clear.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+
+## `pdf_doc_hidden_info`
+
+Kafka PDF doc_hidden_info. Operación PDF doc_hidden_info.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+
+## `pdf_doc_remove_hidden`
+
+Kafka PDF doc_remove_hidden. Operación PDF doc_remove_hidden.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `categories` (array) | no |  |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+
+## `pdf_printers`
+
+Kafka PDF printers. Operación PDF printers.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | no | Optional Kafka document id (d_…) or prior PDF artifact id (pc_…). |
+
+## `pdf_doc_print`
+
+Kafka PDF doc_print. Operación PDF doc_print.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `auto_rotate` (boolean) | no |  |
+| `binding` (left \| right) | no |  |
+| `booklet_subset` (both \| front \| back) | no |  |
+| `border` (boolean) | no |  |
+| `collate` (boolean) | no |  |
+| `comments_forms` (document \| document-and-markups \| document-and-stamps \| form-fields-only) | no |  |
+| `copies` (integer) | no |  |
+| `cut_marks` (boolean) | no |  |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `duplex` (off \| long-edge \| short-edge) | no |  |
+| `grayscale` (boolean) | no |  |
+| `layout` (fit \| actual \| shrink \| custom \| multiple \| booklet \| poster) | no |  |
+| `order` (horizontal \| horizontal-reversed \| vertical \| vertical-reversed) | no |  |
+| `orientation` (auto \| portrait \| landscape) | no |  |
+| `overlap` (number) | no |  |
+| `pages` (string) | no |  |
+| `paper` (string) | no |  |
+| `path` (string) | no |  |
+| `per_sheet` (integer) | no |  |
+| `printer` (string) | no |  |
+| `reverse` (boolean) | no |  |
+| `scale` (number) | no |  |
+| `subset` (all \| odd \| even) | no |  |
+
+## `pdf_content_list`
+
+Kafka PDF content_list. Operación PDF content_list.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+
+## `pdf_page_add_text`
+
+Kafka PDF page_add_text. Operación PDF page_add_text.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `align` (left \| center \| right \| justify) | no |  |
+| `at` (array) | no |  |
+| `bold` (boolean) | no |  |
+| `color` (string) | no |  |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `font` (helvetica \| times \| courier) | no |  |
+| `italic` (boolean) | no |  |
+| `page` (integer) | yes |  |
+| `rect` (array) | no |  |
+| `size` (number) | no |  |
+| `text` (string) | yes |  |
+| `width` (number) | no |  |
+
+## `pdf_page_add_image`
+
+Kafka PDF page_add_image. Operación PDF page_add_image.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `page` (integer) | yes |  |
+| `path` (string) | yes |  |
+| `rect` (array) | no |  |
+
+## `pdf_content_update`
+
+Kafka PDF content_update. Operación PDF content_update.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `align` (left \| center \| right \| justify) | no |  |
+| `bold` (boolean) | no |  |
+| `color` (string) | no |  |
+| `crop` (array) | no |  |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `flip_h` (boolean) | no |  |
+| `flip_v` (boolean) | no |  |
+| `font` (helvetica \| times \| courier) | no |  |
+| `image` (string) | no | Replace the picture with this file. |
+| `index` (integer) | yes |  |
+| `italic` (boolean) | no |  |
+| `page` (integer) | yes |  |
+| `rect` (array) | no |  |
+| `rotate` (integer) | no |  |
+| `size` (number) | no |  |
+| `text` (string) | no |  |
+
+## `pdf_content_delete`
+
+Kafka PDF content_delete. Operación PDF content_delete.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `index` (integer) | yes |  |
+| `page` (integer) | yes |  |
+
+## `pdf_link_list`
+
+Kafka PDF link_list. Operación PDF link_list.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+
+## `pdf_link_add`
+
+Kafka PDF link_add. Operación PDF link_add.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `color` (string) | no |  |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `highlight` (none \| invert \| outline \| inset) | no |  |
+| `page` (integer) | yes |  |
+| `rect` (array) | yes |  |
+| `to_page` (integer) | no |  |
+| `url` (string) | no |  |
+| `visible` (boolean) | no |  |
+| `width` (number) | no |  |
+
+## `pdf_link_edit`
+
+Kafka PDF link_edit. Operación PDF link_edit.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `color` (string) | no |  |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `highlight` (none \| invert \| outline \| inset) | no |  |
+| `index` (integer) | yes |  |
+| `page` (integer) | yes |  |
+| `rect` (array) | no |  |
+| `to_page` (integer) | no |  |
+| `url` (string) | no |  |
+| `visible` (boolean) | no |  |
+| `width` (number) | no |  |
+
+## `pdf_link_delete`
+
+Kafka PDF link_delete. Operación PDF link_delete.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `index` (integer) | yes |  |
+| `page` (integer) | yes |  |
+
+## `pdf_links_from_urls`
+
+Kafka PDF links_from_urls. Operación PDF links_from_urls.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+
+## `pdf_links_remove`
+
+Kafka PDF links_remove. Operación PDF links_remove.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+
+## `pdf_comment_list`
+
+Kafka PDF comment_list. Operación PDF comment_list.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `page` (integer) | no | Only this page. |
+
+## `pdf_comment_add`
+
+Kafka PDF comment_add. Operación PDF comment_add.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `all` (boolean) | no | Mark every match of `find` on the page, not just the first. |
+| `at` (array) | no | [x, y] in points from the top-left of the displayed page. |
+| `author` (string) | no |  |
+| `color` (string) | no | #RRGGBB or a name: yellow, red, orange, green, blue, purple, pink, black, gray, white. |
+| `contents` (string) | no | The comment text (what a text box shows). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `dynamic` (boolean) | no |  |
+| `fill` (string) | no | #RRGGBB or a name: yellow, red, orange, green, blue, purple, pink, black, gray, white. |
+| `find` (string) | no | Text on the page to mark up (case-insensitive). |
+| `font_size` (number) | no |  |
+| `from` (array) | no | [x, y] in points from the top-left of the displayed page. |
+| `icon` (string) | no | note: Comment, Note, Help, Insert, Key, NewParagraph, Paragraph; attachment: PushPin, Paperclip, Graph, Tag. |
+| `knee` (array) | no | [x, y] in points from the top-left of the displayed page. |
+| `opacity` (number) | no |  |
+| `page` (integer) | yes |  |
+| `path` (string) | no | attachment: the file to attach. |
+| `points` (array) | no |  |
+| `quads` (array) | no |  |
+| `rect` (array) | no |  |
+| `stamp` (string) | no |  |
+| `strokes` (array) | no |  |
+| `to` (array) | no | [x, y] in points from the top-left of the displayed page. |
+| `type` (note \| highlight \| underline \| strikeout \| squiggly \| replace \| rectangle \| oval \| line \| arrow \| ink \| textbox \| stamp \| polygon \| cloud \| polyline \| callout \| caret \| attachment) | yes |  |
+| `width` (number) | no | Line width in points. |
+
+## `pdf_comment_reply`
+
+Kafka PDF comment_reply. Operación PDF comment_reply.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `author` (string) | no |  |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `id` (string) | no | The comment's id (from comment_list). |
+| `index` (integer) | no | 1-based position on the page, as comment_list reports. |
+| `page` (integer) | no | With `index`, instead of `id`. |
+| `text` (string) | yes |  |
+
+## `pdf_comment_set_status`
+
+Kafka PDF comment_set_status. Operación PDF comment_set_status.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `author` (string) | no |  |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `id` (string) | no | The comment's id (from comment_list). |
+| `index` (integer) | no | 1-based position on the page, as comment_list reports. |
+| `page` (integer) | no | With `index`, instead of `id`. |
+| `status` (none \| accepted \| rejected \| cancelled \| completed) | yes |  |
+
+## `pdf_sign_list`
+
+Kafka PDF sign_list. Operación PDF sign_list.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+
+## `pdf_sign_id_create`
+
+Kafka PDF sign_id_create. Operación PDF sign_id_create.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `country` (string) | no | Two-letter country code. |
+| `email` (string) | no |  |
+| `key` (rsa2048 \| rsa3072 \| rsa4096 \| p256) | no |  |
+| `name` (string) | yes |  |
+| `organization` (string) | no |  |
+| `password` (string) | yes |  |
+| `path` (string) | yes | The .p12 file to write. |
+| `unit` (string) | no |  |
+| `years` (integer) | no |  |
+| `doc` (string) | no | Optional Kafka document id (d_…) or prior PDF artifact id (pc_…). |
+
+## `pdf_sign_keychain_ids`
+
+Kafka PDF sign_keychain_ids. Operación PDF sign_keychain_ids.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | no | Optional Kafka document id (d_…) or prior PDF artifact id (pc_…). |
+
+## `pdf_sign_document`
+
+Kafka PDF sign_document. Operación PDF sign_document.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `certify` (no_changes \| form_fill \| comments) | no |  |
+| `contact` (string) | no |  |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `field` (string) | no |  |
+| `id` (string) | yes | Path of the digital ID (.p12 / .pfx). |
+| `location` (string) | no |  |
+| `out` (string) | yes | Where to save the signed document. |
+| `page` (integer) | no |  |
+| `password` (string) | no |  |
+| `reason` (string) | no |  |
+| `rect` (array) | no |  |
+
+## `pdf_sign_trust`
+
+Kafka PDF sign_trust. Operación PDF sign_trust.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `clear` (boolean) | no |  |
+| `password` (string) | no |  |
+| `paths` (array) | no |  |
+| `doc` (string) | no | Optional Kafka document id (d_…) or prior PDF artifact id (pc_…). |
+
+## `pdf_comment_mark`
+
+Kafka PDF comment_mark. Operación PDF comment_mark.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `author` (string) | no |  |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `id` (string) | no | The comment's id (from comment_list). |
+| `index` (integer) | no | 1-based position on the page, as comment_list reports. |
+| `marked` (boolean) | no | Default true. |
+| `page` (integer) | no | With `index`, instead of `id`. |
+
+## `pdf_comment_lock`
+
+Kafka PDF comment_lock. Operación PDF comment_lock.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `id` (string) | no | The comment's id (from comment_list). |
+| `index` (integer) | no | 1-based position on the page, as comment_list reports. |
+| `locked` (boolean) | no | Default true. |
+| `page` (integer) | no | With `index`, instead of `id`. |
+
+## `pdf_comments_hide`
+
+Kafka PDF comments_hide. Operación PDF comments_hide.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `hidden` (boolean) | no | Default true. |
+
+## `pdf_comments_summarize`
+
+Kafka PDF comments_summarize. Operación PDF comments_summarize.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `open` (boolean) | no | Also open the result as a new document (default: only when out is omitted). |
+| `out` (string) | no | File to write. Omit to open the result as a new unsaved document instead. |
+| `sort` (page \| author \| date \| type) | no |  |
+
+## `pdf_comment_edit`
+
+Kafka PDF comment_edit. Operación PDF comment_edit.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `color` (string) | no | #RRGGBB or a name: yellow, red, orange, green, blue, purple, pink, black, gray, white. |
+| `contents` (string) | no |  |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `id` (string) | no | The comment's id (from comment_list). |
+| `index` (integer) | no | 1-based position on the page, as comment_list reports. |
+| `move` (array) | no | [x, y] in points from the top-left of the displayed page. |
+| `opacity` (number) | no |  |
+| `page` (integer) | no | With `index`, instead of `id`. |
+| `rect` (array) | no |  |
+| `width` (number) | no |  |
+
+## `pdf_comment_delete`
+
+Kafka PDF comment_delete. Operación PDF comment_delete.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `id` (string) | no | The comment's id (from comment_list). |
+| `index` (integer) | no | 1-based position on the page, as comment_list reports. |
+| `page` (integer) | no | With `index`, instead of `id`. |
+
+## `pdf_doc_protect`
+
+Kafka PDF doc_protect. Operación PDF doc_protect.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `accessibility` (boolean) | no | Allow screen readers to read the text (default true). |
+| `changes` (none \| pages \| fill-sign \| comment-fill-sign \| any-except-extract) | no | Default none. |
+| `compatibility` (aes-256 \| aes-128 \| rc4-128 \| rc4-40) | no | Default aes-256 (Acrobat X and later). |
+| `copy` (boolean) | no | Allow copying text and images (default false). |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `encrypt_metadata` (boolean) | no | Default true. |
+| `open_password` (string) | no |  |
+| `permissions_password` (string) | no |  |
+| `printing` (none \| low \| high) | no | Default high. |
+
+## `pdf_doc_unprotect`
+
+Kafka PDF doc_unprotect. Operación PDF doc_unprotect.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+
+## `pdf_page_replace`
+
+Kafka PDF page_replace. Operación PDF page_replace.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `from_pages` (array) | no | 1-based page numbers of the other file, in order (default: its first pages). |
+| `pages` (array) | yes | 1-based page numbers to replace. |
+| `path` (string) | yes | A file path (relative to --root when set). |
+
+## `pdf_page_duplicate`
+
+Kafka PDF page_duplicate. Operación PDF page_duplicate.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `pages` (array) | yes | 1-based page numbers to duplicate. |
+
+## `pdf_page_set_box`
+
+Kafka PDF page_set_box. Operación PDF page_set_box.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `box` (crop \| trim \| bleed \| art \| media) | no |  |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `margins` (array) | no |  |
+| `pages` (array) | no | 1-based page numbers to change (default: all). |
+| `rect` (array) | no |  |
+
+## `pdf_doc_header_footer`
+
+Kafka PDF doc_header_footer. Operación PDF doc_header_footer.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `color` (string) | no | #RRGGBB or a colour name. |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `font_size` (number) | no |  |
+| `footer_center` (string) | no |  |
+| `footer_left` (string) | no |  |
+| `footer_right` (string) | no |  |
+| `header_center` (string) | no |  |
+| `header_left` (string) | no |  |
+| `header_right` (string) | no |  |
+| `margins` (array) | no | Top, bottom, left, right in points (default 36, 36, 72, 72). |
+| `pages` (array) | no | 1-based page numbers to mark (default: all). |
+| `replace` (boolean) | no |  |
+| `start_number` (integer) | no |  |
+
+## `pdf_doc_watermark`
+
+Kafka PDF doc_watermark. Operación PDF doc_watermark.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `behind` (boolean) | no |  |
+| `color` (string) | no |  |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `file` (string) | no |  |
+| `file_page` (integer) | no |  |
+| `font_size` (number) | no |  |
+| `opacity` (number) | no |  |
+| `pages` (array) | no | 1-based page numbers to mark (default: all). |
+| `replace` (boolean) | no |  |
+| `rotation` (number) | no |  |
+| `scale` (number) | no |  |
+| `text` (string) | no |  |
+
+## `pdf_doc_background`
+
+Kafka PDF doc_background. Operación PDF doc_background.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `color` (string) | no |  |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `file` (string) | no |  |
+| `file_page` (integer) | no |  |
+| `opacity` (number) | no |  |
+| `pages` (array) | no | 1-based page numbers to fill (default: all). |
+| `replace` (boolean) | no |  |
+| `scale` (number) | no |  |
+
+## `pdf_doc_remove_marks`
+
+Kafka PDF doc_remove_marks. Operación PDF doc_remove_marks.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `kind` (header_footer \| watermark \| background) | yes |  |
+
+## `pdf_doc_export_images`
+
+Kafka PDF doc_export_images. Operación PDF doc_export_images.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `dpi` (number) | no |  |
+| `folder` (string) | yes |  |
+| `format` (png \| jpeg \| tiff) | no |  |
+| `pages` (array) | no | 1-based page numbers to export (default: all). |
+| `quality` (integer) | no | JPEG quality (default 85). |
+
+## `pdf_accessibility_check`
+
+Kafka PDF accessibility_check. Operación PDF accessibility_check.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `all` (boolean) | no | Include rules that are off by default (colour contrast). |
+| `categories` (array) | no |  |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `pages` (array) | no | 1-based page numbers for the page rules (default: all). |
+| `rules` (array) | no |  |
+
+## `pdf_accessibility_report`
+
+Kafka PDF accessibility_report. Operación PDF accessibility_report.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `all` (boolean) | no |  |
+| `categories` (array) | no |  |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `pages` (array) | no | 1-based page numbers for the page rules (default: all). |
+| `path` (string) | yes |  |
+| `rules` (array) | no |  |
+
+## `pdf_accessibility_fix`
+
+Kafka PDF accessibility_fix. Operación PDF accessibility_fix.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `rule` (primary-language \| title \| tab-order) | yes |  |
+| `value` (string) | no |  |
+
+## `pdf_accessibility_figures`
+
+Kafka PDF accessibility_figures. Operación PDF accessibility_figures.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+
+## `pdf_accessibility_set_alt`
+
+Kafka PDF accessibility_set_alt. Operación PDF accessibility_set_alt.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `alt` (string) | no |  |
+| `decorative` (boolean) | no |  |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `figure` (integer) | yes |  |
+
+## `pdf_form_merge_data`
+
+Kafka PDF form_merge_data. Operación PDF form_merge_data.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `path` (string) | yes |  |
+| `paths` (array) | yes |  |
+| `doc` (string) | no | Optional Kafka document id (d_…) or prior PDF artifact id (pc_…). |
+
+## `pdf_js_run`
+
+Kafka PDF js_run. Operación PDF js_run.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `field` (string) | no | Run as this button's Mouse Up event. |
+| `script` (string) | yes |  |
+
+## `pdf_js_document_scripts`
+
+Kafka PDF js_document_scripts. Operación PDF js_document_scripts.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+
+## `pdf_js_set_document_script`
+
+Kafka PDF js_set_document_script. Operación PDF js_set_document_script.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `name` (string) | yes |  |
+| `script` (string) | no |  |
+
+## `pdf_form_set_script`
+
+Kafka PDF form_set_script. Operación PDF form_set_script.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `event` (keystroke \| format \| validate \| calculate \| mouse_up) | yes |  |
+| `field` (string) | yes |  |
+| `script` (string) | no |  |
+
+## `pdf_doc_export_office`
+
+Kafka PDF doc_export_office. Operación PDF doc_export_office.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `path` (string) | yes |  |
+
+## `pdf_pdfa_verify`
+
+Kafka PDF pdfa_verify. Operación PDF pdfa_verify.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `level` (2b \| 3b) | no | Default 2b. |
+
+## `pdf_pdfa_convert`
+
+Kafka PDF pdfa_convert. Operación PDF pdfa_convert.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `level` (2b \| 3b) | no |  |
+
+## `pdf_action_list`
+
+Kafka PDF action_list. Operación PDF action_list.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | no | Optional Kafka document id (d_…) or prior PDF artifact id (pc_…). |
+
+## `pdf_action_run`
+
+Kafka PDF action_run. Operación PDF action_run.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `action` (string) | no |  |
+| `folder` (string) | yes |  |
+| `paths` (array) | yes |  |
+| `steps` (array) | no |  |
+| `doc` (string) | no | Optional Kafka document id (d_…) or prior PDF artifact id (pc_…). |
+
+## `pdf_doc_compare`
+
+Kafka PDF doc_compare. Operación PDF doc_compare.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `limit` (integer) | no | List at most this many changes (default 500). |
+| `other` (integer) | yes | The older document (from doc_open). |
+| `visual` (boolean) | no | Also compare how pages look (page n with page n): regions that differ visually. |
+
+## `pdf_doc_compare_report`
+
+Kafka PDF doc_compare_report. Operación PDF doc_compare_report.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `other` (integer) | yes |  |
+| `path` (string) | yes |  |
+
+## `pdf_doc_compare_mark`
+
+Kafka PDF doc_compare_mark. Operación PDF doc_compare_mark.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `other` (integer) | yes |  |
+
+## `pdf_form_detect_fields`
+
+Kafka PDF form_detect_fields. Operación PDF form_detect_fields.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `add` (boolean) | no |  |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `pages` (array) | no | 1-based page numbers to look at (default: all). |
+
+## `pdf_form_actions`
+
+Kafka PDF form_actions. Operación PDF form_actions.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `field` (string) | yes |  |
+
+## `pdf_form_set_actions`
+
+Kafka PDF form_set_actions. Operación PDF form_set_actions.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `actions` (array) | yes |  |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `field` (string) | yes |  |
+
+## `pdf_js_enabled`
+
+Kafka PDF js_enabled. Operación PDF js_enabled.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `enabled` (boolean) | no |  |
+| `doc` (string) | no | Optional Kafka document id (d_…) or prior PDF artifact id (pc_…). |
+
+## `pdf_ocr_recognize`
+
+Kafka PDF ocr_recognize. Operación PDF ocr_recognize.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `dpi` (number) | no | Resolution pages are read at (default 300; a scanned page is read at most at its own resolution). |
+| `language` (en) | no | Document language (default en). |
+| `pages` (array) | no | 1-based page numbers to recognise (default: all). |
+| `skip_text_pages` (boolean) | no | Leave pages that already contain text alone (default true). |
+
+## `pdf_ocr_recognize_files`
+
+Kafka PDF ocr_recognize_files. Operación PDF ocr_recognize_files.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `dpi` (number) | no |  |
+| `folder` (string) | yes |  |
+| `language` (en) | no |  |
+| `paths` (array) | yes |  |
+| `doc` (string) | no | Optional Kafka document id (d_…) or prior PDF artifact id (pc_…). |
+
+## `pdf_ocr_status`
+
+Kafka PDF ocr_status. Operación PDF ocr_status.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | no | Optional Kafka document id (d_…) or prior PDF artifact id (pc_…). |
+
+## `pdf_doc_export_all_images`
+
+Kafka PDF doc_export_all_images. Operación PDF doc_export_all_images.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `folder` (string) | yes |  |
+| `min_size` (integer) | no | Skip images smaller than this many pixels on their shorter side (default 0). |
+| `pages` (array) | no | 1-based page numbers whose images to export (default: all). |
+
+## `pdf_doc_export_text`
+
+Kafka PDF doc_export_text. Operación PDF doc_export_text.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `pages` (array) | no | 1-based page numbers to export (default: all). |
+| `path` (string) | yes |  |
+
+## `pdf_fill_sign_add`
+
+Kafka PDF fill_sign_add. Operación PDF fill_sign_add.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `at` (array) | yes | [x, y] in points from the top-left of the displayed page. |
+| `author` (string) | no |  |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `page` (integer) | yes |  |
+| `text` (string) | no |  |
+| `type` (text \| check \| cross \| dot \| line \| date \| signature \| initials) | yes |  |
+
+## `pdf_doc_create`
+
+Kafka PDF doc_create. Operación PDF doc_create.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `from` (blank \| images \| text) | yes |  |
+| `height` (number) | no |  |
+| `name` (string) | no | Name for the new document (default derived from the source). |
+| `pages` (integer) | no |  |
+| `path` (string) | no |  |
+| `paths` (array) | no |  |
+| `text` (string) | no |  |
+| `width` (number) | no |  |
+| `doc` (string) | no | Optional Kafka document id (d_…) or prior PDF artifact id (pc_…). |
+
+## `pdf_doc_reduce`
+
+Kafka PDF doc_reduce. Operación PDF doc_reduce.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `path` (string) | yes |  |
+
+## `pdf_doc_initial_view`
+
+Kafka PDF doc_initial_view. Operación PDF doc_initial_view.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `binding` (left \| right) | no |  |
+| `center_window` (boolean) | no |  |
+| `display_title` (boolean) | no |  |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `fit_window` (boolean) | no |  |
+| `full_screen` (boolean) | no |  |
+| `hide_menubar` (boolean) | no |  |
+| `hide_toolbar` (boolean) | no |  |
+| `hide_window_ui` (boolean) | no |  |
+| `language` (string) | no |  |
+| `layout` (default \| single \| continuous \| two_up \| two_up_continuous \| two_up_cover \| two_up_continuous_cover) | no |  |
+| `magnification` () | no |  |
+| `navigation` (page \| bookmarks \| pages \| attachments \| layers) | no |  |
+| `page` (integer) | no |  |
+
+## `pdf_doc_audit_space`
+
+Kafka PDF doc_audit_space. Operación PDF doc_audit_space.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+
+## `pdf_text_lines`
+
+Kafka PDF text_lines. Operación PDF text_lines.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `page` (integer) | yes |  |
+
+## `pdf_page_images`
+
+Kafka PDF page_images. Operación PDF page_images.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `page` (integer) | yes |  |
+
+## `pdf_image_edit`
+
+Kafka PDF image_edit. Operación PDF image_edit.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `action` (move \| rotate \| flip_horizontal \| flip_vertical \| replace \| delete) | yes |  |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `image` (integer) | yes |  |
+| `page` (integer) | yes |  |
+| `path` (string) | no |  |
+| `quarters` (integer) | no |  |
+| `rect` (array) | no |  |
+
+## `pdf_image_save`
+
+Kafka PDF image_save. Operación PDF image_save.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `image` (integer) | yes |  |
+| `page` (integer) | yes |  |
+| `path` (string) | yes |  |
+
+## `pdf_text_paragraphs`
+
+Kafka PDF text_paragraphs. Operación PDF text_paragraphs.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `page` (integer) | yes |  |
+
+## `pdf_text_edit`
+
+Kafka PDF text_edit. Operación PDF text_edit.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `align` (left \| center \| right \| justify) | no |  |
+| `bold` (boolean) | no |  |
+| `char_spacing` (number) | no | Points. |
+| `color` (string) | no | #rrggbb |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `dx` (number) | no | Paragraph only: move right by this many points (negative: left). |
+| `dy` (number) | no | Paragraph only: move up by this many points (negative: down). |
+| `font` (helvetica \| times \| courier) | no |  |
+| `italic` (boolean) | no |  |
+| `line` (integer) | no |  |
+| `line_spacing` (number) | no | Multiple of the font size (1.2 is ordinary). |
+| `page` (integer) | yes |  |
+| `paragraph` (integer) | no |  |
+| `scale` (number) | no | Horizontal scale in percent. |
+| `size` (number) | no |  |
+| `text` (string) | no |  |
+| `underline` (boolean) | no |  |
+| `width` (number) | no | Paragraph only: rewrap to this width in points (dragging the box's edge). |
+
+## `pdf_doc_revisions`
+
+Kafka PDF doc_revisions. Operación PDF doc_revisions.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+
+## `pdf_doc_open_revision`
+
+Kafka PDF doc_open_revision. Operación PDF doc_open_revision.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `revision` (integer) | yes |  |
+
+## `pdf_doc_optimize`
+
+Kafka PDF doc_optimize. Operación PDF doc_optimize.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `color` (object) | no |  |
+| `discard` (array) | no |  |
+| `discard_alternate_images` (boolean) | no |  |
+| `discard_print_settings` (boolean) | no |  |
+| `discard_tags` (boolean) | no |  |
+| `discard_thumbnails` (boolean) | no |  |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `flate_unencoded` (boolean) | no |  |
+| `gray` (object) | no |  |
+| `path` (string) | yes |  |
+| `remove_invalid_links` (boolean) | no |  |
+| `remove_unreferenced_dests` (boolean) | no |  |
+
+## `pdf_doc_flatten`
+
+Kafka PDF doc_flatten. Operación PDF doc_flatten.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: destructiveHint.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `comments` (boolean) | no | Default true. |
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+| `fields` (boolean) | no | Default true. |
+
+## `pdf_edit_undo`
+
+Kafka PDF edit_undo. Operación PDF edit_undo.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+
+## `pdf_edit_redo`
+
+Kafka PDF edit_redo. Operación PDF edit_redo.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+
+## `pdf_command_list`
+
+Kafka PDF command_list. Operación PDF command_list.
+
+Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.
+Sinónimos: PDF editable, taller de PDF
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | no | Kafka document id (d_…) or a prior PDF artifact id (pc_…). |
+
+## `pdf_workflow`
+
+Edit a filed PDF in one saved workflow. Editar párrafos y páginas de un PDF.
+
+Use an existing Kafka PDF id (d_…) or revision (pc_…). actions is an ordered list of {tool, arguments}. The source is copied, edits are saved as a new PDF, and an artifact receipt links it to the document. Original files are preserved.
+Sinónimos: editar texto de un PDF, cambiar párrafo, insertar páginas, girar páginas, componer documento
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes |  |
+| `actions` (array) | yes |  |
+| `confirm` (boolean) | no | Required for destructive actions. |
+
+## `pdf_engine_status`
+
+Owned PDF engine and live operation discovery. Motor PDF incorporado y operaciones.
+
+Kafka builds and runs its own PDF worker from incorporated source. Historical CLI paths are preserved as data and ignored for execution.
+Sinónimos: motor PDF editable local
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `discover` (boolean) | no |  |
+
+## `pdf_artifacts`
+
+List PDF revisions and receipt hashes linked to a Kafka document. Ver revisiones PDF.
+
+Pass doc=d_… or pc_…; omit doc to list the 100 newest receipts.
+Sinónimos: revisiones de PDF, recibos de edición
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | no |  |
+
+## `pdf_catalog`
+
+Inspect all 123 owned PDF operation schemas. Consultar catálogo del motor PDF.
+
+Returns the JSON schemas used by API, UI and MCP dispatch. The historical printcraft_* names remain aliases.
+Sinónimos: descubrir herramientas PDF, schemas PDF
 
 Annotations: readOnlyHint, idempotentHint.
 
@@ -3266,5 +5548,5 @@ Annotations: readOnlyHint, idempotentHint.
 - `GET /api/documents/{id}/page/{n}.png` — page preview of a PDF or the picture of an image document (cached in `data/cache/pages`).
 - `POST /api/workshop/upload` — multipart `files` (PDF, images, Word/ODT/RTF; up to 60 files, 400 MB each) and an optional `job`; stores them in `data/workshop/in/<job>/` and returns the job id and each file's path (pages and whether it is protected, for PDFs). The UI then calls the `pdf_*` tools and `images_compress` with those paths; results of uploaded files go to `data/workshop/out/<job>/`.
 - `GET /api/workshop/file?path=` — downloads a file under `data/workshop/` or one the workshop wrote in this run (attachment; `inline=1` shows a PDF or image); any other path is refused with 403; same-origin only.
-- `GET /api/workshop/status` — workshop folder and installed helpers; includes PrintCraft CLI availability and schema release.
+- `GET /api/workshop/status` — workshop folder and installed helpers; includes the owned Kafka PDF worker and operation schema release.
 - `POST /api/ui/call` `{name, arguments}` — any tool above, uncapped and unmasked (the UI is local).

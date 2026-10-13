@@ -1,0 +1,16 @@
+[package]
+name = "kafka-pdf-a11y"
+description = "Accessibility: the Accessibility Checker (32 rules), its report and fixes"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+kafka-pdf-cos = { workspace = true }
+kafka-pdf-model = { workspace = true }
+kafka-pdf-content = { workspace = true }
+thiserror.workspace = true

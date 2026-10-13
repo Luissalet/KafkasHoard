@@ -1,0 +1,12 @@
+[package]
+name = "kafka-pdf-worker"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+kafka-pdf-automation = { workspace = true }
+serde_json = { workspace = true }
+
+[lints]
+workspace = true

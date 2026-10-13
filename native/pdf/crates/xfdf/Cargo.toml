@@ -1,0 +1,17 @@
+[package]
+name = "kafka-pdf-xfdf"
+description = "Comment and form data exchange: XFDF (ISO 19444-1) and FDF import/export, form data as XML, CSV and tab-delimited text"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+kafka-pdf-cos = { workspace = true }
+kafka-pdf-annot = { workspace = true }
+kafka-pdf-forms = { workspace = true }
+kafka-pdf-model = { workspace = true }
+roxmltree = "0.20"
+thiserror = { workspace = true }

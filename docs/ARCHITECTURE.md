@@ -17,7 +17,7 @@
  services.py (wiring,        └──► series + price alerts · recurring roll · Phileas sync · housekeeping
  dashboard, settings)
         ▲
- agent_tools.py: one catalogue (60 tools) ──► api/agent.py (shared agent router, Bearer token, masked) · api/ui.py (local, unmasked) · mcp_server.py (stdio)
+ agent_tools.py: one catalogue (314 tools including historical PDF aliases) ──► api/agent.py (shared agent router, Bearer token, masked) · api/ui.py (local, unmasked) · mcp_server.py (stdio)
  scheduler.py (shared lane scheduler): lane "ingest" (folder and mail scans) · lane "reminders" (reminder run every 10 min, housekeeping hourly)
 ```
 
@@ -93,7 +93,7 @@ The Faustus mail helper is the family's `hoard_link/mail_helper.py`: `fam_mail.F
 
 `agent_tools.TOOLS` is the single catalogue. `GET /api/agent/tools` and `POST /api/agent/call` serve it to assistants with the bearer token from `data/mcp-token`: results are capped and personal identifiers are masked unless `reveal` is set. `POST /api/ui/call` serves the same handlers to the bundled UI uncapped and unmasked (the app only listens on 127.0.0.1 and the guard rejects cross-site requests). `mcp_server.py` exposes the catalogue over stdio as the `kafka-hoard` server and proxies to the running app. `docs/API.md` is generated from the catalogue by `scripts/gen_api_doc.py`; a test fails when it is out of date. The agent route is accountable (HoardLink 0.8.2): `reasons=True` makes every write tool need a `reason`; writes are journaled in `data/agent_journal.jsonl`; `kafka_hoard/agent_undo.py` holds, per tool, the `capture` (state before), `track` (objects touched and a fingerprint) and `undo` hooks that `POST /api/agent/undo` uses, plus the set of `draftSafeHint` tools a `drafts` token may call. The UI route (`/api/ui/call`) is not an agent and needs no reason. Documents and their deadlines are one unit for conflicts; the fingerprint ignores `notified` and the extraction timestamps.
 
-`workshop/printcraft.py` adapts the pinned PrintCraft 0.2.1 JSON-schema catalogue to those same API and MCP tools. Each CLI call runs in a temporary `--root`; a case PDF is copied there and edits save to a new workshop output. The `printcraft_artifacts` table persists source/revision links and SHA-256 receipts, including after restart. The optional executable is selected by the `printcraft.cli` setting, `KAFKA_PRINTCRAFT_CLI`, PATH or a portable bundle folder. The manifest records the verified CLI hash. This integration exposes the engine's 123 commands; it does not claim all existing PDF text or fonts can be edited faithfully.
+`workshop/printcraft.py` hosts `KafkaPdf` and the historical `PrintCraft` import alias. It resolves only the owned `native/bin/kafka-pdf-worker`, built from 26 incorporated engine crates and local patched PDF libraries. `kafka-pdf-batch/v1` batches run within a copied workspace; `kafka-pdf-result/v1` returns JSON results and real rendered PNG files. Every saved artifact keeps the existing receipt table and source/output hashes. The 123 operations have primary `pdf_*` names and historical `printcraft_*` aliases with the same handlers and schemas; four own workflow/catalogue/status/history names bring the full catalogue to 314. Legacy executable settings and environment variables are ignored for execution, preserving their stored values. Font/script and optional OCR/Office dependencies retain their existing limitations. Native source provenance, notices, locked dependencies and the build command live in `native/pdf`.
 
 ## Workshop
 

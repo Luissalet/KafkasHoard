@@ -1218,37 +1218,50 @@ def _run_printcraft_artifacts(svc: Services, args: dict[str, Any]) -> dict[str, 
 
 def _run_printcraft_catalog(svc: Services, args: dict[str, Any]) -> dict[str, Any]:
     rows = printcraft_catalog_rows()
-    return {"engine": "PrintCraft 0.2.1", "count": len(rows), "tools": rows}
+    return {"engine": "Kafka PDF", "count": len(rows), "tools": rows}
+
+
+def _run_pdf_catalog(svc: Services, args: dict[str, Any]) -> dict[str, Any]:
+    rows = [{**row, "name": "pdf_" + row["native_name"], "legacy_alias": row["name"]}
+            for row in printcraft_catalog_rows()]
+    return {"engine": "Kafka PDF", "count": len(rows), "tools": rows}
 
 
 _PRINTCRAFT_UTILS = [
     Tool("printcraft_workflow", _d("Edit a filed PDF in one saved workflow. Editar párrafos y páginas de un PDF.",
-         "Use an existing Kafka PDF id (d_…) or PrintCraft revision (pc_…). actions is an ordered list of {tool, arguments}; each tool is one of the printcraft_* tools. The source is copied, edits are saved as a new PDF, and an artifact receipt links it to the document. Original files are preserved.",
+         "Use an existing Kafka PDF id (d_…) or revision (pc_…). actions is an ordered list of {tool, arguments}. The source is copied, edits are saved as a new PDF, and an artifact receipt links it to the document. Original files are preserved.",
          "editar texto de un PDF, cambiar párrafo, insertar páginas, girar páginas, componer documento"),
          {"type": "object", "properties": {"doc": {"type": "string", "pattern": r"^(d_[0-9a-z]{6,}|pc_[0-9a-f]{12})$"},
           "actions": {"type": "array", "minItems": 1, "maxItems": 20, "items": {"type": "object", "properties": {"tool": {"type": "string"}, "arguments": {"type": "object"}}, "required": ["tool", "arguments"], "additionalProperties": False}},
           "confirm": {"type": "boolean", "description": "Required for destructive actions."}}, "required": ["doc", "actions"], "additionalProperties": False},
          _ann(False, idempotent=False), _run_printcraft_workflow, timeout_s=200),
-    Tool("printcraft_status", _d("PrintCraft CLI availability and optional live 123-tool discovery. Estado y descubrimiento PrintCraft.",
-         "Set printcraft.cli in Settings or KAFKA_PRINTCRAFT_CLI; otherwise Kafka searches PATH and its portable bundle folder.", "motor PDF editable local"),
+    Tool("printcraft_status", _d("Owned PDF engine and live operation discovery. Motor PDF incorporado y operaciones.",
+         "Kafka builds and runs its own PDF worker from incorporated source. Historical CLI paths are preserved as data and ignored for execution.", "motor PDF editable local"),
          {"type": "object", "properties": {"discover": {"type": "boolean", "default": True}}, "additionalProperties": False},
          _ann(True), _run_printcraft_status, timeout_s=40),
-    Tool("printcraft_artifacts", _d("List PDF revisions and receipt hashes linked to a Kafka document. Ver revisiones PrintCraft.",
+    Tool("printcraft_artifacts", _d("List PDF revisions and receipt hashes linked to a Kafka document. Ver revisiones PDF.",
          "Pass doc=d_… or pc_…; omit doc to list the 100 newest receipts.", "revisiones de PDF, recibos de edición"),
          {"type": "object", "properties": {"doc": {"type": "string"}}, "additionalProperties": False},
          _ann(True), _run_printcraft_artifacts),
-    Tool("printcraft_catalog", _d("Inspect all 123 PrintCraft tool schemas. Consultar catálogo PrintCraft.",
-         "Returns the pinned JSON schemas used by API, UI and MCP dispatch.", "descubrir herramientas PDF, schemas PrintCraft"),
+    Tool("printcraft_catalog", _d("Inspect all 123 owned PDF operation schemas. Consultar catálogo del motor PDF.",
+         "Returns the JSON schemas used by API, UI and MCP dispatch. The historical printcraft_* names remain aliases.", "descubrir herramientas PDF, schemas PDF"),
          {"type": "object", "properties": {}, "additionalProperties": False}, _ann(True), _run_printcraft_catalog, capped=False),
 ]
 for _row in printcraft_catalog_rows():
     _native_name = _row["native_name"]
     TOOLS.append(Tool(_row["name"], _d(_row["description"].split("\n", 1)[0],
-        "PrintCraft 0.2.1 CLI operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). File inputs are sandboxed; saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.",
-        "PrintCraft, PDF editable, taller de PDF"), _row["input_schema"],
+        "Owned Kafka PDF operation. Pass doc as a Kafka document id (d_…) or a prior revision (pc_…). Saved PDFs are new workshop outputs with receipts. Existing text editing may not preserve every font or script; verify the exported PDF.",
+        "PDF editable, taller de PDF"), _row["input_schema"],
         _ann(bool(_row["read_only"]), destructive=_native_name in {"doc_delete", "redact_apply", "doc_flatten"}, idempotent=bool(_row["read_only"])),
         lambda svc, args, native=_native_name: _run_printcraft(svc, args, native), timeout_s=180))
 TOOLS.extend(_PRINTCRAFT_UTILS)
+
+# Own operation names share the same handlers and schemas with historical aliases.
+for _tool in list(TOOLS):
+    if _tool.name.startswith("printcraft_"):
+        _alias = "pdf_engine_status" if _tool.name == "printcraft_status" else _tool.name.replace("printcraft_", "pdf_", 1)
+        TOOLS.append(dataclasses.replace(_tool, name=_alias,
+                     run=_run_pdf_catalog if _alias == "pdf_catalog" else _tool.run))
 
 
 def _track_with_ctx(fn):

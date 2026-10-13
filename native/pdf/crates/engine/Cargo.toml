@@ -1,0 +1,38 @@
+[package]
+name = "kafka-pdf-engine"
+description = "Kafka PDF engine façade: session, documents, command/tool catalogue"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+image = { version = "0.25", default-features = false, features = ["jpeg", "tiff"] }
+kafka-pdf-render = { workspace = true }
+kafka-pdf-cos = { workspace = true }
+kafka-pdf-organize = { workspace = true }
+kafka-pdf-annot = { workspace = true }
+kafka-pdf-forms = { workspace = true }
+kafka-pdf-edit = { workspace = true }
+kafka-pdf-redact = { workspace = true }
+kafka-pdf-print = { workspace = true }
+kafka-pdf-xfdf = { workspace = true }
+kafka-pdf-sign = { workspace = true }
+kafka-pdf-optimize = { workspace = true }
+kafka-pdf-a11y = { workspace = true }
+kafka-pdf-ocr = { workspace = true }
+kafka-pdf-js = { workspace = true }
+kafka-pdf-compare = { workspace = true }
+kafka-pdf-preflight = { workspace = true }
+kafka-pdf-export = { workspace = true }
+kafka-pdf-fonts = { workspace = true }
+kafka-pdf-create = { workspace = true }
+kafka-pdf-model = { workspace = true }
+thiserror = { workspace = true }
+png = "0.18"
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+# Already in the graph through lopdf; used only for the local UTC offset ("today").
+chrono = { version = "0.4", default-features = false, features = ["clock"] }

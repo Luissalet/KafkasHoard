@@ -31,7 +31,7 @@ from .store import Store
 from .hoard_link.dates import parse_iso
 from .hoard_link.tokens import read_or_create_token
 from .workshop import Workshop
-from .workshop.printcraft import PrintCraft
+from .workshop.printcraft import KafkaPdf
 
 log = logging.getLogger("kafka")
 
@@ -136,7 +136,7 @@ class Services:
         self._load_secrets()
         self.files = FileStore(config.files_dir)
         self.workshop = Workshop(config, self.store, self.files, self.setting)
-        self.printcraft = PrintCraft(config, self.store, self.files, self.setting, self.workshop)
+        self.printcraft = KafkaPdf(config, self.store, self.files, self.setting, self.workshop)
         self.notifier = notifier or Notifier(config, self.db.get_setting, transport=http_transport, clock=clock_fn)
         self.mail = mail_source or MailSource(self.setting, config.secret, runner=mail_runner, clock=clock_fn, offline=config.offline,
                                            save=self.db.set_setting)
@@ -237,10 +237,8 @@ class Services:
                 bad = _paths.unsafe_output_dir(value, self.config.data_dir)
                 if bad:
                     raise KafkaError("invalid", f"workshop.dir: {self.workshop._es(bad)}.", "Escribe la ruta absoluta de una carpeta normal (o déjalo vacío).")
-            if key == "printcraft.cli" and value:
-                candidate = Path(value).expanduser()
-                if not candidate.is_absolute() or not candidate.is_file() or candidate.name.lower() not in {"printcraft-cli.exe", "printcraft-cli"}:
-                    raise KafkaError("invalid", "printcraft.cli debe ser la ruta absoluta a printcraft-cli(.exe).")
+            # Preserve historical engine configuration as data; the owned PDF
+            # worker is resolved from the installed product, never this path.
             if key == "calendar.extra_holidays" and value:
                 for chunk in value.replace(";", ",").split(","):
                     if parse_iso(chunk.strip()) is None or len(chunk.strip()) != 10:

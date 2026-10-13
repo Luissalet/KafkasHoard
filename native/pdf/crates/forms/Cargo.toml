@@ -1,0 +1,19 @@
+[package]
+name = "kafka-pdf-forms"
+description = "Interactive forms (AcroForm): field model, filling, appearances, reset (ISO 32000-2 §12.7)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+kafka-pdf-cos = { workspace = true }
+kafka-pdf-fonts = { workspace = true }
+kafka-pdf-content = { workspace = true }
+kafka-pdf-model = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+hayro-syntax = { workspace = true }

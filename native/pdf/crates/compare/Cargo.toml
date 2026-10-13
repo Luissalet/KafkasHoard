@@ -1,0 +1,12 @@
+[package]
+name = "kafka-pdf-compare"
+description = "Compare files: word-level text differences between two documents, grouped into changes with their places on the pages"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
