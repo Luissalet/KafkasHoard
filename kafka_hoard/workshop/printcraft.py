@@ -350,7 +350,7 @@ class KafkaPdf:
             # Case-bound workflows always edit the document opened as id 1.
             # Save in the same CLI process/script so its in-memory document is still live.
             edits_document = native_name == "doc_create" or (native_name == "doc_open" and not ref)
-            if native_name in self.native_tools and native_name != "doc_save":
+            if native_name in self.native_tools and native_name not in {"doc_save", "doc_close"}:
                 edits_document = edits_document or not bool(self.native_tools[native_name].get("read_only"))
             edits_document = edits_document or any(not self.native_tools[name].get("read_only") for name, _ in actions)
             if (has_doc or native_name == "doc_create") and edits_document:

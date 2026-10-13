@@ -66,3 +66,22 @@ def test_worker_rejects_wrong_batch_without_creating_outputs(svc, tmp_path):
     assert completed.returncode != 0
     assert b"Expected kafka-pdf-batch/v1" in completed.stderr
     assert set(tmp_path.iterdir()) == before
+
+
+@pytest.mark.parametrize("name", ["pdf_doc_close", "printcraft_doc_close"])
+def test_close_finishes_without_saving_a_closed_document(svc, tmp_path, name):
+    svc.set_settings({"workshop.dir": str(tmp_path / "outputs")})
+    work = tmp_path / "source"
+    work.mkdir()
+    source = work / "source.pdf"
+    svc.printcraft._run_script(svc.printcraft.executable(), work, [
+        {"tool": "doc_create", "arguments": {"from": "text", "text": "Synthetic close check"}},
+        {"tool": "doc_save", "arguments": {"doc": 1, "path": str(source), "full": True}},
+    ])
+    original = source.read_bytes()
+    sha, _ = svc.files.put(original, "pdf")
+    document = svc.store.create_document(title="Close check", kind="other", file_sha=sha,
+        file_ext="pdf", file_name=source.name, mime="application/pdf", size=len(original), pages=1)
+    response = call_tool(svc, name, {"doc": document["id"]})
+    assert response["artifacts"] == []
+    assert svc.files.path_of(sha, "pdf").read_bytes() == original
