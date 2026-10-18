@@ -1,3 +1,7 @@
+> **Absorbed by [Borges's Hoard](https://github.com/Luissalet/BorgesHoard).** All native functions, interface and data are preserved in the incorporated module. This Hub identity retains compatibility, tokens and references; it cannot launch a standalone server. Start Borges explicitly and enable only requested functions: modules and background automation initially stay OFF. Keep the original data directories.
+>
+> The documentation below describes the historical engine; use the linked repository for current installation and operation.
+
 # Kafka's Hoard
 
 A local paperwork keeper. It reads invoices, contracts, insurance policies, receipts, warranties, letters from the tax office, the traffic authority or the town hall, fines, ITV reports and ID documents; finds who issued each one, the amounts and every date that matters; turns those dates into deadlines (counting Spanish working days where the law does); reminds you before each one; and answers questions with a citation to the document and page.

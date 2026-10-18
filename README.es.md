@@ -1,3 +1,7 @@
+> **Absorbido por [Borges's Hoard](https://github.com/Luissalet/BorgesHoard).** Sus funciones, interfaz y datos se conservan en el módulo incorporado. Esta entrada del Hub mantiene compatibilidad, tokens y referencias; ya no lanza un servidor propio. Inicia Borges y activa sólo las funciones que quieras: módulos y automatismos empiezan desactivados. Conserva las carpetas de datos originales.
+>
+> La documentación siguiente describe el motor histórico; el repositorio enlazado contiene la instalación y el uso actuales.
+
 # Kafka's Hoard
 
 Un archivador local de papeleo. Lee facturas, contratos, pólizas de seguro, tickets, garantías, cartas de Hacienda, de la DGT o del ayuntamiento, multas, ITV y documentos de identidad; averigua quién los emite, los importes y todas las fechas que importan; convierte esas fechas en plazos (contando días hábiles españoles donde la ley lo exige); te avisa antes de cada uno y responde a tus preguntas citando el documento y la página.
