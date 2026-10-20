@@ -1,3 +1,8 @@
+> **Absorbido por [Writer's Hoard](https://github.com/Luissalet/Writers-Hoard-Desktop).**
+> Las funciones de este proyecto se mantienen en el Hoard fusionado, con módulos independientes y apagados inicialmente.
+> El código y las instrucciones siguientes se conservan como referencia histórica; usa el repositorio enlazado para la instalación actual.
+> La absorción anterior en Borges continúa ahora dentro de Writer.
+
 > **Absorbido por [Borges's Hoard](https://github.com/Luissalet/BorgesHoard).** Sus funciones, interfaz y datos se conservan en el módulo incorporado. Esta entrada del Hub mantiene compatibilidad, tokens y referencias; ya no lanza un servidor propio. Inicia Borges y activa sólo las funciones que quieras: módulos y automatismos empiezan desactivados. Conserva las carpetas de datos originales.
 >
 > La documentación siguiente describe el motor histórico; el repositorio enlazado contiene la instalación y el uso actuales.
