@@ -183,13 +183,17 @@ class Services:
         threading.Thread(target=run, name="kafka-mail-interest", daemon=True).start()
 
     def stop(self) -> None:
-        self.scheduler.stop()
-        self.docsvc.stop()
-        try:
-            self.llm.close()
-        except Exception:  # noqa: BLE001
-            pass
-        self.db.close()
+        # Each step runs once even if stop() is called again after a failure.
+        steps = (self.scheduler.stop, self.docsvc.stop, self.llm.close, self.db.close)
+        done = getattr(self, "_stop_done", 0)
+        while done < len(steps):
+            try:
+                steps[done]()
+            except Exception:  # noqa: BLE001 — a failing step must not keep the database open
+                if steps[done] == self.db.close:
+                    raise
+            done += 1
+            self._stop_done = done
 
     def _emit(self, type_: str, data: dict[str, Any]) -> None:
         try:

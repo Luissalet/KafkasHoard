@@ -12,6 +12,7 @@ restart does not run every job at once.
 
 from __future__ import annotations
 
+import threading
 import time
 from pathlib import Path
 from typing import Any, Callable, Optional, Union
@@ -99,6 +100,10 @@ class Scheduler:
 
     def stop(self, timeout: float = 5.0) -> None:
         self.lanes.stop(timeout)
+        # The lane stop has a bounded first wait; the database must not close while a job still runs.
+        for thread in list(self.lanes._threads):
+            if thread is not threading.current_thread():
+                thread.join(timeout=30)
 
     def submit(self, kind: str, ref: str = "", reason: str = "manual") -> Optional[Job]:
         return self.lanes.submit(self._job(kind, ref, reason))

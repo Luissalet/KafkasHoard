@@ -102,6 +102,9 @@ class JobTable:
 
     def stop(self) -> None:
         self._stopped = True
+        for thread in list(self._threads):
+            if thread is not threading.current_thread():
+                thread.join(timeout=30)
 
     def _prune(self) -> None:
         now = self.clock()
