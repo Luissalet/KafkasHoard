@@ -51,6 +51,12 @@ OCR is optional: `pip install ".[ocr]"` (rapidocr + onnxruntime). Without it, sc
 
 Environment: `KAFKA_PORT` (5200), `KAFKA_DATA_DIR`, `PORT_STRICT=1`, `KAFKA_SCHEDULER=0` (no background work), `KAFKA_OFFLINE=1` (no network), `KAFKA_OCR=0`, `KAFKA_ALLOWED_HOSTS`, `KAFKA_HTTP_TIMEOUT_S`. Secrets (`KAFKA_TELEGRAM_TOKEN`, `KAFKA_TELEGRAM_CHAT_ID`, `KAFKA_NTFY_TOPIC`, `KAFKA_SMTP_*`, `KAFKA_FAUSTUS_DIR`) can go in `.env` (see `.env.example`) or in Settings. Everything else is a setting stored in `data/kafka.db`.
 
+## Standalone Hoard
+
+Kafka's Hoard is its own Hoard again (since 28 October 2026). It had been folded into another desktop app for a few days; that arrangement is over. It has its own server on port 5200, its own data in `data/` and its own `faustus-plugin.json`, so the family Hub can list, start and stop it and Faustus can connect to it over MCP (same 314 tool names as before). The Hub finds it because the repository folder is one of the roots in the Hub's `hub.json`; start it from the Hub, or run `python -m kafka_hoard`. Hoards run on demand: nothing starts it just because Faustus starts. Ledger, Hermes/Phileas, HomeHoard, Funes, CookHoard and People reach it through the Hub (`POST /api/apps/kafka/call`), and the writing app is meant to call it the same way as an external module instead of embedding it.
+
+First setup on a new machine: create the venv and install `requirements.txt`, then build the PDF worker once with `python scripts/build_pdf_engine.py` (needs a Rust toolchain; the result is `native/bin/kafka-pdf-worker`, not tracked by git). Without it only the PDF engine operations are unavailable.
+
 ## Faustus assistant
 
 Once the shared Hoard Link launcher is installed, the app shows the family's Faustus panel (a floating button). The conversation, the model and the tools live in Faustus; this app only tells the panel what is open.

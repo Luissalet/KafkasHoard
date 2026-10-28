@@ -2,6 +2,10 @@
 
 A local paperwork keeper (package `kafka_hoard`, service `kafka-hoard`, app id `kafka`, port 5200). It reads documents, extracts dates, makes deadlines and reminds. Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) first and [docs/RULES.md](docs/RULES.md) before touching anything that computes a date.
 
+## Standalone
+
+Kafka is a standalone Hoard (port 5200, app id `kafka`), registered in the Hub through this folder's `faustus-plugin.json`; other apps and the writing app reach it by Hoard Link, never by importing `kafka_hoard`. Data lives in `data/` here. `native/bin/kafka-pdf-worker` is built locally (`python scripts/build_pdf_engine.py`) and not committed; tests that use the PDF engine need it.
+
 ## Commands
 
 ```bash
