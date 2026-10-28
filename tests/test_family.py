@@ -186,7 +186,8 @@ class FakeHelper:
 
 def make_router(svc_or_cfg, api, mode="auto", settings=None):
     store = {"mail.source": mode, **(settings or {})}
-    source = MailSource(lambda k, d="": store.get(k, d), lambda name: "", hub_api=api, save=lambda k, v: store.__setitem__(k, v))
+    source = MailSource(lambda k, d="": store.get(k, d), lambda name: "", hub_api=api, save=lambda k, v: store.__setitem__(k, v),
+                        clock=lambda: docs.T0)
     return source, store
 
 
