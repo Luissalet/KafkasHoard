@@ -25,6 +25,7 @@ from email.utils import parseaddr
 from pathlib import Path
 from typing import Any, Callable, Optional
 
+from . import dossier as dossier_mod
 from . import model as M
 from . import paths, readers
 from .bizdays import Calendar
@@ -1544,6 +1545,87 @@ class Engine:
         jobs_purged = workshop_jobs.purge(self.data_dir / "workshop", now) if self.data_dir else 0
         return {"archived_deadlines": archived, "rolled_recurring": rolled, "series_relinked": relinked, "cache_files_purged": purged,
                 "workshop_jobs_purged": jobs_purged, "ledger_lookups": self.retry_ledger_links()}
+
+    # ------------------------------------------------------------------ dossiers (a question over several sources already filed)
+    def _dossier_pages(self, doc_id: str) -> tuple[Optional[dict[str, Any]], list[dict[str, Any]]]:
+        doc = self.store.find_document(doc_id)
+        return doc, (self.store.pages(doc_id) if doc else [])
+
+    def dossier_build(self, question: str, doc_ids: Optional[list[str]] = None, *, lang: str = "es", max_passages: int = 6) -> dict[str, Any]:
+        question = " ".join((question or "").split())
+        if len(question) < 3:
+            raise KafkaError("invalid", "Write the question the dossier should answer.")
+        ids = list(dict.fromkeys(i.strip() for i in (doc_ids or []) if i and i.strip()))
+        if not ids:
+            ids = list(dict.fromkeys(h["doc_id"] for h in self.store.search(question, limit=40)))[:6]
+            if not ids:
+                raise KafkaError("not_found", "No filed document matches the question.", "Pass doc_ids, or file the sources first (doc_add_file, doc_add_text).")
+        if len(ids) > dossier_mod.MAX_SOURCES:
+            raise KafkaError("invalid", f"At most {dossier_mod.MAX_SOURCES} sources per dossier.")
+        now = self.clock()
+        sources, pairs = [], []
+        for i in ids:
+            doc = self.store.document(i)                 # not_found for an unknown id
+            pairs.append((doc, self.store.pages(i)))
+        built = dossier_mod.build_sections(question, pairs, lang=lang, max_passages=max_passages, now=now)
+        for doc, _ in pairs:
+            sec = built["sections"][f"source:{doc['id']}"]
+            sources.append({"doc_id": doc["id"], "title": doc["title"], "text_sha": sec["text_sha"], "file_sha": doc.get("file_sha", "")})
+        row = self.store.create_dossier(question=question, lang=lang, max_passages=max_passages, sources=sources, **built)
+        self.store.add_run("dossier", row["id"], True, 0, f"{len(sources)} sources")
+        return row
+
+    def dossier_state(self, row: dict[str, Any]) -> dict[str, Any]:
+        """Per source: fresh, changed (its text is not the one the section was built from) or missing (the document was deleted)."""
+        out = []
+        for s in row["sources"]:
+            doc, pages = self._dossier_pages(s["doc_id"])
+            if doc is None:
+                state, current = "missing", ""
+            else:
+                current = dossier_mod.text_sha(pages)
+                state = "fresh" if current == s["text_sha"] else "changed"
+            out.append({"doc_id": s["doc_id"], "title": (doc or {}).get("title") or s["title"], "state": state, "recorded_sha": s["text_sha"][:12],
+                        "current_sha": current[:12], "depends": [f"source:{s['doc_id']}", "synthesis", "conclusion"] if state != "fresh" else []})
+        stale = [s for s in out if s["state"] != "fresh"]
+        return {"id": row["id"], "question": row["question"], "state": "stale" if stale else "fresh", "sources": out,
+                "stale_sections": [f"source:{s['doc_id']}" for s in stale] + (["synthesis", "conclusion"] if stale else []), "updated_ts": row["updated_ts"]}
+
+    def dossier_refresh(self, did: str) -> dict[str, Any]:
+        row = self.store.dossier(did)
+        state = self.dossier_state(row)
+        if state["state"] == "fresh":
+            return {"dossier": row, "recomputed": [], "dropped": [], "unchanged": True}
+        now = self.clock()
+        sections, sources = dict(row["sections"]), []
+        recomputed, dropped = [], []
+        for s, st in zip(row["sources"], state["sources"]):
+            key = f"source:{s['doc_id']}"
+            if st["state"] == "missing":
+                sections.pop(key, None)
+                dropped.append(s["doc_id"])
+                continue
+            if st["state"] == "changed":
+                doc, pages = self._dossier_pages(s["doc_id"])
+                sec = dossier_mod.extract_source(doc, pages, row["question"], max_passages=row["max_passages"], now=now)
+                sections[key] = sec
+                s = {**s, "title": doc["title"], "text_sha": sec["text_sha"], "file_sha": doc.get("file_sha", "")}
+                recomputed.append(key)
+            sources.append(s)
+        assembled = dossier_mod.assemble(sections, row["lang"], now)
+        recomputed += ["synthesis", "conclusion"]
+        row = self.store.update_dossier(did, sources=sources, **assembled)
+        self.store.add_run("dossier", did, True, 0, f"refreshed {', '.join(recomputed)}")
+        return {"dossier": row, "recomputed": recomputed, "dropped": dropped, "unchanged": False}
+
+    def dossier_delete(self, did: str) -> dict[str, Any]:
+        row = self.store.dossier(did)
+        self.store.delete_dossier(row["id"])
+        return {"deleted": row["id"]}
+
+    def requirements_diff(self, before: str, after: str, *, lang: str = "es") -> dict[str, Any]:
+        b, a = self.store.document(before), self.store.document(after)
+        return dossier_mod.requirements_diff(b, self.store.pages(b["id"]), a, self.store.pages(a["id"]), lang=lang)
 
 
 def _format_sender(mail: dict[str, Any]) -> str:

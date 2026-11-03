@@ -171,6 +171,22 @@ MIGRATIONS: list[str] = [
     );
     CREATE INDEX printcraft_artifacts_source ON printcraft_artifacts(source_doc_id, created_ts);
     """,
+    # 5: document dossiers: a question, the source versions (text hashes) each section was built from, and the sections
+    """
+    CREATE TABLE dossiers (
+      id TEXT PRIMARY KEY,
+      question TEXT NOT NULL,
+      lang TEXT NOT NULL DEFAULT 'es',
+      max_passages INTEGER NOT NULL DEFAULT 6,
+      sources TEXT NOT NULL DEFAULT '[]',
+      sections TEXT NOT NULL DEFAULT '{}',
+      synthesis TEXT NOT NULL DEFAULT '{}',
+      conclusion TEXT NOT NULL DEFAULT '{}',
+      created_ts REAL NOT NULL,
+      updated_ts REAL NOT NULL
+    );
+    CREATE INDEX dossiers_updated ON dossiers(updated_ts);
+    """,
 ]
 
 

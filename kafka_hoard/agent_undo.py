@@ -27,7 +27,8 @@ Not undoable (no handler, reported as such): doc_delete (the stored original goe
 nothing could bring it back), mail_accept, mail_scan, folder_scan, phileas_sync (they ingest from outside), document_link_tx (writes
 to another app), tax_pack, every pdf_* tool, images_compress and every PrintCraft tool that is not read-only (they write new files
 and never touch an original; removing them is for the person), notify_test, telegram_find_chat_id, secret_set (a secret is never
-copied into the journal), housekeeping_run.
+copied into the journal), housekeeping_run, kafka_dossier, kafka_dossier_refresh, kafka_dossier_delete (derived data that can be rebuilt from the sources;
+the sources and deadlines are never touched).
 """
 
 from __future__ import annotations
@@ -550,6 +551,6 @@ HOOKS: dict[str, dict[str, Callable[..., Any]]] = {
 }
 
 #: writes that create or edit drafts and never delete, send or read from outside: what a token with the ``drafts`` profile may call
-DRAFT_SAFE = {"doc_add_file", "doc_add_text", "doc_update", "doc_reprocess", "deadline_add", "deadline_update", "deadline_update_by_key",
+DRAFT_SAFE = {"doc_add_file", "doc_add_text", "doc_update", "doc_reprocess", "kafka_dossier", "kafka_dossier_refresh", "deadline_add", "deadline_update", "deadline_update_by_key",
               "deadlines_from_minutes", "mail_ignore", "pdf_merge", "pdf_split", "pdf_pages", "pdf_compress", "pdf_watermark", "pdf_metadata_set",
               "pdf_from_images", "pdf_from_office", "pdf_to_images", "images_compress"}

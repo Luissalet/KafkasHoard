@@ -109,6 +109,44 @@ class Store:
     def find_document(self, did: str) -> Optional[dict[str, Any]]:
         return _doc(self.db.one("SELECT * FROM documents WHERE id = ?", ((did or "").strip(),)))
 
+    # ------------------------------------------------------------------ dossiers
+    DOSSIER_JSON = ("sources", "sections", "synthesis", "conclusion")
+
+    def _dossier(self, row: Any) -> Optional[dict[str, Any]]:
+        if row is None:
+            return None
+        d = dict(row)
+        for k in self.DOSSIER_JSON:
+            d[k] = _loads(d.get(k), [] if k == "sources" else {})
+        return d
+
+    def create_dossier(self, **fields: Any) -> dict[str, Any]:
+        now = self.clock()
+        did = new_id("dos", now)
+        data = {k: _enc(v) for k, v in fields.items() if k in ("question", "lang", "max_passages", *self.DOSSIER_JSON)}
+        cols = ["id", "created_ts", "updated_ts", *data.keys()]
+        self.db.execute(f"INSERT INTO dossiers({', '.join(cols)}) VALUES ({', '.join('?' for _ in cols)})", [did, now, now, *data.values()])
+        return self.dossier(did)
+
+    def update_dossier(self, did: str, **fields: Any) -> dict[str, Any]:
+        data = {k: _enc(v) for k, v in fields.items() if k in ("lang", "max_passages", *self.DOSSIER_JSON)}
+        if data:
+            sets = ", ".join(f"{k} = ?" for k in data)
+            self.db.execute(f"UPDATE dossiers SET {sets}, updated_ts = ? WHERE id = ?", [*data.values(), self.clock(), did])
+        return self.dossier(did)
+
+    def dossier(self, did: str) -> dict[str, Any]:
+        row = self._dossier(self.db.one("SELECT * FROM dossiers WHERE id = ?", ((did or "").strip(),)))
+        if row is None:
+            raise KafkaError("not_found", f"No dossier {did}.", "List them with kafka_dossier_status.")
+        return row
+
+    def dossiers(self, limit: int = 100) -> list[dict[str, Any]]:
+        return [self._dossier(r) for r in self.db.query("SELECT * FROM dossiers ORDER BY updated_ts DESC LIMIT ?", (limit,))]
+
+    def delete_dossier(self, did: str) -> None:
+        self.db.execute("DELETE FROM dossiers WHERE id = ?", (did,))
+
     # ---------------------------------------------------------- PrintCraft receipts
     def create_printcraft_artifact(self, *, artifact_id: str, source_doc_id: Optional[str], parent_artifact_id: str,
                                    path: str, source_sha: str, output_sha: str, engine_release: str,

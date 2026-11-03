@@ -254,6 +254,88 @@ Annotations: readOnlyHint, idempotentHint.
 | `limit` (integer) | no | Maximum changes; output byte budget can return fewer, with next_offset. |
 | `reveal` (boolean) | no | Show personal identifiers only when the user explicitly requests them. |
 
+## `kafka_dossier`
+
+Dossier for a question over filed sources: cited claims and contradictions. Expediente de una pregunta.
+
+Reads each source's archived text (PDF, mail, text, csv tables, OCR) with fixed rules: relevant passages with [d_id · p. N · l. M] citations, claims (date, amount, duration, percent, obligation) and a cross-source synthesis. Incompatible values are listed side by side with their sources and never resolved; the conclusion separates agreement, conflict and open questions. No model text. Saves the dossier (dos_…).
+Sinónimos: expediente, dossier, contrastar documentos, contradicciones, qué dicen los papeles, fechas distintas, importes que no cuadran, cruzar fuentes
+
+Annotations: draftSafeHint.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `question` (string) | yes | The question the dossier answers, e.g. «¿cuándo y por cuánto se firma la renovación?» |
+| `doc_ids` (array/null) | no | Filed documents (d_…) to use as sources, 2 to 12 for a cross-check. Absent: the best full-text matches of the question. |
+| `lang` (es \| en) | no | Language of the synthesis texts and open questions. |
+| `max_passages` (integer) | no | Relevant passages kept per source. |
+| `detail` (summary \| full) | no | summary: relevant claims only; full: every claim read from each source. |
+
+## `kafka_dossier_status`
+
+Is a dossier up to date? Lists dossiers or one with its stale sections. Estado del expediente.
+
+Compares the text hash each source had when the dossier was built with the one it has now: fresh, changed or missing. Without dossier it lists all of them. Read-only.
+Sinónimos: expediente desactualizado, ha cambiado una fuente, dossier obsoleto, estado del expediente
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `dossier` (string) | no | Dossier id (dos_…). Empty: list every dossier with its state. |
+| `detail` (state \| summary \| full) | no | state: only fresh/stale per source; summary or full: also the dossier content. |
+
+## `kafka_dossier_refresh`
+
+Recompute only the sections of a dossier whose source changed. Actualizar expediente.
+
+Re-reads the changed sources, drops deleted ones, rebuilds synthesis and conclusion; unchanged sources are kept as they were.
+Sinónimos: actualizar expediente, refrescar dossier, recalcular lo que cambió
+
+Annotations: idempotentHint, draftSafeHint.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `dossier` (string) | no | Dossier id (dos_…). Empty: list every dossier with its state. |
+| `detail` (state \| summary \| full) | no | state: only fresh/stale per source; summary or full: also the dossier content. |
+
+## `kafka_dossier_delete`
+
+Delete a dossier (derived data; the sources stay). Borrar expediente.
+
+Needs confirm=true. Documents and their deadlines are not touched.
+Sinónimos: borrar expediente, eliminar dossier
+
+Annotations: destructiveHint, idempotentHint.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `dossier` (string) | yes | Dossier id (dos_…). |
+| `confirm` (boolean) | no | Must be true: the dossier (derived data only) is removed; sources are untouched. |
+
+## `kafka_requirements_diff`
+
+Clauses added, removed or modified between two versions, with affected claims. Qué requisitos cambiaron.
+
+Aligns clauses by number (cláusula, artículo, N.) then by text similarity; for each change returns both texts with citations, the word changes and the dates, amounts, durations or obligations that differ. Works for two sources too. Archived text only; no legal reading.
+Sinónimos: qué cambió, requisitos nuevos, cláusulas modificadas, comparar versiones del contrato, qué requisitos han cambiado
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `before` (string) | yes | Earlier version or first source, d_… |
+| `after` (string) | yes | Later version or second source, d_… |
+| `lang` (es \| en) | no | Language of the displayed values. |
+| `offset` (integer) | no | Zero-based change index; use next_offset for more. |
+| `limit` (integer) | no | Maximum clause changes returned. |
+
 ## `doc_search`
 
 Full-text search over every page, with snippets and citations. Buscar en los documentos.

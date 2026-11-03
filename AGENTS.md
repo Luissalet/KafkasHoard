@@ -46,6 +46,7 @@ Run Python from the repository root or with absolute paths: running a script fro
 | The tax return folder | `taxpack.py` |
 | A tool or its masking | `agent_tools.py`, `privacy.py` |
 | A PDF or image operation, where its result went, a workshop upload | `workshop/service.py`, `workshop/pdfops.py`, `workshop/imagetools.py`, `api/workshop.py` |
+| A dossier, a contradiction, a clause diff | `dossier.py` (pure rules), `Engine.dossier_*`, `docs/DOSSIER.md` |
 | The UI | `client/src/pages/*.jsx`, `client/src/components/*`, `client/src/i18n.js` |
 
 ## Before finishing a change

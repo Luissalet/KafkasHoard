@@ -17,7 +17,7 @@
  services.py (wiring,        └──► series + price alerts · recurring roll · Phileas sync · housekeeping
  dashboard, settings)
         ▲
- agent_tools.py: one catalogue (314 tools including historical PDF aliases) ──► api/agent.py (shared agent router, Bearer token, masked) · api/ui.py (local, unmasked) · mcp_server.py (stdio)
+ agent_tools.py: one catalogue (319 tools including historical PDF aliases) ──► api/agent.py (shared agent router, Bearer token, masked) · api/ui.py (local, unmasked) · mcp_server.py (stdio)
  scheduler.py (shared lane scheduler): lane "ingest" (folder and mail scans) · lane "reminders" (reminder run every 10 min, housekeeping hourly)
 ```
 
@@ -93,7 +93,7 @@ The Faustus mail helper is the family's `hoard_link/mail_helper.py`: `fam_mail.F
 
 `agent_tools.TOOLS` is the single catalogue. `GET /api/agent/tools` and `POST /api/agent/call` serve it to assistants with the bearer token from `data/mcp-token`: results are capped and personal identifiers are masked unless `reveal` is set. `POST /api/ui/call` serves the same handlers to the bundled UI uncapped and unmasked (the app only listens on 127.0.0.1 and the guard rejects cross-site requests). `mcp_server.py` exposes the catalogue over stdio as the `kafka-hoard` server and proxies to the running app. `docs/API.md` is generated from the catalogue by `scripts/gen_api_doc.py`; a test fails when it is out of date. The agent route is accountable (HoardLink 0.8.2): `reasons=True` makes every write tool need a `reason`; writes are journaled in `data/agent_journal.jsonl`; `kafka_hoard/agent_undo.py` holds, per tool, the `capture` (state before), `track` (objects touched and a fingerprint) and `undo` hooks that `POST /api/agent/undo` uses, plus the set of `draftSafeHint` tools a `drafts` token may call. The UI route (`/api/ui/call`) is not an agent and needs no reason. Documents and their deadlines are one unit for conflicts; the fingerprint ignores `notified` and the extraction timestamps.
 
-`workshop/printcraft.py` hosts `KafkaPdf` and the historical `PrintCraft` import alias. It resolves only the owned `native/bin/kafka-pdf-worker`, built from 26 incorporated engine crates and local patched PDF libraries. `kafka-pdf-batch/v1` batches run within a copied workspace; `kafka-pdf-result/v1` returns JSON results and real rendered PNG files. Every saved artifact keeps the existing receipt table and source/output hashes. The 123 operations have primary `pdf_*` names and historical `printcraft_*` aliases with the same handlers and schemas; four own workflow/catalogue/status/history names bring the full catalogue to 314. Legacy executable settings and environment variables are ignored for execution, preserving their stored values. Font/script and optional OCR/Office dependencies retain their existing limitations. Native source provenance, notices, locked dependencies and the build command live in `native/pdf`.
+`workshop/printcraft.py` hosts `KafkaPdf` and the historical `PrintCraft` import alias. It resolves only the owned `native/bin/kafka-pdf-worker`, built from 26 incorporated engine crates and local patched PDF libraries. `kafka-pdf-batch/v1` batches run within a copied workspace; `kafka-pdf-result/v1` returns JSON results and real rendered PNG files. Every saved artifact keeps the existing receipt table and source/output hashes. The 123 operations have primary `pdf_*` names and historical `printcraft_*` aliases with the same handlers and schemas; four own workflow/catalogue/status/history names bring the full catalogue to 319. Legacy executable settings and environment variables are ignored for execution, preserving their stored values. Font/script and optional OCR/Office dependencies retain their existing limitations. Native source provenance, notices, locked dependencies and the build command live in `native/pdf`.
 
 ## Workshop
 
@@ -132,3 +132,7 @@ can score external page predictions, so both OCR and postprocessing are measured
 ## Archived text comparison
 
 `doccompare.py` is a pure line alignment over page text. `doc_compare` reads selected pages from the store, retains page provenance, applies existing assistant masking before sizing/pagination, and returns bounded change excerpts. It does not re-extract files, edit state, generate notifications or calculate deadlines.
+
+## Dossiers
+
+`dossier.py` is pure (page text in, data out, like `extract/`): it reads claims from lines and table cells, groups them by subject across sources, and aligns clauses for the requirements diff. `Engine.dossier_build`, `dossier_refresh`, `dossier_state` and `dossier_delete` own the state; the `dossiers` table (migration 5) keeps the question, each source's text hash and the sections as JSON. The tools `kafka_dossier*` and `kafka_requirements_diff` are in `agent_tools.py`; `api/dossier.py` and the Dossiers page call the same handlers. See [DOSSIER.md](DOSSIER.md).
