@@ -197,3 +197,13 @@ def test_years_and_months_compare_and_days_against_working_days_conflict(svc):
     warranty = [g for g in syn["agreements"] if g["concept"] == "warranty"]
     assert warranty                                                       # 12 months = 1 year and 3 years = 36 months
     assert "warranty" not in conflicts or all(len(g["positions"]) == 2 for g in syn["contradictions"] if g["concept"] == "warranty")
+
+
+def test_a_spanish_and_an_english_source_about_the_same_requirement_pair_up(svc):
+    es = tool(svc, "doc_add_text", title="Oferta", text="El proveedor debera presentar el certificado de calidad.\nGarantia de 12 meses.")["documents"][0]["id"]
+    en = tool(svc, "doc_add_text", title="Offer", text="The supplier is not required to provide the quality certificate.\nWarranty of 24 months.")["documents"][0]["id"]
+    syn = tool(svc, "kafka_dossier", question="certificate and warranty", doc_ids=[es, en])["synthesis"]
+    req = [g for g in syn["contradictions"] if g["kind"] == "requirement"]
+    assert len(req) == 1 and len(req[0]["positions"]) == 2 and set(req[0]["sources"]) == {es, en}
+    assert any(g["concept"] == "warranty" for g in syn["contradictions"])
+    assert D.stems("el importe") == D.stems("the price") and sorted(D.stems("plazo de pago")) == sorted(D.stems("payment terms"))

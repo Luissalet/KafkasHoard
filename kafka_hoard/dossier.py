@@ -126,12 +126,27 @@ def concept_in(folded: str, kind: str) -> str:
     return ""
 
 
+# The same thing said in Spanish and in English pairs up: words that name the same business term share one stem, so two sources in different
+# languages about one requirement («el proveedor debera presentar el certificado» / «the supplier must provide the certificate») cluster together.
+_BILINGUAL = [(re.compile(rx), canon) for rx, canon in [
+    (r"^(?:entreg|deliver|ship|envi)", "deliv"), (r"^(?:import|prec|pric|amount|cost|tarif|fee|honorar)", "price"),
+    (r"^(?:garant|warrant|guarant)", "warra"), (r"^(?:pago|pagar|pagos|payment|pay)", "payme"), (r"^(?:plazo|terms?$|terminos|deadlin|period)", "term"),
+    (r"^(?:certif)", "certi"), (r"^(?:factur|invoic|bill)", "invoi"), (r"^(?:plano|drawing|blueprint)", "plan"),
+    (r"^(?:proveedor|supplier|vendor|provider|contratista|contractor)", "suppl"), (r"^(?:client|customer)", "clien"),
+    (r"^(?:contrat|contract|agreement|acuerdo)", "contr"), (r"^(?:segur|insuranc)", "insur"), (r"^(?:calidad|quality)", "quali"),
+    (r"^(?:present|submit|provid|aport|suministr|supply|attach|adjunt|emiti|emit|issue|enviar|send)", "provi"),
+    (r"^(?:document)", "docum"), (r"^(?:firm|sign)", "signa"), (r"^(?:inform|report)", "repor"), (r"^(?:penaliz|penalt|multa|fine)", "penal"),
+    (r"^(?:fianza|deposit|senal)", "depos"), (r"^(?:cancel|rescind|rescis|termin)", "cance"), (r"^(?:renov|renew)", "renew"),
+    (r"^(?:descuent|discount|rebate)", "disco"), (r"^(?:inspeccion|inspect)", "inspe"), (r"^(?:resid)", "resid"),
+]]
+
+
 def stems(text: str) -> list[str]:
     out = []
     for w in re.findall(r"[a-z]{3,}", fold(text)):
         if w in STOP or _MODAL_POS.fullmatch(w):
             continue
-        out.append(w[:5])
+        out.append(next((canon for rx, canon in _BILINGUAL if rx.match(w)), w[:5]))
     return out
 
 

@@ -32,3 +32,8 @@ Nothing is written by a model: every item has `derived_by: rules`. If a model is
 ## En español
 
 `kafka_dossier` junta, para una pregunta, los pasajes y datos de varias fuentes ya archivadas, con cita de página y línea, y lista las contradicciones una al lado de la otra sin elegir ninguna. El expediente recuerda el hash del texto de cada fuente: `kafka_dossier_status` avisa de cuáles han cambiado y `kafka_dossier_refresh` recalcula solo esa sección, la síntesis y la conclusión. `kafka_requirements_diff` compara dos versiones cláusula a cláusula. Las reglas son fijas (sin modelo); el texto de OCR puede traer errores y las tablas solo se detectan si las celdas se separan por `;` `|` tabulador, dos espacios o coma (CSV).
+
+
+## Bilingual matching (es/en)
+
+Requirement clustering and subject matching map Spanish and English domain words to shared stems (entrega/delivery, importe/precio/price/amount, garantia/warranty, plazo de pago/payment terms), so a Spanish source and an English source about the same clause pair up and conflict.
