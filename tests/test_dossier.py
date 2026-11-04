@@ -185,3 +185,15 @@ def test_rest_routes_and_masking(client):
     agent = client.post("/api/agent/call", headers=client.bearer, json={"name": "kafka_dossier", "arguments": {"question": "plazo", "doc_ids": [a, b]}, "reason": "test"})
     assert agent.status_code == 200 and "12345678Z" not in agent.text
     assert client.delete(f"/api/dossiers/{made['id']}").json() == {"deleted": made["id"]}
+
+
+def test_years_and_months_compare_and_days_against_working_days_conflict(svc):
+    a = tool(svc, "doc_add_text", title="Oferta A", text="Garantia de 12 meses.\nGarantia comercial: 3 anos.\nPago a 30 dias.")["documents"][0]["id"]
+    b = tool(svc, "doc_add_text", title="Oferta B", text="La garantia es de 1 ano.\nGarantia comercial: 36 meses.\nPago a 30 dias habiles.")["documents"][0]["id"]
+    d = tool(svc, "kafka_dossier", question="garantia y pago", doc_ids=[a, b])
+    syn = d["synthesis"]
+    conflicts = {g["concept"] for g in syn["contradictions"]}
+    assert "payment" in conflicts                                         # 30 days vs 30 working days is not the same term
+    warranty = [g for g in syn["agreements"] if g["concept"] == "warranty"]
+    assert warranty                                                       # 12 months = 1 year and 3 years = 36 months
+    assert "warranty" not in conflicts or all(len(g["positions"]) == 2 for g in syn["contradictions"] if g["concept"] == "warranty")

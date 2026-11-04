@@ -177,6 +177,8 @@ def _numbers_unit_hit(folded: str) -> list[tuple[int, int, float, str]]:
         unit = _UNIT[m.group(2)]
         if unit == "weeks":
             value, unit = value * 7, "days"
+        elif unit == "years":
+            value, unit = value * 12, "months"
         out.append((m.start(), m.end(), value, unit))
     return out
 
@@ -388,7 +390,8 @@ def _group_key(c: dict[str, Any]) -> tuple:
     if c["kind"] == "amount":
         return ("amount", c["concept"] or c["subject"])
     if c["kind"] == "quantity":
-        return ("quantity", c["subject"], c["unit"])
+        # «30 days» and «30 working days» about the same subject are one question with two answers, not two unrelated groups
+        return ("quantity", c["subject"], "days" if c["unit"] == "working_days" else c["unit"])
     return (c["kind"], c["subject"])
 
 
