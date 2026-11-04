@@ -62,6 +62,16 @@ def test_dossier_reports_contradictions_with_both_citations_and_agreement(svc):
     assert row["table"]["row"] == 1 and row["claim"].startswith("Entrega")
 
 
+def test_a_requirement_conflict_is_named_by_its_clause_not_by_a_concept(svc):
+    v1 = tool(svc, "doc_add_text", title="Pedido caja v1", text="La entrega sera el 15/12/2026.\nEl proveedor debe entregar los planos en PDF.")["documents"][0]["id"]
+    v2 = tool(svc, "doc_add_text", title="Pedido caja v2", text="La entrega sera el 20/12/2026.\nNo es necesario entregar los planos.")["documents"][0]["id"]
+    con = tool(svc, "kafka_dossier", question="entrega y planos", doc_ids=[v1, v2])["conclusion"]
+    subjects = [c["subject"] for c in con["conflicts"]]
+    assert subjects.count("la entrega") == 1
+    assert any("planos" in s for s in subjects)
+    assert any("planos" in q and "obligatorio" in q for q in con["open_questions"])
+
+
 def test_passages_follow_the_question_and_english_output(svc):
     pdf, mail, _ = file_all(svc)
     d = tool(svc, "kafka_dossier", question="certificate of residence required?", doc_ids=[pdf, mail], lang="en")
@@ -96,6 +106,10 @@ def test_requirements_diff_finds_the_modified_clause(svc):
     assert any(w["before"] == "30" and w["after"] == "45" for w in two["words"])
     q = two["claims"][0]
     assert q["change"] == "modified" and q["before"][0]["display"] == "30 días" and q["after"][0]["display"] == "45 días"
+    # the subject keeps the internal concept; the label is what a person reads, in the requested language
+    assert q["subject"] in D.CONCEPT_ORDER and q["label"] == D.T["es"]["subject"][q["subject"]].capitalize()
+    en = next(c for c in tool(svc, "kafka_requirements_diff", before=v1, after=v2, lang="en")["changes"] if c["clause"] == "2")["claims"][0]
+    assert en["label"] == D.T["en"]["subject"][q["subject"]].capitalize()
     assert mod["3"]["claims"][0]["kind"] == "requirement"
     added = next(c for c in r["changes"] if c["change"] == "added")
     assert added["clause"] == "5" and added["claims"][0]["after"][0]["display"] == "5 %"

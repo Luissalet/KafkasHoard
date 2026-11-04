@@ -182,7 +182,7 @@ function Diff() {
               </div>
               {c.claims.map((k, i) => (
                 <div key={i} className="help">
-                  {k.subject}: {k.before.map((x) => x.display).join(", ") || "—"} → {k.after.map((x) => x.display).join(", ") || "—"}
+                  {k.label || k.subject}: {k.before.map((x) => x.display).join(", ") || "—"} → {k.after.map((x) => x.display).join(", ") || "—"}
                 </div>
               ))}
             </article>

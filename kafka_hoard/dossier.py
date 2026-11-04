@@ -512,6 +512,9 @@ T = {
 
 
 def _name(group: dict[str, Any], lang: str) -> str:
+    """A requirement is named by its own clause: "entregar los planos" is about the plans, not about the delivery date."""
+    if group["kind"] == "requirement":
+        return group["subject"]
     return T[lang]["subject"].get(group["concept"]) or group["subject"]
 
 
@@ -639,7 +642,9 @@ def _claim_changes(before: list[dict[str, Any]], after: list[dict[str, Any]], la
         if vb == va:
             continue
         sample = (a or b)[0]
+        named = T[lang]["subject"].get(sample["concept"], "") if sample["kind"] != "requirement" else ""
         row = {"kind": sample["kind"], "subject": sample["concept"] or sample["claim"] if sample["kind"] != "requirement" else sample["claim"],
+               "label": (named[:1].upper() + named[1:]) if named else sample["claim"],
                "change": "modified" if b and a else "added" if a else "removed",
                "before": [{"display": fmt_value(c["kind"], c["value"], c["unit"], lang), "cite": c["cite"]} for c in b if _ident(c, "") not in va],
                "after": [{"display": fmt_value(c["kind"], c["value"], c["unit"], lang), "cite": c["cite"]} for c in a if _ident(c, "") not in vb]}
