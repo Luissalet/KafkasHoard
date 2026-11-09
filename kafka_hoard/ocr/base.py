@@ -48,6 +48,9 @@ class OcrResult:
     text: str = ""
     backend: str = ""
     error: str = ""                      # set when the engine itself failed (an image without text has no error)
+    markdown: str = ""                   # engines that understand the layout (Indra) give the page as Markdown; others leave it empty
+    layout: list[dict[str, Any]] = field(default_factory=list)   # layout blocks {label, bbox [x0, y0, x1, y1], text}, same engines
+    fallback: str = ""                   # the engine that was asked for and failed on this image (the result is from ``backend``)
 
 
 class OcrBackend:

@@ -16,5 +16,6 @@ pillow==12.2.0
 numpy==2.4.4
 onnxruntime==1.25.0
 rapidocr==3.9.2
+indra-ocr==1.1.2
 pytest==9.1.1
 pytest-asyncio==1.4.0

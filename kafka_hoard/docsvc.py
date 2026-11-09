@@ -20,7 +20,7 @@ from .hoard_link import waiting
 from .hoard_link.docs import readers_lite
 from .hoard_link.docs.sniff import sniff as _sniff
 from .hoard_link.ids import new_id
-from .ocr import Ocr, lang_code
+from .ocr import ENGINES, ORDER, Ocr, lang_code
 from .workshop import ranges
 
 log = logging.getLogger("kafka.docsvc")
@@ -162,6 +162,8 @@ class DocService:
         self.ocr = ocr
         self.data_dir = Path(data_dir) if data_dir else None
         self.jobs = jobs or JobTable()
+        self._lock = threading.Lock()
+        self._ocr_by_choice: dict[str, Ocr] = {}          # facades for the calls that name an engine of their own
 
     def stop(self) -> None:
         self.jobs.stop()
@@ -272,23 +274,48 @@ class DocService:
         except ValueError as exc:
             raise KafkaError("invalid", f"The file is not a readable image ({str(exc)[:120]}).") from exc
 
-    def ocr_image(self, path: str, *, lang: str = "es", blocks: bool = False) -> dict[str, Any]:
+    def ocr_image(self, path: str, *, lang: str = "es", blocks: bool = False, markdown: bool = False, engine: str = "") -> dict[str, Any]:
+        """``{text, backend}`` always (the family contract); ``blocks`` adds the lines with box and score, ``markdown`` adds ``markdown`` and
+        ``layout`` (Indra gives the page's own Markdown and layout blocks; the other engines give the text as the Markdown and no layout).
+        ``fallback`` appears when the chosen engine failed on this image and another one read it. ``engine`` overrides the setting for this call."""
         src, data = self._read_file(path)
         image = self._open_image(data)
-        ok, why = self.ocr.available()
+        ocr = self._ocr_for(engine)
+        ok, why = ocr.available()
         if not ok:
             raise KafkaError("ocr_unavailable", f"OCR is not available: {why}", self._install_hint(), status=503)
-        result = self.ocr.recognise(image, lang_code(lang))
+        t0 = time.perf_counter()
+        result = ocr.recognise(image, lang_code(lang))
+        seconds = round(time.perf_counter() - t0, 2)
         if result.error and not result.text:
             raise KafkaError("ocr_failed", f"OCR failed on «{src.name}»: {result.error}", status=500)
-        out: dict[str, Any] = {"text": readers.clean_text(result.text), "backend": result.backend or self.ocr.available()[1]}
+        text = readers.clean_text(result.text)
+        out: dict[str, Any] = {"text": text, "backend": result.backend or ocr.available()[1]}
         if blocks:
             out["blocks"] = [b.public() for b in result.blocks]
+        if markdown:
+            out["markdown"] = result.markdown.strip() or text
+            out["layout"] = result.layout
+        if result.fallback:
+            out["fallback"] = result.fallback
+        out["seconds"] = seconds
         return out
+
+    def _ocr_for(self, engine: str) -> Ocr:
+        """The OCR facade for one call: the app's own, or (``engine`` given and different from the setting) a facade for that choice."""
+        choice = str(engine or "").strip().lower()
+        if not choice or choice == self.ocr.requested:
+            return self.ocr
+        if choice not in ENGINES and choice not in ORDER:
+            raise KafkaError("invalid", f"engine must be one of {', '.join(ENGINES)} or an engine name ({', '.join(ORDER)}), not {engine!r}.")
+        with self._lock:
+            if choice not in self._ocr_by_choice:
+                self._ocr_by_choice[choice] = Ocr(self.ocr.enabled, backend=choice, lang=self.ocr.lang)
+            return self._ocr_by_choice[choice]
 
     @staticmethod
     def _install_hint() -> str:
-        return "Install an OCR engine: pip install rapidocr onnxruntime (any system), winocr (Windows) or pytesseract with Tesseract."
+        return "Install an OCR engine: pip install indra-ocr or rapidocr onnxruntime (any system), winocr (Windows) or pytesseract with Tesseract."
 
     # ----------------------------------------------------------------------------------------------- ocr_pdf
     def ocr_pdf(self, path: str, *, pages: str = "", dpi: int = 200, lang: str = "es", max_pages: int = 40, wait_s: Any = 150) -> dict[str, Any]:

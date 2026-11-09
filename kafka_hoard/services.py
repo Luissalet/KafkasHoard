@@ -25,6 +25,7 @@ from .mail.source import SOURCES as MAIL_SOURCES
 from .mail.source import MailSource
 from .notify import CHANNELS, EMAIL_BACKENDS, VIA_MODES, Notifier
 from .docsvc import DocService
+from .ocr import ENGINES as OCR_ENGINES
 from .ocr import Ocr
 from .scheduler import Scheduler
 from .store import Store
@@ -50,6 +51,7 @@ UI_SETTINGS: dict[str, Optional[tuple[str, ...]]] = {
     "mail.faustus_owner": None,
     "mail.source": MAIL_SOURCES,
     "extract.llm": ("auto", "off"),
+    "ocr.engine": OCR_ENGINES,
     "warranty.years": None,
     "calendar.region": REGIONS,
     "calendar.extra_holidays": None,
@@ -71,7 +73,7 @@ UI_SETTINGS: dict[str, Optional[tuple[str, ...]]] = {
     **{f"notify.{c}.min_severity": ("low", "medium", "high") for c in CHANNELS},
 }
 DEFAULTS = {"ui.language": "es", "scheduler.paused": "0", "folders.interval_min": "5", "mail.enabled": "1", "mail.interval_min": "15",
-            "mail.window_days": "14", "mail.first_days": "180", "extract.llm": "auto", "warranty.years": "3", "calendar.region": "ES-MD",
+            "mail.window_days": "14", "mail.first_days": "180", "extract.llm": "auto", "ocr.engine": "auto", "warranty.years": "3", "calendar.region": "ES-MD",
             "prices.alert_pct": "5", "prices.bills": "0", "links.phileas": "1", "links.ledger": "1", "mail.source": "auto", "notify.via": "auto",
             "notify.night_from": "23", "notify.night_to": "7",
             "notify.night_high": "0", "notify.ntfy.server": "https://ntfy.sh", "notify.email.backend": "auto",
@@ -140,7 +142,8 @@ class Services:
         self.notifier = notifier or Notifier(config, self.db.get_setting, transport=http_transport, clock=clock_fn)
         self.mail = mail_source or MailSource(self.setting, config.secret, runner=mail_runner, clock=clock_fn, offline=config.offline,
                                            save=self.db.set_setting)
-        self.ocr = ocr or Ocr(config.ocr, backend=config.ocr_backend, lang=config.ocr_lang)
+        stored_engine = (self.db.get_setting("ocr.engine", None) or "").strip().lower()      # the «Motor de OCR» choice wins over KAFKA_OCR_BACKEND
+        self.ocr = ocr or Ocr(config.ocr, backend=stored_engine if stored_engine in OCR_ENGINES else config.ocr_backend, lang=config.ocr_lang)
         self.docsvc = DocService(self.ocr, config.data_dir)
         self.llm = llm if llm is not None else LlmPass(config.backend_json_path)
         self.engine = Engine(self.store, self.files, self.notifier, self.ocr, settings_get=self.db.get_setting, settings_set=self.db.set_setting,
@@ -256,6 +259,8 @@ class Services:
                     raise KafkaError("invalid", f"{key}: days must be between 0 and 365.")
                 value = ",".join(str(x) for x in leads)
             self.db.set_setting(key, value)
+            if key == "ocr.engine" and hasattr(self.ocr, "set_backend"):
+                self.ocr.set_backend(value)
             if key.startswith("mail.") and key != "mail.hub_since_id":
                 forget = getattr(self.mail, "forget_interest", None)
                 if forget:
@@ -406,13 +411,15 @@ class Services:
 
     def status(self) -> dict[str, Any]:
         ocr_ok, ocr_note = self.ocr.available()
+        ocr_status = self.ocr.status()
         return {"service": SERVICE, "version": __version__, "data_dir": str(self.config.data_dir), "uptime_s": int(time.time() - self.started_at),
                 "counts": self.counts(), "scheduler": self.scheduler.status(), "channels": self.notifier.channels_status(),
                 "folders": self.folders_view(), "last_folder_scan_ts": float(self.setting("folders.last_scan_ts") or 0) or None,
                 "notify": self._notify_via(),
                 "mail": {"source": self._mail_source(), "mode": self.setting("mail.source"), "faustus_dir": str(self.mail.faustus_dir() or ""), "last_scan_ts": float(self.setting("mail.last_scan_ts") or 0) or None,
                          "last_error": self.setting("mail.last_error"), "first_scan_done": self.setting("mail.first_scan_done") == "1"},
-                "ocr": {"available": ocr_ok, "detail": ocr_note, "backend": ocr_note if ocr_ok else "", "backends": self.ocr.status()["backends"]},
+                "ocr": {"available": ocr_ok, "detail": ocr_note, "backend": ocr_note if ocr_ok else "", "backends": ocr_status["backends"],
+                        "engine": ocr_status.get("engine", "auto"), "engines": ocr_status.get("engines", list(OCR_ENGINES))},
                 "llm": {"mode": self.setting("extract.llm"), "available": self._llm_available()},
                 "phileas": {"enabled": self.setting("links.phileas") == "1", "last_sync_ts": float(self.setting("links.phileas.last_sync_ts") or 0) or None,
                             "last_error": self.setting("links.phileas.last_error")},

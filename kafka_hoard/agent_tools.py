@@ -25,7 +25,7 @@ from .extract.pipeline import extract
 from .extract.types import Meta
 from .notify import CHANNELS
 from .privacy import mask_obj, mask_text
-from .services import SECRET_NAMES, Services
+from .services import OCR_ENGINES, SECRET_NAMES, Services
 from .store import HIT_CLOSE, HIT_OPEN
 from .hoard_link.text import fold
 from .hoard_link.dates import parse_iso
@@ -35,7 +35,7 @@ from .workshop.printcraft import PrintCraft, printcraft_catalog_rows
 DOC_TEXT_CAP = 6_000
 # The family service tools read a file the caller names and hand its text to another app (which indexes it): masking would corrupt the
 # data, and nothing stored in Kafka is involved. Every other tool that can carry text is masked for assistants.
-UNMASKED = frozenset({"doc_extract", "ocr_image", "ocr_pdf", "ocr_status"})
+UNMASKED = frozenset({"doc_extract", "ocr_image", "ocr_file", "ocr_engine", "ocr_pdf", "ocr_status"})
 
 AGENT_INSTRUCTIONS = """Kafka's Hoard is a local paperwork keeper. It reads invoices, contracts, insurance policies, receipts and warranties, letters from the tax office, the traffic authority or the town hall, fines, ITV and ID documents from uploads, watched folders and the mail account configured in Faustus, extracts who issued them, the amounts and every date that matters, and turns those dates into deadlines with the rule that produced each one.
 Start with kafka_overview (overdue, next 30 days, what needs review). For one deadline: deadline_get and deadline_explain (basis, rule, evidence, page). For documents: docs_list, doc_get and doc_search (full text with citations). Use doc_compare for changes between two archived documents, optionally selecting pages; follow next_offset and cite both sources. Equality concerns only the selected extracted text, not images or original files. For a question over several filed sources use kafka_dossier (passages and claims with page/line citations, contradictions side by side, never resolved for you): quote its positions, ask the open questions, and call kafka_dossier_status / kafka_dossier_refresh when a source may have changed. kafka_requirements_diff lists the clauses added, removed or modified between two versions. To file something: doc_add_file (absolute path on this computer), doc_add_text, or mail_scan. To check a purchase: warranty_check.
@@ -445,6 +445,20 @@ class OcrImageArgs(BaseModel):
     path: str = Field(..., min_length=3, max_length=1000, description="Absolute path of the image (PNG, JPEG, WEBP, HEIC, BMP, TIFF, GIF).")
     lang: str = Field("es", max_length=10, description="Language of the text (es, en, fr, pt, it, de, ca).")
     blocks: bool = Field(False, description="Also return every recognised line with its box and confidence.")
+    markdown: bool = Field(False, description="Also return the page as Markdown and its layout blocks (Indra); other engines give the text as the Markdown.")
+    engine: str = Field("", max_length=20, description="Use this engine for this call only: auto, indra, current or an engine name. Empty: the Kafka setting «Motor de OCR».")
+
+
+class OcrFileArgs(BaseModel):
+    path: str = Field(..., min_length=3, max_length=1000, description="Absolute path of the image (PNG, JPEG, WEBP, HEIC, BMP, TIFF, GIF). PDFs go through ocr_pdf.")
+    engine: str = Field("", max_length=20, description="auto, indra or current for this call only (compare engines). Empty: the Kafka setting «Motor de OCR».")
+    lang: str = Field("es", max_length=10, description="Language of the text (es, en, fr, pt, it, de, ca).")
+    blocks: bool = Field(True, description="Return every recognised line with its box and confidence.")
+    markdown: bool = Field(True, description="Return the page as Markdown and its layout blocks.")
+
+
+class OcrEngineArgs(BaseModel):
+    engine: str = Field("", max_length=20, description="auto (Indra if installed, the current engines as backup), indra, or current (winocr, rapidocr, light-ocr, tesseract). Empty: only report.")
 
 
 class OcrPdfArgs(BaseModel):
@@ -1084,7 +1098,22 @@ def run_doc_extract(svc: Services, a: DocExtractArgs) -> dict[str, Any]:
 
 
 def run_ocr_image(svc: Services, a: OcrImageArgs) -> dict[str, Any]:
-    return svc.docsvc.ocr_image(a.path, lang=a.lang, blocks=a.blocks)
+    return svc.docsvc.ocr_image(a.path, lang=a.lang, blocks=a.blocks, markdown=a.markdown, engine=a.engine)
+
+
+def run_ocr_file(svc: Services, a: OcrFileArgs) -> dict[str, Any]:
+    out = svc.docsvc.ocr_image(a.path, lang=a.lang, blocks=a.blocks, markdown=a.markdown, engine=a.engine)
+    out["engine"] = (a.engine or svc.ocr.requested).strip().lower()
+    return out
+
+
+def run_ocr_engine(svc: Services, a: OcrEngineArgs) -> dict[str, Any]:
+    if a.engine.strip():
+        choice = a.engine.strip().lower()
+        if choice not in OCR_ENGINES:
+            raise KafkaError("invalid", f"engine must be one of {', '.join(OCR_ENGINES)}.", "auto: Indra if installed, the current engines as backup. indra. current: winocr, rapidocr, light-ocr, tesseract.")
+        svc.set_settings({"ocr.engine": choice})
+    return svc.ocr.status()
 
 
 def run_ocr_pdf(svc: Services, a: OcrPdfArgs) -> dict[str, Any]:
@@ -1294,6 +1323,15 @@ TOOLS: list[Tool] = [
                          "Spanish by default. 503 ocr_unavailable (with an install hint) when no engine is installed.",
                          "reconocer texto, captura de pantalla, foto de un ticket, texto de una imagen, OCR"),
          OcrImageArgs, _ann(True, idempotent=True), run_ocr_image),
+    Tool("ocr_file", _d("OCR of an image with the chosen engine, plus Markdown and timing. Leer una imagen con el motor.",
+                        "Like ocr_image but returns blocks and markdown by default plus seconds and the engine asked for; engine compares auto, indra and current without changing the setting.",
+                        "comparar motores de OCR, leer captura con indra, markdown de una imagen, cuánto tarda el OCR"),
+         OcrFileArgs, _ann(True, idempotent=True), run_ocr_file),
+    Tool("ocr_engine", _d("Choose or report the OCR engine (auto, indra, current). Elegir el motor de OCR.",
+                          "Without engine it only reports. auto uses Indra when installed and the current engines as backup; current is winocr, rapidocr, light-ocr, tesseract. "
+                          "Returns the engine report (installed engines, chain, chosen engine). Same as the setting «Motor de OCR».",
+                          "motor de OCR, cambiar a indra, usar rapidocr, qué motor de OCR hay"),
+         OcrEngineArgs, _ann(False, idempotent=True), run_ocr_engine),
     Tool("ocr_pdf", _d("OCR of the pages of a PDF, without its text layer. Reconocer el texto de un PDF escaneado.",
                        "Runs as a job: wait_s up to 150 s, then the running job comes back; follow it with ocr_status. pages is e.g. '1-5,9'.",
                        "pdf escaneado, ocr de las páginas, texto de un escaneo, reconocimiento de texto"),

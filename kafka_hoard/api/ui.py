@@ -35,6 +35,22 @@ def visit(request: Request):
     return services(request).mark_visit()
 
 
+class OcrEngineBody(BaseModel):
+    engine: str = Field(..., min_length=1, max_length=20)
+
+
+@router.get("/ocr")
+def ocr_report(request: Request):
+    """The OCR engine report: installed engines, the chain, the chosen engine."""
+    return services(request).ocr.status()
+
+
+@router.post("/ocr/engine")
+def ocr_choose_engine(request: Request, body: OcrEngineBody):
+    """Choose the OCR engine (auto, indra, current): the «Motor de OCR» setting."""
+    return tool(request, "ocr_engine", {"engine": body.engine})
+
+
 @router.get("/ui/tools")
 def ui_tools():
     return {"tools": [t["name"] for t in tool_catalog()]}

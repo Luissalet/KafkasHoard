@@ -24,7 +24,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-ocr = ["rapidocr>=3.0", "onnxruntime>=1.18", "numpy>=1.26"]
+ocr = ["rapidocr>=3.0", "onnxruntime>=1.18", "numpy>=1.26", "indra-ocr>=1.1"]
 dev = ["pytest>=8", "pytest-asyncio>=0.23"]
 icon = ["pillow>=11", "numpy>=2"]
 

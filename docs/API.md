@@ -1022,6 +1022,40 @@ Annotations: readOnlyHint, idempotentHint.
 | `path` (string) | yes | Absolute path of the image (PNG, JPEG, WEBP, HEIC, BMP, TIFF, GIF). |
 | `lang` (string) | no | Language of the text (es, en, fr, pt, it, de, ca). |
 | `blocks` (boolean) | no | Also return every recognised line with its box and confidence. |
+| `markdown` (boolean) | no | Also return the page as Markdown and its layout blocks (Indra); other engines give the text as the Markdown. |
+| `engine` (string) | no | Use this engine for this call only: auto, indra, current or an engine name. Empty: the Kafka setting «Motor de OCR». |
+
+## `ocr_file`
+
+OCR of an image with the chosen engine, plus Markdown and timing. Leer una imagen con el motor.
+
+Like ocr_image but returns blocks and markdown by default plus seconds and the engine asked for; engine compares auto, indra and current without changing the setting.
+Sinónimos: comparar motores de OCR, leer captura con indra, markdown de una imagen, cuánto tarda el OCR
+
+Annotations: readOnlyHint, idempotentHint.
+
+| Argument | Required | Description |
+|---|---|---|
+| `path` (string) | yes | Absolute path of the image (PNG, JPEG, WEBP, HEIC, BMP, TIFF, GIF). PDFs go through ocr_pdf. |
+| `engine` (string) | no | auto, indra or current for this call only (compare engines). Empty: the Kafka setting «Motor de OCR». |
+| `lang` (string) | no | Language of the text (es, en, fr, pt, it, de, ca). |
+| `blocks` (boolean) | no | Return every recognised line with its box and confidence. |
+| `markdown` (boolean) | no | Return the page as Markdown and its layout blocks. |
+
+## `ocr_engine`
+
+Choose or report the OCR engine (auto, indra, current). Elegir el motor de OCR.
+
+Without engine it only reports. auto uses Indra when installed and the current engines as backup; current is winocr, rapidocr, light-ocr, tesseract. Returns the engine report (installed engines, chain, chosen engine). Same as the setting «Motor de OCR».
+Sinónimos: motor de OCR, cambiar a indra, usar rapidocr, qué motor de OCR hay
+
+Annotations: idempotentHint.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `engine` (string) | no | auto (Indra if installed, the current engines as backup), indra, or current (winocr, rapidocr, light-ocr, tesseract). Empty: only report. |
 
 ## `ocr_pdf`
 

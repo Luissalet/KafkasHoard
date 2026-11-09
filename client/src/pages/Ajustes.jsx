@@ -300,6 +300,19 @@ function Reading({ status, settings, reload }) {
         <span className="help" style={{ overflowWrap: "anywhere" }}>{ocr.detail}</span>
       </div>
       <p className="help">{t("ocr_help")}</p>
+      <div className="space-y-1" data-testid="ocr-engine">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="font-semibold">{t("ocr_engine")}</span>
+          {["auto", "indra", "current"].map((e) => (
+            <button key={e} type="button" className={`btn btn-sm ${ocr.engine === e ? "btn-primary" : ""}`} aria-pressed={ocr.engine === e} disabled={busy.engine}
+              onClick={() => run("engine", async () => { await api.call("ocr_engine", { engine: e }); notify(t("ocr_engine_saved")); await reload(); })}>{t(`ocr_engine_${e}`)}</button>
+          ))}
+        </div>
+        <p className="help">{t(["auto", "indra", "current"].includes(ocr.engine) ? `ocr_engine_${ocr.engine}_hint` : "ocr_engine_hint")}</p>
+        <p className="help" style={{ overflowWrap: "anywhere" }}>
+          {Object.entries(ocr.backends || {}).map(([name, b]) => `${name}: ${b.available ? t("available") : t("unavailable")}`).join(" · ")}
+        </p>
+      </div>
       <div className="flex flex-wrap items-center gap-2">
         <span className="font-semibold">{t("model_pass")}</span>
         <Chip className={llm.available?.ok ? "chip-ok" : "chip"}>{llm.mode === "off" ? t("off") : llm.available?.ok ? t("available") : t("unavailable")}</Chip>
