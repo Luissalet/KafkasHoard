@@ -13,12 +13,19 @@ function useDebounced(value, ms = 250) {
   return v;
 }
 
-function List() {
+function List({ query }) {
   const { t, version } = useApp();
-  const [q, setQ] = useState("");
-  const [kind, setKind] = useState("");
-  const [year, setYear] = useState("");
-  const [state, setState] = useState("");
+  const filterKey = query?.toString() || "";
+  const initial = new URLSearchParams(filterKey);
+  const [q, setQ] = useState(() => initial.get("q") || "");
+  const [kind, setKind] = useState(() => initial.get("kind") || "");
+  const [year, setYear] = useState(() => initial.get("year") || "");
+  const [state, setState] = useState(() => initial.get("state") || "");
+  useEffect(() => {
+    const next = new URLSearchParams(filterKey);
+    setQ(next.get("q") || ""); setKind(next.get("kind") || "");
+    setYear(next.get("year") || ""); setState(next.get("state") || "");
+  }, [filterKey]);
   const dq = useDebounced(q.trim());
   const searching = dq.length >= 2;
   const { data, error } = useLoad(async () => {
@@ -36,21 +43,21 @@ function List() {
       </header>
       <UploadZone />
       <div className="grid gap-3 sm:grid-cols-[minmax(0,2fr)_repeat(3,minmax(0,1fr))]">
-        <Field label={t("search")}><input className="field" type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder={t("search_ph")} /></Field>
+        <Field label={t("search")}><input className="field" type="search" data-dock-filter="q" value={q} onChange={(e) => setQ(e.target.value)} placeholder={t("search_ph")} /></Field>
         <Field label={t("kind")}>
-          <select className="field" value={kind} onChange={(e) => setKind(e.target.value)}>
+          <select className="field" data-dock-filter="kind" value={kind} onChange={(e) => setKind(e.target.value)}>
             <option value="">{t("all")}</option>
             {DOC_KINDS.map((k) => <option key={k} value={k}>{t(`kind_${k}`)}</option>)}
           </select>
         </Field>
         <Field label={t("year")}>
-          <select className="field" value={year} onChange={(e) => setYear(e.target.value)}>
+          <select className="field" data-dock-filter="year" value={year} onChange={(e) => setYear(e.target.value)}>
             <option value="">{t("all")}</option>
             {years.map((y) => <option key={y} value={y}>{y}</option>)}
           </select>
         </Field>
         <Field label={t("state")}>
-          <select className="field" value={state} onChange={(e) => setState(e.target.value)}>
+          <select className="field" data-dock-filter="state" value={state} onChange={(e) => setState(e.target.value)}>
             <option value="">{t("state_active")}</option>
             <option value="review">{t("needs_review")}</option>
             <option value="ok">{t("state_ok")}</option>
@@ -84,5 +91,5 @@ function List() {
 
 export default function Documentos({ param, query }) {
   if (param) return <Detalle id={param} query={query} />;
-  return <List />;
+  return <List query={query} />;
 }

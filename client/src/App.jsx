@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api, errorText } from "./api.js";
+import { installAppDock } from "./app-dock.js";
 import { initialLang, makeT, saveLang } from "./i18n.js";
 import { AppContext } from "./context.js";
 import { setRefreshHandler } from "./copilot-context.js";
@@ -113,6 +114,7 @@ export default function App() {
 
   // The assistant finished a turn: reload the dashboard and whatever page is open (forms being edited keep their fields).
   useEffect(() => setRefreshHandler(changed), [changed]);
+  useEffect(() => installAppDock({ api, changed, pages: ["plazos", ...PAGES.filter((p) => p.path).map((p) => p.path)] }), [changed]);
 
   const notify = useCallback((message, kind = "ok") => setToast({ message, kind, id: Math.random() }), []);
   const toastError = useCallback((error) => setToast({ message: errorText(error), kind: "error", id: Math.random() }), []);

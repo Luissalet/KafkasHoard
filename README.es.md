@@ -149,3 +149,7 @@ El expediente guarda el hash del texto de cada fuente. `kafka_dossier_status` ma
 ## Skills para los agentes que se conectan
 
 Esta app lleva procedimientos de la biblioteca de skills del espacio de trabajo de la familia para los agentes que se conectan: `paperwork-intake-and-deadlines`, `hoard-daily-digest`. Aparecen en lo que el agente lee al conectarse, se leen con `skills_list` y `skill_read`, se buscan y asignan con `skills_library` y `skills_assign`, y se ofrecen como prompts. Se eligen en la página de skills (`/api/agent/skills/page`) o en la pestaña Skills del hub; el bloque `skills` de `faustus-plugin.json` guarda lo que la app pide por defecto.
+
+## App Dock
+
+Al abrir Kafka junto al chat de Faustus, `window.HoardApp` registra `kafka_open` (documento por id o título único), `kafka_filter` (texto, tipo, año y estado) y `kafka_view` (sección). El contexto incluye la vista, el documento abierto y los filtros visibles. Los nombres ambiguos devuelven candidatos. Las notificaciones `dock/changed` actualizan las vistas montadas sin recargar la página y conservan los campos pendientes de los formularios. Las herramientas del panel se usan mediante `app_view` y `app_act` del host; el catálogo de herramientas del servidor no cambia.

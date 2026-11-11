@@ -149,3 +149,9 @@ The dossier records the text hash of each source. `kafka_dossier_status` marks i
 ## Skills for the agents that connect
 
 This app carries procedures from the skill library of the family's workspace for the agents that connect to it: `paperwork-intake-and-deadlines`, `hoard-daily-digest`. They are named in what an agent reads on connecting, read with `skills_list` and `skill_read`, searched and assigned with `skills_library` and `skills_assign`, and offered as prompts. The person chooses them on the skills page (`/api/agent/skills/page`) or in the hub's Skills tab; the `skills` block of `faustus-plugin.json` holds what the app asks for by default.
+
+## App Dock
+
+When opened beside a Faustus chat, this page registers `kafka_open`, `kafka_filter`, `kafka_view` through `window.HoardApp`. These tools resolve records by id or unique name, apply the app's filters and switch sections. Ambiguous names return candidates. The current section, open document and visible document filters are reported. Document lookup and navigation use the existing UI APIs.
+
+`dock/changed` refreshes the mounted views without a page reload. Existing pending form fields are retained by the app's refresh handlers. The standalone interface continues to use its normal routes and controls. The Dock tools are exposed through the host's `app_view` and `app_act`; the existing backend tool catalogue is unchanged.

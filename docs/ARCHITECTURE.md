@@ -136,3 +136,7 @@ can score external page predictions, so both OCR and postprocessing are measured
 ## Dossiers
 
 `dossier.py` is pure (page text in, data out, like `extract/`): it reads claims from lines and table cells, groups them by subject across sources, and aligns clauses for the requirements diff. `Engine.dossier_build`, `dossier_refresh`, `dossier_state` and `dossier_delete` own the state; the `dossiers` table (migration 5) keeps the question, each source's text hash and the sections as JSON. The tools `kafka_dossier*` and `kafka_requirements_diff` are in `agent_tools.py`; `api/dossier.py` and the Dossiers page call the same handlers. See [DOSSIER.md](DOSSIER.md).
+
+## App Dock page tools
+
+`client/src/app-dock.js`, mounted by `App.jsx`, registers three browser tools with the shared HoardApp bridge: document lookup/open, document filters and section navigation. `Documentos.jsx` reads filter parameters from the hash and keeps manual filter edits local. The context getter reads the current route, document heading and visible filter controls. `onChanged` calls the existing `changed` callback: dashboard/version subscriptions refresh the mounted page and retain draft fields. These tools describe page state through Faustus's Dock host; they do not add backend tool handlers.
