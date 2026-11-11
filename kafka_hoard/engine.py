@@ -419,14 +419,14 @@ class Engine:
             title=Path(name).stem[:160], file_sha=sha, file_ext=read.ext, file_name=name, mime=read.mime, size=len(data), pages=len(read.pages),
             ocr=bool(read.ocr_pages), source=source, source_ref=source_ref, mail_subject=str(mail.get("subject") or "")[:300],
             mail_from=_format_sender(mail), received_ts=received_ts if received_ts is not None else mail.get("ts"),
-            state=M.REVIEW, facts={"notes": notes, "edited": []})
+            state=M.REVIEW, facts={"notes": notes, "edited": [], **({"ocr_engine": read.engine} if read.engine else {})})
         if read.kind == "unsupported":
             self.store.update_document(doc["id"], title=Path(name).stem[:160] or name, state=M.REVIEW,
                                        facts={"notes": notes or ["unsupported type"], "edited": [], "unsupported": True})
             self.store.set_pages(doc["id"], doc["title"], "", [])
             return {"created": True, "document": self.store.document(doc["id"]), "documents": [self.store.document(doc["id"])],
                     "notes": notes or ["unsupported type"]}
-        self.store.set_pages(doc["id"], doc["title"], "", read.pages)
+        self.store.set_pages(doc["id"], doc["title"], "", read.pages, structures=read.structures)
         doc = self.process_document(doc["id"], quiet=quiet, announce=True)
         return {"created": True, "document": doc, "documents": [doc], "notes": notes}
 

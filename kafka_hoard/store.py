@@ -226,17 +226,45 @@ class Store:
 
     def delete_document(self, did: str) -> None:
         self.db.execute("DELETE FROM pages_fts WHERE doc_id = ?", (did,))
+        self.db.execute("DELETE FROM page_structure WHERE doc_id = ?", (did,))
         self.db.execute("DELETE FROM documents WHERE id = ?", (did,))     # pages and deadlines cascade
 
     # ------------------------------------------------------------------ pages and full-text index
-    def set_pages(self, did: str, title: str, issuer: str, pages: list[str]) -> None:
+    def set_pages(self, did: str, title: str, issuer: str, pages: list[str], structures: Optional[dict[int, dict[str, Any]]] = None) -> None:
+        """The text of every page (and its full-text index); ``structures`` (page -> OCR structure) replaces the stored ones."""
         with self.db.transaction() as conn:
             conn.execute("DELETE FROM pages WHERE doc_id = ?", (did,))
             conn.execute("DELETE FROM pages_fts WHERE doc_id = ?", (did,))
+            conn.execute("DELETE FROM page_structure WHERE doc_id = ?", (did,))
             for number, text in enumerate(pages, start=1):
                 conn.execute("INSERT INTO pages(doc_id, page, text) VALUES (?, ?, ?)", (did, number, text or ""))
                 conn.execute("INSERT INTO pages_fts(title, issuer, text, doc_id, page) VALUES (?, ?, ?, ?, ?)",
                              (title or "", issuer or "", text or "", did, number))
+            for number, data in (structures or {}).items():
+                if 1 <= int(number) <= len(pages) and data:
+                    conn.execute("INSERT INTO page_structure(doc_id, page, data, created_ts) VALUES (?, ?, ?, ?)",
+                                 (did, int(number), json.dumps(data, ensure_ascii=False), time.time()))
+
+    def set_page_structures(self, did: str, structures: dict[int, dict[str, Any]], texts: Optional[dict[int, str]] = None) -> None:
+        """Store (replace) the structure of some pages; ``texts`` also replaces their text and full-text index (a structured OCR redone)."""
+        doc = self.db.one("SELECT title, issuer FROM documents WHERE id = ?", (did,))
+        with self.db.transaction() as conn:
+            for number, data in structures.items():
+                conn.execute("INSERT INTO page_structure(doc_id, page, data, created_ts) VALUES (?, ?, ?, ?) "
+                             "ON CONFLICT(doc_id, page) DO UPDATE SET data = excluded.data, created_ts = excluded.created_ts",
+                             (did, int(number), json.dumps(data, ensure_ascii=False), time.time()))
+            for number, text in (texts or {}).items():
+                conn.execute("UPDATE pages SET text = ? WHERE doc_id = ? AND page = ?", (text or "", did, int(number)))
+                conn.execute("DELETE FROM pages_fts WHERE doc_id = ? AND page = ?", (did, int(number)))
+                conn.execute("INSERT INTO pages_fts(title, issuer, text, doc_id, page) VALUES (?, ?, ?, ?, ?)",
+                             ((doc["title"] if doc else "") or "", (doc["issuer"] if doc else "") or "", text or "", did, int(number)))
+
+    def page_structures(self, did: str, selected_pages: Optional[list[int]] = None) -> dict[int, dict[str, Any]]:
+        rows = self.db.query("SELECT page, data FROM page_structure WHERE doc_id = ? ORDER BY page", (did,))
+        out = {int(r["page"]): _loads(r["data"], {}) for r in rows}
+        if selected_pages is not None:
+            out = {k: v for k, v in out.items() if k in set(selected_pages)}
+        return out
 
     def _reindex_meta(self, did: str) -> None:
         d = self.db.one("SELECT title, issuer FROM documents WHERE id = ?", (did,))

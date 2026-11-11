@@ -117,6 +117,57 @@ def page_png(request: Request, doc_id: str, number: int):
     raise KafkaError("unsupported", "Only PDFs and images have page previews.")
 
 
+@router.get("/{doc_id}/structure")
+def structure(request: Request, doc_id: str, pages: str = ""):
+    """The stored structure of a document (Markdown, blocks in reading order, tables as rows, language) — the ``doc_structure`` tool."""
+    from .deps import tool
+
+    return tool(request, "doc_structure", {"doc": doc_id, "pages": pages})
+
+
+@router.post("/{doc_id}/structure")
+def structure_rebuild(request: Request, doc_id: str, pages: str = ""):
+    """Read the document's file again with the OCR engine and keep the new structure (``doc_structure`` with rebuild)."""
+    from .deps import tool
+
+    return tool(request, "doc_structure", {"doc": doc_id, "pages": pages, "rebuild": True})
+
+
+@router.get("/{doc_id}/structure.{fmt}")
+def structure_download(request: Request, doc_id: str, fmt: str):
+    """The stored structure as a file: ``md`` (Markdown), ``xlsx`` (a sheet per table) or ``csv`` (the first table; ``?table=N`` another)."""
+    _same_origin(request)
+    from ..ocr import structure as ocr_structure
+
+    svc = services(request)
+    doc = svc.store.document(doc_id)
+    stored = svc.store.page_structures(doc["id"])
+    if not stored:
+        raise KafkaError("not_found", "This document has no stored structure.", "Rebuild it from the document page («Rehacer OCR estructurado»).")
+    merged = ocr_structure.merge_pages([stored[n] for n in sorted(stored)], separator="\n\n---\n\n")
+    stem = _ascii((doc.get("title") or doc["id"]).replace("/", "-"))
+    headers = {**SAFE_HEADERS, "Cache-Control": "private, no-store"}
+    if fmt == "md":
+        return Response(merged["markdown"].encode("utf-8"), media_type="text/markdown; charset=utf-8",
+                        headers={**headers, "Content-Disposition": f'attachment; filename="{stem}.md"'})
+    tables = merged["tables"]
+    if fmt in ("xlsx", "csv") and not tables:
+        raise KafkaError("not_found", "This document has no tables.")
+    if fmt == "xlsx":
+        data = ocr_structure.xlsx_bytes([(f"Tabla {t['index'] + 1}" + (f" p{t['page']}" if t.get("page") else ""), t["rows"]) for t in tables])
+        return Response(data, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        headers={**headers, "Content-Disposition": f'attachment; filename="{stem}_tablas.xlsx"'})
+    if fmt == "csv":
+        try:
+            index = int(request.query_params.get("table", "0"))
+        except ValueError:
+            index = 0
+        table = tables[max(0, min(index, len(tables) - 1))]
+        return Response(("\ufeff" + ocr_structure.to_csv(table["rows"])).encode("utf-8"), media_type="text/csv; charset=utf-8",
+                        headers={**headers, "Content-Disposition": f'attachment; filename="{stem}_tabla_{table["index"] + 1}.csv"'})
+    raise KafkaError("invalid", "Formats: md, xlsx, csv.")
+
+
 def _ascii(name: str) -> str:
     return name.encode("ascii", "replace").decode("ascii").replace("?", "_")[:120] or "document"
 

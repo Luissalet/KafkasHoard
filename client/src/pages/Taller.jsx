@@ -14,6 +14,8 @@ const OPS = [
   { id: "images_pdf", accepts: "image", multi: true, order: true, folders: true, icon: "M4 5h16v14H4zM4 16l5-5 4 4 3-3 4 4M9 9h.01" },
   { id: "office_pdf", accepts: "office", icon: "M7 3h8l4 4v14H7zM15 3v4h4M9 12l1.5 6 1.5-4 1.5 4 1.5-6" },
   { id: "pdf_images", accepts: "pdf", icon: "M4 5h16v14H4zM8 15l3-3 3 3 2-2 3 3" },
+  { id: "markdown", accepts: "scan", icon: "M4 6h16v12H4zM7 15V9l2.5 3L12 9v6M15 12l2 3 2-3M17 9v6" },
+  { id: "tables", accepts: "scan", icon: "M4 5h16v14H4zM4 10h16M4 15h16M10 5v14M15 5v14" },
   { id: "images_compress", accepts: "image", multi: true, folders: true, icon: "M4 4h16v16H4zM9 9l-3 3M15 15l3-3M9 15l-3-3M15 9l3 3" },
   { id: "info", accepts: "pdf", icon: "M12 21a9 9 0 100-18 9 9 0 000 18zM12 11v6M12 7.5v.01" },
 ];
@@ -31,6 +33,8 @@ const DEFAULTS = {
   page_size: "A4", margin: 10, orientation: "auto",
   engine: "auto",
   fmt: "png", dpi: 150, quality: 90, pi_pages: "",
+  md_mode: "auto", md_tables: "markdown", md_math: false, md_furniture: false, md_pages: "",
+  tb_format: "xlsx", tb_mode: "auto", tb_pages: "",
   limit: "5", unit: "MB", recursive: true, lossless: false, skip_small: false,
 };
 
@@ -140,6 +144,7 @@ const isDocId = (ref) => /^d_[A-Za-z0-9]+$/.test(ref);
 
 function acceptedExt(op, status) {
   if (op.accepts === "pdf") return ["pdf"];
+  if (op.accepts === "scan") return ["pdf", ...(status?.image_extensions?.length ? status.image_extensions : IMAGE_EXT)];
   if (op.accepts === "image") return status?.image_extensions?.length ? status.image_extensions : IMAGE_EXT;
   return status?.office_extensions?.length ? status.office_extensions : OFFICE_EXT;
 }
@@ -258,7 +263,7 @@ function FilePicker({ op, files, setFiles, job, setJob, status, doc }) {
         <button type="button" className="btn btn-sm" onClick={addPath} disabled={!path.trim()}><Icon d={ICONS.plus} size={13} />{t("tl_add")}</button>
       </div>
 
-      {doc && !files.some((f) => f.ref === doc.id) && op.accepts === "pdf" && (
+      {doc && !files.some((f) => f.ref === doc.id) && (op.accepts === "pdf" || op.accepts === "scan") && (
         <button type="button" className="btn btn-sm" onClick={() => put([{ ref: doc.id, name: doc.title || doc.id, kind: "doc", ranges: "" }])}><Icon d={ICONS.doc} size={13} />{t("tl_pre_doc", { name: doc.title || doc.id })}</button>
       )}
 
@@ -424,6 +429,28 @@ function Options({ op, o, set, status }) {
           <Text label={t("tl_file_pages")} hint={t("tl_pages_hint")} value={o.pi_pages} onChange={(v) => set("pi_pages", v)} />
         </div>
       );
+    case "markdown":
+      return (
+        <div className="space-y-3">
+          <div className="grid gap-3 sm:grid-cols-3">
+            <Select label={t("tl_read_mode")} value={o.md_mode} onChange={(v) => set("md_mode", v)} options={[["auto", t("tl_mode_auto")], ["ocr", t("tl_mode_ocr")]]} />
+            <Select label={t("tl_tables_as")} value={o.md_tables} onChange={(v) => set("md_tables", v)} options={[["markdown", t("tl_tables_md")], ["html", t("tl_tables_html")]]} />
+            <Text label={t("tl_file_pages")} hint={t("tl_pages_hint")} value={o.md_pages} onChange={(v) => set("md_pages", v)} />
+          </div>
+          <div className="space-y-2">
+            <Check checked={o.md_math} onChange={(v) => set("md_math", v)} label={t("tl_math")} />
+            <Check checked={o.md_furniture} onChange={(v) => set("md_furniture", v)} label={t("tl_furniture")} />
+          </div>
+        </div>
+      );
+    case "tables":
+      return (
+        <div className="grid gap-3 sm:grid-cols-3">
+          <Select label={t("tl_table_format")} value={o.tb_format} onChange={(v) => set("tb_format", v)} options={[["xlsx", t("tl_fmt_xlsx")], ["csv", t("tl_fmt_csv")]]} />
+          <Select label={t("tl_read_mode")} value={o.tb_mode} onChange={(v) => set("tb_mode", v)} options={[["auto", t("tl_mode_auto")], ["ocr", t("tl_mode_ocr")]]} />
+          <Text label={t("tl_file_pages")} hint={t("tl_pages_hint")} value={o.tb_pages} onChange={(v) => set("tb_pages", v)} />
+        </div>
+      );
     case "images_compress":
       return (
         <div className="space-y-3">
@@ -485,6 +512,11 @@ function build(op, files, o, password, t) {
       return { tool: "pdf_from_images", args: { images: refs, page_size: o.page_size, margin_mm: Number(o.margin) || 0, orientation: o.orientation } };
     case "office_pdf":
       return { tool: "pdf_from_office", args: { file, engine: o.engine } };
+    case "markdown":
+      return { tool: "pdf_to_markdown", args: { file, mode: o.md_mode, tables_as: o.md_tables, math: o.md_math, furniture: o.md_furniture,
+        ...(o.md_pages.trim() ? { pages: o.md_pages.trim() } : {}), wait_s: 30 } };
+    case "tables":
+      return { tool: "pdf_tables", args: { file, format: o.tb_format, mode: o.tb_mode, ...(o.tb_pages.trim() ? { pages: o.tb_pages.trim() } : {}), wait_s: 30 } };
     case "pdf_images":
       return { tool: "pdf_to_images", args: { file, format: o.fmt, dpi: Number(o.dpi) || 150, quality: Number(o.quality) || 90, ...(o.pi_pages.trim() ? { pages: o.pi_pages.trim() } : {}), ...base } };
     case "images_compress": {
@@ -608,6 +640,7 @@ export default function Taller({ query }) {
   const [info, setInfo] = useState(null);
   const [error, setError] = useState(null);
   const [doc, setDoc] = useState(null);
+  const [progress, setProgress] = useState(null);
   const docId = query?.get("doc") || "";
 
   const op = OPS.find((x) => x.id === opId) || null;
@@ -630,8 +663,9 @@ export default function Taller({ query }) {
     // Keep what is still valid for the new operation (a PDF stays for the next PDF operation).
     setFiles((list) => {
       const kind = (f) => (f.kind === "doc" ? "pdf" : f.ext || extOf(f.name));
-      const keep = list.filter((f) => f.kind === "doc" ? next.accepts === "pdf" : (f.kind === "path" && !extOf(f.name) && next.folders) || (next.accepts === "pdf" ? kind(f) === "pdf" : next.accepts === "office" ? OFFICE_EXT.includes(kind(f)) : IMAGE_EXT.includes(kind(f))));
-      const withDoc = doc && next.accepts === "pdf" && !keep.some((f) => f.ref === doc.id) ? [{ ref: doc.id, name: doc.title, kind: "doc", ranges: "" }, ...keep] : keep;
+      const pdfLike = next.accepts === "pdf" || next.accepts === "scan";
+      const keep = list.filter((f) => f.kind === "doc" ? pdfLike : (f.kind === "path" && !extOf(f.name) && next.folders) || (next.accepts === "scan" ? kind(f) === "pdf" || IMAGE_EXT.includes(kind(f)) : next.accepts === "pdf" ? kind(f) === "pdf" : next.accepts === "office" ? OFFICE_EXT.includes(kind(f)) : IMAGE_EXT.includes(kind(f))));
+      const withDoc = doc && pdfLike && !keep.some((f) => f.ref === doc.id) ? [{ ref: doc.id, name: doc.title, kind: "doc", ranges: "" }, ...keep] : keep;
       return next.multi ? withDoc : withDoc.slice(0, 1);
     });
   };
@@ -656,8 +690,15 @@ export default function Taller({ query }) {
     setResult(null);
     setInfo(null);
     run("go", async () => {
-      const r = await call(built.tool, built.args);
+      let r = await call(built.tool, built.args);
+      // A long read answers with its job: follow it until it is done (the OCR of a long PDF takes a while).
+      while (r && r.job_id && (r.status === "queued" || r.status === "running")) {
+        setProgress(Math.round((r.progress || 0) * 100));
+        r = await call("ocr_status", { job_id: r.job_id, wait_s: 20 });
+      }
+      setProgress(null);
       if (!r) return;
+      if (r.status === "error") { setError(Object.assign(new Error(r.error || "Error"), {})); return; }
       if (built.tool === "pdf_info") setInfo(r);
       else setResult(r);
     });
@@ -725,6 +766,7 @@ export default function Taller({ query }) {
         <ErrorBox error={error} />
         <div className="flex flex-wrap items-center gap-2">
           <Busy type="submit" className="btn btn-primary" busy={busy.go}>{isInfo ? t("tl_show_info") : t("tl_run")}</Busy>
+          {progress !== null && <span className="help num" aria-live="polite">{t("tl_running", { pct: progress })}</span>}
         </div>
       </form>
       {info && <Info key={`${info.file}-${info.size}`} info={info} onSave={saveMeta} busy={busy.meta} />}

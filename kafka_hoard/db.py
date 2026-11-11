@@ -187,6 +187,16 @@ MIGRATIONS: list[str] = [
     );
     CREATE INDEX dossiers_updated ON dossiers(updated_ts);
     """,
+    # 6: the structured version of OCR'd pages (Markdown, blocks in reading order, tables as rows, language), JSON per page
+    """
+    CREATE TABLE page_structure (
+      doc_id TEXT NOT NULL REFERENCES documents(id) ON DELETE CASCADE,
+      page INTEGER NOT NULL,
+      data TEXT NOT NULL DEFAULT '{}',
+      created_ts REAL NOT NULL DEFAULT 0,
+      PRIMARY KEY (doc_id, page)
+    );
+    """,
 ]
 
 
