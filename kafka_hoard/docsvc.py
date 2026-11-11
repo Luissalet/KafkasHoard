@@ -21,7 +21,9 @@ from .hoard_link.docs import readers_lite
 from .hoard_link.docs.sniff import sniff as _sniff
 from .hoard_link.ids import new_id
 from .ocr import ENGINES, ORDER, Ocr, lang_code
+from .ocr import structure as ocr_structure
 from .workshop import ranges
+from .workshop.names import human_size, safe_stem, unique_dir, write_unique
 
 log = logging.getLogger("kafka.docsvc")
 
@@ -35,6 +37,28 @@ ACTIVE = ("queued", "running")
 
 class Cancelled(Exception):
     pass
+
+
+def write_tables(tables: list[dict[str, Any]], folder: Path, stem: str, fmt: str, data_dir: Optional[Path] = None) -> list[dict[str, Any]]:
+    """Write tables as CSV files (a new folder «<stem>_tablas», one file per table) or one XLSX workbook «<stem>_tablas.xlsx» (a sheet per
+    table) into ``folder``; never over an existing file. Returns ``[{path, name, size, size_text, table?}]``."""
+    reason = paths.unsafe_output_dir(folder, data_dir)
+    if reason:
+        raise KafkaError("forbidden", f"Cannot write into «{folder}»: {reason}.", "Choose another folder (out_dir).")
+    folder.mkdir(parents=True, exist_ok=True)
+    stem = safe_stem(stem)
+    outputs: list[dict[str, Any]] = []
+    if fmt == "xlsx":
+        sheets = [(f"Tabla {t['index'] + 1}" + (f" p{t['page']}" if t.get("page") else ""), t["rows"]) for t in tables]
+        target = write_unique(folder, stem, "_tablas", "xlsx", ocr_structure.xlsx_bytes(sheets))
+        outputs.append({"path": str(target), "name": target.name, "size": target.stat().st_size, "size_text": human_size(target.stat().st_size)})
+        return outputs
+    target_dir = unique_dir(folder, f"{stem}_tablas")
+    for t in tables:
+        name = f"tabla_{t['index'] + 1:02d}" + (f"_p{t['page']}" if t.get("page") else "")
+        path = write_unique(target_dir, name, "", "csv", ("\ufeff" + ocr_structure.to_csv(t["rows"])).encode("utf-8"))
+        outputs.append({"path": str(path), "name": path.name, "size": path.stat().st_size, "size_text": human_size(path.stat().st_size), "table": t["index"]})
+    return outputs
 
 
 class JobTable:
@@ -235,7 +259,10 @@ class DocService:
             needs = bool(skipped) and len(skipped) >= max(1, len(units) / 2)
             if empty:
                 notes.append(f"{empty} page(s) have no text even after OCR")
-            return self._shape("pdf", read.title or stem, units, needs, notes, read.ocr_pages, found.mime)
+            shaped = self._shape("pdf", read.title or stem, units, needs, notes, read.ocr_pages, found.mime)
+            if read.engine:
+                shaped["engine_report"] = read.engine
+            return shaped
         if found.kind == "image" and found.ext != "svg":
             image = self._open_image(data)
             ok, why = self.ocr.available()
@@ -245,13 +272,15 @@ class DocService:
             result = self.ocr.recognise(image, lang)
             if progress:
                 progress(1, 1)
-            text = readers.clean_text(result.text)
+            text, _ = readers.ocr_page(result, 1)
             if result.error:
                 notes.append(f"OCR failed: {result.error}")
             elif not text:
                 notes.append("OCR found no text in the image")
             units = [{"kind": "page", "number": 1, "title": "", "text": text}] if text else []
-            return self._shape("image", stem, units, not text, notes, 1 if text else 0, found.mime)
+            shaped = self._shape("image", stem, units, not text, notes, 1 if text else 0, found.mime)
+            shaped["engine_report"] = self.ocr.engine_report(result)
+            return shaped
         result = readers_lite.read_any(name, data, max_pages=max_pages)
         result["pages_ocr"] = 0
         if progress:
@@ -274,10 +303,14 @@ class DocService:
         except ValueError as exc:
             raise KafkaError("invalid", f"The file is not a readable image ({str(exc)[:120]}).") from exc
 
-    def ocr_image(self, path: str, *, lang: str = "es", blocks: bool = False, markdown: bool = False, engine: str = "") -> dict[str, Any]:
-        """``{text, backend}`` always (the family contract); ``blocks`` adds the lines with box and score, ``markdown`` adds ``markdown`` and
-        ``layout`` (Indra gives the page's own Markdown and layout blocks; the other engines give the text as the Markdown and no layout).
-        ``fallback`` appears when the chosen engine failed on this image and another one read it. ``engine`` overrides the setting for this call."""
+    def ocr_image(self, path: str, *, lang: str = "es", blocks: bool = False, markdown: bool = False, engine: str = "", structure: bool = False,
+                  tables_as: str = "markdown", math: bool = False, furniture: bool = False) -> dict[str, Any]:
+        """``{text, backend, engine_report}`` always (the family contract plus which engine read and why when it was not the first choice),
+        ``layout`` (the blocks in reading order) when the engine gives it; ``blocks`` adds the lines with box and score, ``markdown`` adds
+        the engine's own ``markdown`` (Indra; the others give the text). ``structure`` adds ``structure``: Markdown with GitHub tables (or
+        HTML with ``tables_as="html"``), typed blocks with their lines, tables as rows and CSV, the plain text with table rows kept on one
+        line, the language and the page's rotation. ``fallback`` appears when the chosen engine failed on this image and another one read it.
+        ``engine`` overrides the setting for this call; ``math`` writes equations as LaTeX, ``furniture`` keeps page headers and footers."""
         src, data = self._read_file(path)
         image = self._open_image(data)
         ocr = self._ocr_for(engine)
@@ -285,7 +318,8 @@ class DocService:
         if not ok:
             raise KafkaError("ocr_unavailable", f"OCR is not available: {why}", self._install_hint(), status=503)
         t0 = time.perf_counter()
-        result = ocr.recognise(image, lang_code(lang))
+        options = {"math": bool(math), "furniture": bool(furniture)} if (math or furniture) else None
+        result = ocr.recognise(image, lang_code(lang), options)
         seconds = round(time.perf_counter() - t0, 2)
         if result.error and not result.text:
             raise KafkaError("ocr_failed", f"OCR failed on «{src.name}»: {result.error}", status=500)
@@ -295,11 +329,85 @@ class DocService:
             out["blocks"] = [b.public() for b in result.blocks]
         if markdown:
             out["markdown"] = result.markdown.strip() or text
+        if markdown or result.layout:
             out["layout"] = result.layout
+        if structure:
+            out["structure"] = ocr_structure.build(result, tables_as=tables_as)
         if result.fallback:
             out["fallback"] = result.fallback
+        out["engine_report"] = ocr.engine_report(result)
         out["seconds"] = seconds
         return out
+
+    # ----------------------------------------------------------------------------------------------- structured reads
+    def structured(self, name: str, data: bytes, *, pages: str = "", mode: str = "auto", lang: str = "es", tables_as: str = "markdown",
+                   math: bool = False, furniture: bool = False, max_pages: int = 400, lines: bool = False,
+                   progress: Optional[Callable[[int, int], None]] = None) -> dict[str, Any]:
+        """A PDF or an image read with its structure: ``{kind, pages: [structure], markdown, tables, text, language, languages,
+        engine_report, notes}``. PDFs go through Indra's document path (``mode`` auto: the text layer where it is sound, OCR elsewhere)."""
+        kind = readers.sniff(name, data)
+        options = {"math": bool(math), "furniture": bool(furniture)} if (math or furniture) else None
+        notes: list[str] = []
+        ok, why = self.ocr.available()
+        if not ok:
+            raise KafkaError("ocr_unavailable", f"OCR is not available: {why}", self._install_hint(), status=503)
+        results: list[tuple[int, Any]] = []
+        if kind == "pdf":
+            total = readers.pdf_page_count(data)
+            numbers = ranges.parse_ranges(pages, total, default_all=True, unique=True) if str(pages or "").strip() else list(range(1, total + 1))
+            if len(numbers) > max_pages:
+                notes.append(f"only {max_pages} of {len(numbers)} pages were read (max_pages)")
+                numbers = numbers[:max_pages]
+            results = readers.ocr_pdf_results(data, self.ocr, numbers, mode=mode, lang=lang_code(lang), options=options, progress=progress)
+        elif kind in readers.IMAGE_EXT:
+            results = [(1, self.ocr.recognise(self._open_image(data), lang_code(lang), options))]
+            if progress:
+                progress(1, 1)
+        else:
+            raise KafkaError("unsupported", f"«{name}» is not a PDF or an image.", "Markdown and tables come from PDFs and images (scans, photos, screenshots).")
+        built: list[dict[str, Any]] = []
+        report: dict[str, Any] = {}
+        failed: list[int] = []
+        for number, result in results:
+            page = ocr_structure.build(result, page=number, tables_as=tables_as, lines=lines)
+            page["backend"] = result.backend
+            if result.fallback:
+                page["fallback"] = result.fallback
+            if result.error and not result.text:
+                page["error"] = result.error
+                failed.append(number)
+            built.append(page)
+            if not report or result.fallback:
+                report = self.ocr.engine_report(result)
+        if failed:
+            notes.append(f"OCR failed on page(s) {ranges.describe(failed)}")
+        merged = ocr_structure.merge_pages(built, separator="\n\n---\n\n" if kind == "pdf" else "\n\n")
+        return {"kind": "pdf" if kind == "pdf" else "image", "name": name, "pages": built, **merged, "pages_done": len(built),
+                "engine_report": report or self.ocr.engine_report(), "notes": notes}
+
+    def ocr_tables(self, path: str, *, pages: str = "", format: str = "json", out_dir: str = "", mode: str = "auto", lang: str = "es",
+                   wait_s: Any = 150) -> dict[str, Any]:
+        """The tables of a PDF or an image as rows and columns: ``{tables: [{index, page, rows, n_rows, n_cols, csv}], outputs?}``.
+        ``format`` csv writes one .csv per table into a folder «<name>_tablas», xlsx one workbook «<name>_tablas.xlsx» with a sheet per
+        table (next to the source unless ``out_dir``); json only returns them. Runs as a job like ``ocr_pdf``."""
+        src, data = self._read_file(path)
+        fmt = str(format or "json").strip().lower()
+        if fmt not in ("json", "csv", "xlsx"):
+            raise KafkaError("invalid", f"format must be json, csv or xlsx, not «{format}».")
+
+        def run(job: _Handle) -> dict[str, Any]:
+            read = self.structured(src.name, data, pages=pages, mode=mode, lang=lang, progress=job.progress)
+            out = {"tables": read["tables"], "count": len(read["tables"]), "pages_done": read["pages_done"], "engine_report": read["engine_report"],
+                   "notes": read["notes"], "language": read["language"]}
+            if not read["tables"]:
+                out["notes"] = [*out["notes"], "no tables were found"]
+            elif fmt != "json":
+                folder = Path(out_dir).expanduser() if out_dir else src.parent
+                out["outputs"] = write_tables(read["tables"], folder, src.stem, fmt, self.data_dir)
+            return out
+
+        job_id = self.jobs.submit("ocr_tables", run, label=src.name)
+        return self.jobs.wait(job_id, wait_s) or {"job_id": job_id, "status": "running"}
 
     def _ocr_for(self, engine: str) -> Ocr:
         """The OCR facade for one call: the app's own, or (``engine`` given and different from the setting) a facade for that choice."""
@@ -318,7 +426,10 @@ class DocService:
         return "Install an OCR engine: pip install indra-ocr or rapidocr onnxruntime (any system), winocr (Windows) or pytesseract with Tesseract."
 
     # ----------------------------------------------------------------------------------------------- ocr_pdf
-    def ocr_pdf(self, path: str, *, pages: str = "", dpi: int = 200, lang: str = "es", max_pages: int = 40, wait_s: Any = 150) -> dict[str, Any]:
+    def ocr_pdf(self, path: str, *, pages: str = "", dpi: int = 200, lang: str = "es", max_pages: int = 40, wait_s: Any = 150, structure: bool = False,
+                mode: str = "ocr", tables_as: str = "markdown", math: bool = False, furniture: bool = False) -> dict[str, Any]:
+        """``{text, pages: [{page, text}], backend, engine_report, notes}``; ``structure`` adds each page's ``structure`` and the document's
+        ``markdown``, ``tables`` and ``language``. ``mode`` ocr ignores the text layer (the default), auto uses it where it is sound."""
         src, data = self._read_file(path)
         if readers.sniff(src.name, data) != "pdf":
             raise KafkaError("invalid", f"«{src.name}» is not a PDF.")
@@ -335,13 +446,36 @@ class DocService:
             numbers = numbers[:cap]
         code = lang_code(lang)
 
+        mode = mode if mode in ("ocr", "auto", "text") else "ocr"
+        options = {"math": bool(math), "furniture": bool(furniture)} if (math or furniture) else None
+
         def run(job: _Handle) -> dict[str, Any]:
-            results = readers.ocr_pdf_pages(data, self.ocr, numbers, dpi=dpi, lang=code, progress=job.progress)
-            failed = [n for n, _t, err in results if err]
+            t0 = time.perf_counter()
+            results = readers.ocr_pdf_results(data, self.ocr, numbers, dpi=dpi, lang=code, mode=mode, options=options, progress=job.progress)
+            failed = [n for n, r in results if r.error and not r.text]
             if failed:
                 notes.append(f"OCR failed on page(s) {ranges.describe(failed)}")
-            return {"text": "\n\n".join(t for _n, t, _e in results if t), "pages": [{"page": n, "text": t} for n, t, _e in results],
-                    "pages_done": len(results), "pages_total": len(numbers), "backend": self.ocr.available()[1], "notes": notes}
+            pages_out: list[dict[str, Any]] = []
+            built: list[dict[str, Any]] = []
+            report: dict[str, Any] = {}
+            for number, result in results:
+                text, _ = readers.ocr_page(result, number)
+                item: dict[str, Any] = {"page": number, "text": text}
+                if result.fallback:
+                    item["fallback"] = result.fallback
+                if structure:
+                    item["structure"] = ocr_structure.build(result, page=number, tables_as=tables_as)
+                    built.append(item["structure"])
+                pages_out.append(item)
+                if not report or result.fallback:
+                    report = self.ocr.engine_report(result)
+            out = {"text": "\n\n".join(p["text"] for p in pages_out if p["text"]), "pages": pages_out, "pages_done": len(results),
+                   "pages_total": len(numbers), "backend": (report or {}).get("used") or self.ocr.available()[1],
+                   "engine_report": report or self.ocr.engine_report(), "notes": notes, "seconds": round(time.perf_counter() - t0, 2)}
+            if structure:
+                merged = ocr_structure.merge_pages(built, separator="\n\n---\n\n")
+                out.update(markdown=merged["markdown"], tables=merged["tables"], language=merged["language"], languages=merged["languages"])
+            return out
 
         job_id = self.jobs.submit("ocr_pdf", run, label=src.name)
         return self.jobs.wait(job_id, wait_s) or {"job_id": job_id, "status": "running"}

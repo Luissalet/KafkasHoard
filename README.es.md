@@ -96,6 +96,7 @@ Kafka es el dueño de la lectura de documentos y del OCR de la familia (contrato
 - `ocr_image(path, lang?, blocks?, markdown?, engine?)` devuelve `{text, backend, seconds}` y, si se pide, `blocks` (líneas con caja y confianza) y `markdown` con `layout` (el Markdown y los bloques de maquetación propios de Indra; los demás motores dan el texto como Markdown). `fallback` aparece cuando el motor elegido falló con esa imagen y la leyó otro. `ocr_file(path, engine?, ...)` es lo mismo con bloques y Markdown activados y el motor indicado solo para esa llamada, para comparar motores. `ocr_engine(engine?)` elige `auto`, `indra` o `current` (el ajuste «Motor de OCR» de Ajustes, también `GET /api/ocr` y `POST /api/ocr/engine`) e informa de los motores instalados. La firma antigua sigue valiendo:
 - `ocr_image(path, lang?, wait_s?)` y `ocr_pdf(path, pages?, dpi?, lang?, mode?, wait_s?)`: texto con bloques (caja y confianza) por página; `ocr_pdf` aplica OCR a las páginas elegidas aunque tengan capa de texto.
 - `ocr_status(job_id?, wait_s?)`: el informe del motor (cuál de `indra`, `winocr`, `rapidocr`, `light-ocr` y `tesseract` está instalado y elegido) o la vista de un trabajo; `wait_s` se limita a 150 s.
+- `doc_structure` recupera el Markdown, los bloques de maquetación y las tablas de un escaneo archivado. En el Taller, `pdf_to_markdown` exporta Markdown estructurado y `pdf_tables` exporta tablas a XLSX o CSV.
 
 El idioma por defecto es el español. El motor se elige con el ajuste «Motor de OCR»: `auto` (Indra si `indra-ocr` está instalado y, si falla con una imagen, la lee el motor actual; el resultado lleva entonces `fallback`), `indra`, o `current` (`winocr`, `rapidocr`, `light-ocr`, `tesseract`, como antes de Indra). El código de Indra es Apache-2.0; sus modelos (unos 76 MB, licencia de uso personal) se descargan de Hugging Face la primera vez que se usa, y corre en CPU con ONNX Runtime (comprobado en Windows 11 con Python 3.13). `KAFKA_OCR_BACKEND` (`auto`, `indra`, `current`, `winocr`, `rapidocr`, `light-ocr`, `tesseract`) fija el motor inicial hasta que se guarde el ajuste y fuerza un motor y `KAFKA_OCR_LANG` cambia el idioma por defecto. Se rechazan los ficheros de más de 200 MB.
 
@@ -107,7 +108,7 @@ reproducibles con escaneos inventados están en [el banco de OCR](docs/OCR_BENCH
 
 ## El taller
 
-Las doce herramientas del taller (`pdf_*` e `images_compress`) aceptan una ruta absoluta o el id de un documento archivado (`d_…`) y devuelven las rutas, el número de páginas y los tamaños antes y después de lo que han escrito. Dónde va el resultado:
+Las herramientas del taller (`pdf_*` e `images_compress`) aceptan una ruta absoluta o el id de un documento archivado (`d_…`) y devuelven las rutas y los detalles de lo que han escrito. Dónde va el resultado:
 
 - Un fichero subido en la página Taller: `data/workshop/out/<trabajo>/`. Lo subido vive en `data/workshop/in/<trabajo>/`; las carpetas de trabajo de más de 7 días las borra la limpieza horaria.
 - Un documento archivado indicado por su id: la carpeta del ajuste `workshop.dir` (por defecto `Documentos\Kafka's Hoard\Taller`).

@@ -312,6 +312,29 @@ function Reading({ status, settings, reload }) {
         <p className="help" style={{ overflowWrap: "anywhere" }}>
           {Object.entries(ocr.backends || {}).map(([name, b]) => `${name}: ${b.available ? t("available") : t("unavailable")}`).join(" · ")}
         </p>
+        {ocr.report?.used && (
+          <p className="help" data-testid="ocr-report" style={{ overflowWrap: "anywhere" }}>
+            {t("ocr_report_used", { name: ocr.report.used })}{ocr.report.fallback ? ` ${t("ocr_report_fallback", { why: ocr.report.reason })}` : ""}
+          </p>
+        )}
+      </div>
+      <div className="space-y-1" data-testid="ocr-device">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="font-semibold">{t("ocr_device")}</span>
+          {["cpu", "gpu"].map((d) => (
+            <button key={d} type="button" className={`btn btn-sm ${(ocr.device_setting || "cpu") === d ? "btn-primary" : ""}`} aria-pressed={(ocr.device_setting || "cpu") === d}
+              disabled={busy.device} onClick={() => run("device", async () => { await api.call("ocr_engine", { device: d }); notify(t("ocr_engine_saved")); await reload(); })}>
+              {t(`ocr_device_${d}`)}</button>
+          ))}
+          <span className="font-semibold">{t("ocr_workers")}</span>
+          {[0, 2, 4, 8].map((n) => (
+            <button key={n} type="button" className={`btn btn-sm ${Number(ocr.workers ?? 4) === n ? "btn-primary" : ""}`} aria-pressed={Number(ocr.workers ?? 4) === n}
+              disabled={busy.workers} onClick={() => run("workers", async () => { await api.call("ocr_engine", { workers: n }); notify(t("ocr_engine_saved")); await reload(); })}>
+              {n === 0 ? t("ocr_workers_none") : n}</button>
+          ))}
+        </div>
+        <p className="help">{t("ocr_device_hint")}</p>
+        {ocr.device_note && <p className="help">{ocr.device_note}</p>}
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <span className="font-semibold">{t("model_pass")}</span>

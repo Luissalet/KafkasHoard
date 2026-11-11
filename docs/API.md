@@ -1024,6 +1024,10 @@ Annotations: readOnlyHint, idempotentHint.
 | `blocks` (boolean) | no | Also return every recognised line with its box and confidence. |
 | `markdown` (boolean) | no | Also return the page as Markdown and its layout blocks (Indra); other engines give the text as the Markdown. |
 | `engine` (string) | no | Use this engine for this call only: auto, indra, current or an engine name. Empty: the Kafka setting «Motor de OCR». |
+| `structure` (boolean) | no | Also return structure: Markdown with tables, typed blocks (heading, paragraph, list, table, caption, footnote, page_header, page_footer, picture, equation) in reading order with their lines, tables as rows and CSV, the language. |
+| `tables_as` (markdown \| html) | no | Tables in the structured Markdown: GitHub tables, or HTML (keeps merged cells). |
+| `math` (boolean) | no | Write equations as LaTeX (Indra; slower, its models download on first use). |
+| `furniture` (boolean) | no | Keep page headers and footers in the Markdown. |
 
 ## `ocr_file`
 
@@ -1041,6 +1045,7 @@ Annotations: readOnlyHint, idempotentHint.
 | `lang` (string) | no | Language of the text (es, en, fr, pt, it, de, ca). |
 | `blocks` (boolean) | no | Return every recognised line with its box and confidence. |
 | `markdown` (boolean) | no | Return the page as Markdown and its layout blocks. |
+| `structure` (boolean) | no | Also return the structure (typed blocks, tables as rows, language), as in ocr_image. |
 
 ## `ocr_engine`
 
@@ -1056,6 +1061,8 @@ Undo: no.
 | Argument | Required | Description |
 |---|---|---|
 | `engine` (string) | no | auto (Indra if installed, the current engines as backup), indra, or current (winocr, rapidocr, light-ocr, tesseract). Empty: only report. |
+| `device` ( \| cpu \| gpu) | no | Indra's device: cpu, or gpu (CUDA device 3; needs onnxruntime-gpu, otherwise it stays on the CPU and says so). Empty: unchanged. |
+| `workers` (integer/null) | no | Worker processes for long PDFs (0 or 1: none). Empty: unchanged. |
 
 ## `ocr_pdf`
 
@@ -1074,6 +1081,11 @@ Annotations: readOnlyHint, idempotentHint.
 | `lang` (string) | no | Language of the text (es, en, fr, pt, it, de, ca). |
 | `max_pages` (integer) | no | Recognise at most this many pages. |
 | `wait_s` (number) | no | Wait up to this many seconds (clamped to 150); past it the answer is the running job. |
+| `structure` (boolean) | no | Also return each page's structure and the document's Markdown, tables (rows, CSV) and language. |
+| `mode` (ocr \| auto \| text) | no | ocr: ignore the text layer (default). auto: use it where it is sound (Indra), OCR elsewhere. |
+| `tables_as` (markdown \| html) | no | Tables in the structured Markdown: GitHub tables or HTML. |
+| `math` (boolean) | no | Equations as LaTeX (Indra; slower). |
+| `furniture` (boolean) | no | Keep page headers and footers in the Markdown. |
 
 ## `ocr_status`
 
@@ -1088,6 +1100,89 @@ Annotations: readOnlyHint, idempotentHint.
 |---|---|---|
 | `job_id` (string) | no | A doc_extract or ocr_pdf job. Empty: report the OCR engine instead. |
 | `wait_s` (number) | no | With a job_id: wait up to this many seconds (clamped to 150) for it to finish. |
+
+## `ocr_tables`
+
+Tables of a PDF or image as rows and columns, CSV or XLSX. Extraer tablas de un PDF o imagen.
+
+Stateless family tool. Returns tables [{index, page, rows, n_rows, n_cols, header, bbox, csv}]; format=csv writes one .csv per table in «<name>_tablas», xlsx one workbook «<name>_tablas.xlsx» (next to the source unless out_dir). Digital PDFs use their text layer (mode=auto). Simple grid tables read well; merged or wrapped cells can land in the wrong row. Runs as a job (ocr_status).
+Sinónimos: extraer tabla, tabla a excel, tabla a csv, pasar tabla de un escaneo a hoja de cálculo, filas y columnas
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `path` (string) | yes | Absolute path of a PDF (scanned or digital) or an image. |
+| `pages` (string) | no | PDF pages, e.g. '1-5,9' (default all). |
+| `format` (json \| csv \| xlsx) | no | json: only return the rows. csv: one .csv per table in «<name>_tablas». xlsx: «<name>_tablas.xlsx», a sheet per table. |
+| `out_dir` (string) | no | Absolute folder for csv/xlsx. Default: next to the source. |
+| `mode` (auto \| ocr \| text) | no | PDFs: auto uses the text layer where it is sound and OCR elsewhere; ocr always recognises the image. |
+| `lang` (string) | no | Language of the text. |
+| `wait_s` (number) | no | Wait up to this many seconds (clamped to 150); past it the answer is the running job (follow it with ocr_status). |
+
+## `pdf_to_markdown`
+
+Convert a PDF or image (scan or digital) to Markdown with tables. Convertir a Markdown.
+
+Workshop operation: headings, paragraphs, lists and tables (GitHub or HTML) in reading order, page headers and footers dropped unless furniture=true, equations as LaTeX with math=true. Writes «<name>.md» next to the source (the Taller folder for a d_… id); returns a preview, the language and which OCR engine read it.
+Sinónimos: pdf a markdown, convertir a markdown, escaneo a texto con formato, md de un pdf, documento a markdown
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `file` (string) | yes | PDF or image: absolute path or document id (d_…). |
+| `pages` (string) | no | PDF pages (default all), e.g. '1-3'. |
+| `mode` (auto \| ocr \| text) | no | auto: the text layer where it is sound, OCR elsewhere. ocr: recognise every page. |
+| `tables_as` (markdown \| html) | no | Tables as GitHub tables or HTML (keeps merged cells). |
+| `math` (boolean) | no | Equations as LaTeX (slower). |
+| `furniture` (boolean) | no | Keep page headers and footers. |
+| `out_dir` (string) | no | Absolute folder. Default: next to the source (the Taller folder for a document id). |
+| `wait_s` (number) | no | Wait up to this many seconds (clamped to 150); past it the running job comes back (ocr_status). |
+
+## `pdf_tables`
+
+Extract the tables of a PDF or image to XLSX or CSV files. Extraer tablas a Excel o CSV.
+
+Workshop operation: «<name>_tablas.xlsx» with a sheet per table, or a folder «<name>_tablas» with one .csv per table, next to the source (the Taller folder for a d_… id). Returns the tables too (rows and columns).
+Sinónimos: extraer tablas, tabla a excel, tablas del pdf a csv, sacar la tabla de la factura
+
+Annotations: none.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `file` (string) | yes | PDF or image: absolute path or document id (d_…). |
+| `pages` (string) | no | PDF pages (default all). |
+| `format` (xlsx \| csv) | no | xlsx: one workbook with a sheet per table. csv: a folder with one .csv per table. |
+| `mode` (auto \| ocr \| text) | no | auto: the text layer where it is sound, OCR elsewhere. ocr: recognise every page. |
+| `out_dir` (string) | no | Absolute folder. Default: next to the source (the Taller folder for a document id). |
+| `wait_s` (number) | no | Wait up to this many seconds (clamped to 150); past it the running job comes back (ocr_status). |
+
+## `doc_structure`
+
+Structured version of a filed document: Markdown, blocks, tables, language. Estructura de un documento.
+
+Scanned documents keep it from the OCR at filing time. rebuild=true reads the stored file again (digital PDFs too), keeps the new structure, refreshes the text and search index of OCR'd pages and re-reads the document.
+Sinónimos: markdown del documento, tablas del documento, rehacer OCR, estructura de un escaneo, orden de lectura
+
+Annotations: idempotentHint.
+
+Undo: no.
+
+| Argument | Required | Description |
+|---|---|---|
+| `doc` (string) | yes | Document id (d_…). |
+| `pages` (string) | no | Pages to return, e.g. '1-3' (default all that have a structure). |
+| `rebuild` (boolean) | no | Read the stored file again with the OCR engine and keep the new structure; the text of OCR'd pages and the search index are refreshed. |
+| `tables_as` (markdown \| html) | no | Tables in the returned Markdown (rebuild only). |
+| `wait_s` (number) | no | With rebuild: wait up to this many seconds (clamped to 150). |
+| `reveal` (boolean) | no | Show personal identifiers unmasked (only when the user asks for that exact number). |
 
 ## `printcraft_doc_open`
 

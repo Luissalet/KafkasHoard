@@ -96,6 +96,7 @@ Kafka owns the family's document reading and OCR (contract: `HoardLink/docs/comm
 - `ocr_image(path, lang?, blocks?, markdown?, engine?)` returns `{text, backend, seconds}` and, on request, `blocks` (lines with box and confidence) and `markdown` with `layout` (Indra's own Markdown and layout blocks; other engines give the text as Markdown). `fallback` appears when the chosen engine failed on that image and another one read it. `ocr_file(path, engine?, ...)` is the same with blocks and Markdown on by default and the engine named for that call only, to compare engines. `ocr_engine(engine?)` chooses `auto`, `indra` or `current` (the setting «Motor de OCR» in Ajustes, also `GET /api/ocr` and `POST /api/ocr/engine`) and reports the installed engines. `ocr_pdf(path, pages?, dpi?, lang?, mode?, wait_s?)`: text with blocks (box and confidence) per page; `ocr_pdf` OCRs the chosen pages even when they have a text layer. The old signature, kept:
 - `ocr_image(path, lang?, wait_s?)` and `ocr_pdf(path, pages?, dpi?, lang?, mode?, wait_s?)`: text with blocks (box and confidence) per page; `ocr_pdf` OCRs the chosen pages even when they have a text layer.
 - `ocr_status(job_id?, wait_s?)`: the engine report (which of `indra`, `winocr`, `rapidocr`, `light-ocr`, `tesseract` is installed and chosen) or the view of a job; `wait_s` is clamped to 150 s.
+- `doc_structure` reads the stored Markdown, layout blocks and tables of a filed scan. In the Workshop, `pdf_to_markdown` exports structured Markdown and `pdf_tables` exports tables to XLSX or CSV.
 
 Spanish is the default language. The engine choice is the setting «Motor de OCR»: `auto` (Indra when `indra-ocr` is installed, and if it fails on an image the current engines read that image; the result then carries `fallback`), `indra`, or `current` (`winocr`, `rapidocr`, `light-ocr`, `tesseract`, as before Indra). Indra's code is Apache-2.0; its models (about 76 MB, personal-use licence) are downloaded from Hugging Face the first time it runs, and it runs on CPU with ONNX Runtime (checked on Windows 11 with Python 3.13). `KAFKA_OCR_BACKEND` (`auto`, `indra`, `current`, `winocr`, `rapidocr`, `light-ocr`, `tesseract`) sets the starting engine until the setting is saved and forces an engine and `KAFKA_OCR_LANG` changes the default language. Files over 200 MB are refused.
 
@@ -107,7 +108,7 @@ comparisons on invented scans, see [the OCR benchmark](docs/OCR_BENCHMARK.md).
 
 ## The workshop
 
-The twelve workshop tools (`pdf_*` and `images_compress`) accept an absolute path or the id of a filed document (`d_…`) and return the paths, page counts and sizes before and after of what they wrote. Where the result goes:
+The workshop tools (`pdf_*` and `images_compress`) accept an absolute path or the id of a filed document (`d_…`) and return the paths and details of what they wrote. Where the result goes:
 
 - A file you uploaded in the Taller page: `data/workshop/out/<job>/`. Uploads live in `data/workshop/in/<job>/`; job folders older than 7 days are deleted by the hourly housekeeping.
 - A filed document given by id: the folder in the `workshop.dir` setting (default `Documents\Kafka's Hoard\Taller`).

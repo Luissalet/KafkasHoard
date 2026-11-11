@@ -17,7 +17,7 @@ from typing import Any, Callable, Optional
 
 from .hoard_link.docs import readers_lite, textclean
 from .hoard_link.docs.sniff import sniff as _sniff
-from .ocr import Ocr
+from .ocr import Ocr, structure
 
 MAX_FILE_BYTES = 64 * 1024 * 1024
 MAX_TEXT_CHARS = 2_000_000
@@ -62,6 +62,22 @@ class ReadResult:
     children: list[Child] = field(default_factory=list)
     mail: dict[str, Any] = field(default_factory=dict)      # subject, from_name, from_address, ts, message_id (eml)
     body_is_text: bool = False                              # eml: the body itself has text worth classifying
+    structures: dict[int, dict[str, Any]] = field(default_factory=dict)   # page -> OCR structure (Markdown, blocks, tables) of OCR'd pages
+    engine: dict[str, Any] = field(default_factory=dict)    # which OCR engine read the scanned pages, and why when it was a fallback
+
+
+def ocr_page(result: Any, page: int) -> tuple[str, Optional[dict[str, Any]]]:
+    """The text Kafka keeps for an OCR'd page and its structure: with an engine that gives the layout (Indra) the text is the blocks in
+    reading order with each table row on one line, which is what extraction and search then read; otherwise the engine's lines."""
+    if result.error and not result.text:
+        return "", None
+    if not result.layout:
+        return clean_text(result.text), None
+    built = structure.build(result, page=page, lines=False)
+    built["backend"] = result.backend
+    if result.fallback:
+        built["fallback"] = result.fallback
+    return clean_text(built["text"]) or clean_text(result.text), built
 
 
 def file_ext(name: str) -> str:
@@ -136,6 +152,8 @@ class PdfRead:
     total: int = 0                                              # pages the file has (``pages`` may hold fewer: ``max_pages``)
     unread: list[int] = field(default_factory=list)             # 1-based pages still without usable text
     not_attempted: list[int] = field(default_factory=list)      # of those, the ones OCR never tried (off, unavailable, over the limit)
+    structures: dict[int, dict[str, Any]] = field(default_factory=dict)   # page -> structure of the OCR'd pages (engines with layout)
+    engine: dict[str, Any] = field(default_factory=dict)        # which engine read the OCR'd pages (``Ocr.engine_report``)
 
 
 def _open_pdf(data: bytes) -> Any:
@@ -168,8 +186,8 @@ def read_pdf_detail(data: bytes, ocr: Ocr, notes: list[str], *, max_pages: int =
         ocr_ok, ocr_why = ocr.available()
         if mode == "off":
             ocr_ok, ocr_why = False, "OCR was switched off for this read"
-        failed = 0
-        for index in range(count):
+        wanted: list[int] = []
+        for index in range(count):                         # first the text layer of every page
             page = pdf[index]
             try:
                 textpage = page.get_textpage()
@@ -177,26 +195,29 @@ def read_pdf_detail(data: bytes, ocr: Ocr, notes: list[str], *, max_pages: int =
                     text = clean_text(textpage.get_text_bounded(), layout=layout)
                 finally:
                     textpage.close()
-                wanted = mode == "force" or useful_chars(text) < MIN_USEFUL_CHARS
-                if wanted:
-                    if ocr_ok and out.ocr_pages + failed < max_ocr:
-                        image = page.render(scale=dpi / 72.0).to_pil()
-                        result = ocr.recognise(image, lang)
-                        ocr_text = clean_text(result.text)
-                        if result.error:
-                            failed += 1
-                        if (mode == "force" and ocr_text) or useful_chars(ocr_text) > useful_chars(text):
-                            text = ocr_text
-                            out.ocr_pages += 1
-                    elif useful_chars(text) < MIN_USEFUL_CHARS:
-                        out.not_attempted.append(index + 1)
-                if useful_chars(text) < MIN_USEFUL_CHARS:
-                    out.unread.append(index + 1)
             finally:
                 page.close()
             out.pages.append(text)
-            if progress is not None:
-                progress(index + 1, count)
+            if mode == "force" or useful_chars(text) < MIN_USEFUL_CHARS:
+                if ocr_ok and len(wanted) < max_ocr:
+                    wanted.append(index + 1)
+                elif useful_chars(text) < MIN_USEFUL_CHARS:
+                    out.not_attempted.append(index + 1)
+        ready = count - len(wanted)                         # pages done: those the text layer settled, then each OCR'd one
+        if progress is not None:
+            progress(ready, count)
+        if wanted:                                          # then OCR of the pages that need it, in one pass (worker processes for many)
+            report = lambda done, _total: progress(ready + done, count) if progress is not None else None  # noqa: E731
+            for number, result in ocr.pdf_pages(data, wanted, dpi=dpi, lang=lang, mode="ocr", progress=report):
+                ocr_text, built = ocr_page(result, number)
+                old = out.pages[number - 1]
+                if (mode == "force" and ocr_text) or useful_chars(ocr_text) > useful_chars(old):
+                    out.pages[number - 1] = ocr_text
+                    out.ocr_pages += 1
+                    if built is not None:
+                        out.structures[number] = built
+                    out.engine = ocr.engine_report(result) if not out.engine or result.fallback else out.engine
+        out.unread = [i + 1 for i, text in enumerate(out.pages) if useful_chars(text) < MIN_USEFUL_CHARS]
         skipped = len(out.not_attempted)
         if skipped:
             notes.append(f"{skipped} page(s) have no text layer and OCR is unavailable ({ocr_why})" if not ocr_ok
@@ -211,28 +232,21 @@ def read_pdf(data: bytes, ocr: Ocr, notes: list[str]) -> tuple[list[str], int]:
     return read.pages, read.ocr_pages
 
 
+def ocr_pdf_results(data: bytes, ocr: Ocr, numbers: list[int], *, dpi: int = OCR_DPI, lang: Optional[str] = None, mode: str = "ocr",
+                    options: Optional[dict[str, Any]] = None, progress: Optional[Callable[[int, int], None]] = None) -> list[tuple[int, Any]]:
+    """The given 1-based pages read by the OCR engine: ``[(page, OcrResult)]``. ``mode`` ocr never reads the text layer; auto and text let
+    Indra use it where it is sound (a digital PDF then gets its Markdown and tables without OCR)."""
+    total = pdf_page_count(data)
+    for number in numbers:
+        if not 1 <= number <= total:
+            raise ReadError(f"page {number} does not exist (the PDF has {total})")
+    return ocr.pdf_pages(data, numbers, dpi=dpi, lang=lang, mode=mode, options=options, progress=progress)
+
+
 def ocr_pdf_pages(data: bytes, ocr: Ocr, numbers: list[int], *, dpi: int = OCR_DPI, lang: Optional[str] = None,
                   progress: Optional[Callable[[int, int], None]] = None) -> list[tuple[int, str, str]]:
     """OCR of the given 1-based pages, without reading their text layer: ``[(page, text, error)]``."""
-    pdf = _open_pdf(data)
-    done: list[tuple[int, str, str]] = []
-    try:
-        total = len(pdf)
-        for k, number in enumerate(numbers, start=1):
-            if not 1 <= number <= total:
-                raise ReadError(f"page {number} does not exist (the PDF has {total})")
-            page = pdf[number - 1]
-            try:
-                image = page.render(scale=dpi / 72.0).to_pil()
-            finally:
-                page.close()
-            result = ocr.recognise(image, lang)
-            done.append((number, clean_text(result.text), result.error))
-            if progress is not None:
-                progress(k, len(numbers))
-    finally:
-        pdf.close()
-    return done
+    return [(n, ocr_page(r, n)[0], r.error) for n, r in ocr_pdf_results(data, ocr, numbers, dpi=dpi, lang=lang, progress=progress)]
 
 
 def pdf_page_count(data: bytes) -> int:
@@ -265,6 +279,12 @@ def render_pdf_page(data: bytes, number: int, scale: float = 1.6) -> bytes:
 
 # ------------------------------------------------------------------------------------------------------------ image
 def read_image(data: bytes, ocr: Ocr, notes: list[str]) -> tuple[list[str], int]:
+    pages, count, _structures, _engine = read_image_detail(data, ocr, notes)
+    return pages, count
+
+
+def read_image_detail(data: bytes, ocr: Ocr, notes: list[str]) -> tuple[list[str], int, dict[int, dict[str, Any]], dict[str, Any]]:
+    """``(pages, ocr_pages, structures, engine)`` of a photo or scan: one page, its structure when the engine gives the layout."""
     try:
         from PIL import Image, ImageOps
     except ImportError as exc:  # pragma: no cover
@@ -281,11 +301,12 @@ def read_image(data: bytes, ocr: Ocr, notes: list[str]) -> tuple[list[str], int]
     ok, why = ocr.available()
     if not ok:
         notes.append(f"image without text: OCR is unavailable ({why})")
-        return [""], 0
-    text = clean_text(ocr.read(image))
+        return [""], 0, {}, {}
+    result = ocr.recognise(image)
+    text, built = ocr_page(result, 1)
     if not text:
         notes.append("OCR found no text in the image")
-    return [text], 1 if text else 0
+    return [text], 1 if text else 0, ({1: built} if built and text else {}), ocr.engine_report(result)
 
 
 # ------------------------------------------------------------------------------------------------------------ eml
@@ -331,11 +352,11 @@ def read_bytes(name: str, data: bytes, ocr: Ocr) -> ReadResult:
     ext = sniff(name, data)
     notes: list[str] = []
     if ext in PDF_EXT:
-        pages, ocr_pages = read_pdf(data, ocr, notes)
-        return ReadResult("pdf", "pdf", MIME["pdf"], pages, ocr_pages, notes)
+        read = read_pdf_detail(data, ocr, notes)
+        return ReadResult("pdf", "pdf", MIME["pdf"], read.pages, read.ocr_pages, notes, structures=read.structures, engine=read.engine)
     if ext in IMAGE_EXT:
-        pages, ocr_pages = read_image(data, ocr, notes)
-        return ReadResult("image", ext, MIME.get(ext, "image/" + ext), pages, ocr_pages, notes)
+        pages, ocr_pages, structures, engine = read_image_detail(data, ocr, notes)
+        return ReadResult("image", ext, MIME.get(ext, "image/" + ext), pages, ocr_pages, notes, structures=structures, engine=engine)
     if ext == "eml":
         return read_eml(data)
     if ext in TEXT_EXT:

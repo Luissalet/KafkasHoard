@@ -52,6 +52,8 @@ UI_SETTINGS: dict[str, Optional[tuple[str, ...]]] = {
     "mail.source": MAIL_SOURCES,
     "extract.llm": ("auto", "off"),
     "ocr.engine": OCR_ENGINES,
+    "ocr.device": ("cpu", "gpu"),
+    "ocr.workers": None,
     "warranty.years": None,
     "calendar.region": REGIONS,
     "calendar.extra_holidays": None,
@@ -73,13 +75,14 @@ UI_SETTINGS: dict[str, Optional[tuple[str, ...]]] = {
     **{f"notify.{c}.min_severity": ("low", "medium", "high") for c in CHANNELS},
 }
 DEFAULTS = {"ui.language": "es", "scheduler.paused": "0", "folders.interval_min": "5", "mail.enabled": "1", "mail.interval_min": "15",
-            "mail.window_days": "14", "mail.first_days": "180", "extract.llm": "auto", "ocr.engine": "auto", "warranty.years": "3", "calendar.region": "ES-MD",
+            "mail.window_days": "14", "mail.first_days": "180", "extract.llm": "auto", "ocr.engine": "auto", "ocr.device": "cpu", "ocr.workers": "4",
+            "warranty.years": "3", "calendar.region": "ES-MD",
             "prices.alert_pct": "5", "prices.bills": "0", "links.phileas": "1", "links.ledger": "1", "mail.source": "auto", "notify.via": "auto",
             "notify.night_from": "23", "notify.night_to": "7",
             "notify.night_high": "0", "notify.ntfy.server": "https://ntfy.sh", "notify.email.backend": "auto",
             **{f"remind.{k}": ",".join(str(x) for x in v) for k, v in M.DEFAULT_LEADS.items()}}
 NUMERIC = {"folders.interval_min": (1, 1440), "mail.interval_min": (5, 1440), "mail.window_days": (1, 365), "mail.first_days": (1, 730),
-           "warranty.years": (1, 10), "prices.alert_pct": (1, 100), "notify.night_from": (0, 24), "notify.night_to": (0, 24)}
+           "warranty.years": (1, 10), "prices.alert_pct": (1, 100), "notify.night_from": (0, 24), "notify.night_to": (0, 24), "ocr.workers": (0, 16)}
 SOON_DAYS = 7
 MONTH_DAYS = 30
 
@@ -143,7 +146,11 @@ class Services:
         self.mail = mail_source or MailSource(self.setting, config.secret, runner=mail_runner, clock=clock_fn, offline=config.offline,
                                            save=self.db.set_setting)
         stored_engine = (self.db.get_setting("ocr.engine", None) or "").strip().lower()      # the «Motor de OCR» choice wins over KAFKA_OCR_BACKEND
-        self.ocr = ocr or Ocr(config.ocr, backend=stored_engine if stored_engine in OCR_ENGINES else config.ocr_backend, lang=config.ocr_lang)
+        stored_device = (self.db.get_setting("ocr.device", None) or "").strip().lower()
+        stored_workers = (self.db.get_setting("ocr.workers", None) or "").strip()
+        self.ocr = ocr or Ocr(config.ocr, backend=stored_engine if stored_engine in OCR_ENGINES else config.ocr_backend, lang=config.ocr_lang,
+                              device=stored_device if stored_device in ("cpu", "gpu") else "",
+                              workers=int(stored_workers) if stored_workers.isdigit() else None)
         self.docsvc = DocService(self.ocr, config.data_dir)
         self.llm = llm if llm is not None else LlmPass(config.backend_json_path)
         self.engine = Engine(self.store, self.files, self.notifier, self.ocr, settings_get=self.db.get_setting, settings_set=self.db.set_setting,
@@ -187,7 +194,7 @@ class Services:
 
     def stop(self) -> None:
         # Each step runs once even if stop() is called again after a failure.
-        steps = (self.scheduler.stop, self.docsvc.stop, self.llm.close, self.db.close)
+        steps = (self.scheduler.stop, self.docsvc.stop, getattr(self.ocr, "close", lambda: None), self.llm.close, self.db.close)
         done = getattr(self, "_stop_done", 0)
         while done < len(steps):
             try:
@@ -261,6 +268,10 @@ class Services:
             self.db.set_setting(key, value)
             if key == "ocr.engine" and hasattr(self.ocr, "set_backend"):
                 self.ocr.set_backend(value)
+            if key == "ocr.device" and hasattr(self.ocr, "set_tuning"):
+                self.ocr.set_tuning(device=value)
+            if key == "ocr.workers" and value and hasattr(self.ocr, "set_tuning"):
+                self.ocr.set_tuning(workers=int(value))
             if key.startswith("mail.") and key != "mail.hub_since_id":
                 forget = getattr(self.mail, "forget_interest", None)
                 if forget:
@@ -419,7 +430,10 @@ class Services:
                 "mail": {"source": self._mail_source(), "mode": self.setting("mail.source"), "faustus_dir": str(self.mail.faustus_dir() or ""), "last_scan_ts": float(self.setting("mail.last_scan_ts") or 0) or None,
                          "last_error": self.setting("mail.last_error"), "first_scan_done": self.setting("mail.first_scan_done") == "1"},
                 "ocr": {"available": ocr_ok, "detail": ocr_note, "backend": ocr_note if ocr_ok else "", "backends": ocr_status["backends"],
-                        "engine": ocr_status.get("engine", "auto"), "engines": ocr_status.get("engines", list(OCR_ENGINES))},
+                        "engine": ocr_status.get("engine", "auto"), "engines": ocr_status.get("engines", list(OCR_ENGINES)),
+                        "report": ocr_status.get("report") or {}, "device": ocr_status.get("device", "cpu"),
+                        "device_setting": ocr_status.get("device_setting", "cpu"), "device_note": ocr_status.get("device_note", ""),
+                        "workers": ocr_status.get("workers"), "pool": ocr_status.get("pool", 0)},
                 "llm": {"mode": self.setting("extract.llm"), "available": self._llm_available()},
                 "phileas": {"enabled": self.setting("links.phileas") == "1", "last_sync_ts": float(self.setting("links.phileas.last_sync_ts") or 0) or None,
                             "last_error": self.setting("links.phileas.last_error")},
