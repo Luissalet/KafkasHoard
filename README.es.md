@@ -1,43 +1,70 @@
 # Kafka's Hoard
 
-Un archivador local de papeleo. Lee facturas, contratos, pólizas de seguro, tickets, garantías, cartas de Hacienda, de la DGT o del ayuntamiento, multas, ITV y documentos de identidad; averigua quién los emite, los importes y todas las fechas que importan; convierte esas fechas en plazos (contando días hábiles españoles donde la ley lo exige); te avisa antes de cada uno y responde a tus preguntas citando el documento y la página.
-
-Forma parte de la familia de apps locales Hoard: corre en tu PC, guarda sus datos en `data/`, funciona sola en el navegador y un asistente puede manejarla por MCP.
+Archivador local de papeleo: lee tus facturas, contratos, pólizas, recibos y cartas oficiales, extrae los importes y fechas que importan, los convierte en plazos y te avisa antes de cada uno.
 
 [English version](README.md)
 
+## Qué es
+
+Kafka's Hoard lee facturas, contratos, pólizas de seguro, recibos, garantías, cartas de Hacienda, de Tráfico o del ayuntamiento, multas, informes de la ITV y documentos de identidad. Averigua quién emitió cada uno, los importes y cada fecha con su papel, convierte esas fechas en plazos (contando días hábiles españoles donde la ley lo hace), te avisa antes de cada uno y responde preguntas citando el documento y la página.
+
+Es una app de la familia Hoard. Funciona en tu PC, guarda sus datos en `data/`, trabaja sola en el navegador y puede manejarla un asistente por MCP.
+
 ## Qué hace
 
-- **Lee lo que le das.** Arrastra archivos a la página, déjalos en una carpeta vigilada (por defecto `data/inbox`) o deja que lea la cuenta de correo configurada en Faustus: los adjuntos PDF e imagen se archivan y la contraseña nunca sale de Faustus. Admite PDF (capa de texto y, con el paquete OCR opcional, páginas escaneadas), imágenes (PNG, JPEG, WebP, HEIC, TIFF, BMP, GIF), `.eml`, `.docx`, `.pptx` (una página por diapositiva, en el orden en que las muestra la presentación, con las notas del orador), HTML y texto plano. Cada archivo se guarda una sola vez por su SHA-256 y el original no se modifica nunca.
-- **Entiende el documento.** Reglas (sin modelo) lo clasifican (factura, ticket, recibo, contrato, seguro, garantía, impuestos, notificación oficial, multa, vehículo/ITV, identidad, suscripción, nómina, banco, manual de instrucciones), identifican al emisor, eligen la referencia (póliza, contrato, factura, expediente, boletín de multa), el importe y el periodo de facturación, y encuentran cada fecha con su papel: emisión, vencimiento, renovación, efecto desde/hasta, compra, entrega, caducidad, notificación, próxima ITV, fin de permanencia. Cada dato conserva su evidencia: la cita y la página.
-- **Crea plazos y explica por qué.** Vencimientos de pago, renovaciones, el último día para cancelar una renovación (un mes antes para el tomador, Ley 50/1980 art. 22), fin de la garantía legal de 3 años (Real Decreto Legislativo 7/2021), fin de permanencia, los 20 días naturales para pagar una multa de tráfico con el 50 % de descuento o presentar alegaciones (dgt.es), plazos para responder a la administración en días hábiles (Ley 39/2015 art. 30), caducidad de documentos y próxima ITV. «¿Por qué esta fecha?» muestra la regla, la fecha base, los días contados y la cita. Ver [docs/RULES.md](docs/RULES.md).
-- **Te avisa.** Cada tipo de plazo tiene días de antelación que puedes cambiar (una renovación: 45, 30 y 7 días antes; el descuento de una multa: 5, 2 y el último día). Un aviso por plazo y por pasada, los vencidos una sola vez, nada por la noche (de 23:00 a 07:00 por defecto; los urgentes pueden saltarse la pausa). Canales: aviso de Windows, bus de la familia Hoard, ntfy, Telegram y correo (enviado con la cuenta de Faustus). Cada aviso se envía una sola vez.
-- **Sigue lo que se repite.** Recibos, seguros y suscripciones del mismo emisor y referencia forman una serie. Un cambio de precio del 5 % o más (configurable) genera un aviso; el historial se ve por serie. Los plazos recurrentes (mensual, anual) pasan a su siguiente fecha al marcarlos como hechos.
-- **Responde con citas.** La búsqueda de texto completo (SQLite FTS5, sin distinguir tildes) recorre todas las páginas y devuelve fragmentos con documento y página, también limitada a una lista de documentos (`doc_ids`, por ejemplo los manuales de un aparato); `warranty_check` dice si una compra sigue en garantía y hasta cuándo.
-- **Guarda manuales.** Un documento archivado con el tipo `manual` (manuales de instrucciones) se guarda y se busca como los demás y nunca crea plazos. Los manuales también se reconocen por su texto («manual de instrucciones», «instrucciones de uso»).
-- **Guarda plazos de otras apps.** Otra app de la familia (HomeHoard, para el mantenimiento) envía sus plazos con `deadline_add` y un `source` + `external_key`: si lo envía otra vez se actualiza el mismo plazo en lugar de duplicarse, una fecha nueva lo reabre, y la base y la norma que envía aparecen en «¿por qué esta fecha?». Lo que cambias aquí gana: un título, avisos o fecha editados se mantienen hasta que la app envía una nueva ocurrencia, y un plazo que descartas sigue descartado. `deadline_update_by_key` permite a la app cerrarlo o reprogramarlo. Los avisos salen por los mismos canales y enlazan con la app.
-- **Habla con el hub de la familia.** Los avisos salen por el hub (`POST /api/notify`, con prioridad, agrupación y clave de deduplicación); si el hub no está o falla, se usan los canales propios de siempre (ajuste `notify.via`: automático, solo hub o solo propios). El correo de papeleo se lee por la pasarela de correo del hub (ajuste `mail.source`: automático, hub o ayudante de Faustus), con marca de lectura propia, y cada correo archivado se reclama como documento (`hoard://kafka/document/<id>`). Los plazos aparecen en la agenda familiar (`GET /api/family/agenda`: renovaciones, mantenimiento, seguimientos de otras apps y plazos, con prioridad según cercanía y gravedad).
-- **Eventos.** `kafka.document.archived` (con `order_ref` cuando el documento trae un número de pedido), `kafka.warranty.created`, `kafka.deadline.created`, `kafka.deadline.soon` y `kafka.deadline.overdue` (una vez por plazo y estado).
-- **Enlaza facturas con Ledger.** Al archivar una factura o un recibo con importe y fecha, busca en Ledger (`tx_find`) y, si solo un movimiento puntúa 0,8 o más, lo enlaza (`tx_attach_doc` y la referencia `hoard://ledger/tx/<id>`); en Detalle aparece como chip y, si no hay un candidato claro, se elige entre los candidatos (`document_link_tx`). Se reintenta una vez al día con los documentos de los últimos 45 días (ajuste `links.ledger`).
-- **Actas a plazos y carpeta de la renta.** `deadlines_from_minutes` convierte en plazos las tareas con fecha de un acta de Funes que son tuyas o no tienen responsable (tu nombre en `minutes.me`); `tax_pack` prepara una carpeta nueva del año natural con los documentos que suelen hacer falta, un índice, un CSV, el resumen anual de Ledger y la lista de certificados que faltan (en el Taller, abajo).
-- **Historia en silencio.** El primer escaneo del correo y los archivos antiguos se archivan sin avisos y sus plazos pasados se crean como hechos, así que solo te enteras de lo que aún está por delante.
-- **Trabaja con los propios ficheros (Taller).** Unir PDF (con las páginas que elijas de cada uno), dividirlos (un fichero por página, por rangos como `1-3,4-6` o cada N páginas), extraer, borrar, girar o reordenar páginas, comprimir (con Ghostscript si está instalado; si no, un compresor integrado que recomprime las imágenes incrustadas; opcionalmente hasta un tamaño objetivo en MB), poner o quitar contraseña (AES-256), estampar una marca de agua de texto en diagonal, leer o cambiar título, autor, asunto y palabras clave, convertir fotos en PDF (A4, Carta o ajustado, respetando la orientación EXIF), convertir Word, ODT y RTF a PDF (Microsoft Word en Windows; si no, LibreOffice), pasar las páginas de un PDF a PNG o JPG y comprimir imágenes PNG, JPEG y WEBP por debajo de un límite de peso, una sola o una carpeta entera. Cada resultado es un fichero nuevo: nada se sobrescribe (si el nombre existe queda «nombre (2)») y los originales no se tocan. Las contraseñas se usan solo en memoria y nunca se registran, se devuelven ni se guardan.
-- **Privado de cara al asistente.** DNI/NIE, IBAN, tarjetas y teléfonos se enmascaran en lo que devuelven MCP y la ruta del agente salvo que pidas expresamente ese número. La interfaz local lo muestra todo.
+**Lectura de documentos**
+- Arrastra archivos a la página, déjalos en una carpeta vigilada (por defecto `data/inbox`) o deja que lea la cuenta de correo configurada en Faustus o la pasarela de correo del hub: los adjuntos PDF e imagen se archivan y la contraseña del correo nunca sale de Faustus.
+- Formatos: PDF (capa de texto, con OCR para páginas escaneadas si está instalado el paquete opcional de OCR), imágenes (PNG, JPEG, WebP, HEIC, TIFF, BMP, GIF), `.eml`, `.docx`, `.pptx` (una página por diapositiva, con notas del orador), HTML y texto plano. Cada archivo se guarda una sola vez por SHA-256 y el original nunca se modifica.
+- Unas reglas, sin necesidad de modelo, clasifican el documento (factura, recibo, suministro, contrato, seguro, garantía, impuestos, notificación oficial, multa, vehículo/ITV, identidad, suscripción, nómina, banco, manual de instrucciones), nombran al emisor, eligen la referencia, el importe y el periodo de facturación y encuentran cada fecha con su papel (emisión, vencimiento, renovación, efecto, compra, entrega, caducidad, notificación, próxima ITV, fin de permanencia). Cada dato conserva su evidencia: la cita y la página.
+- Los documentos dudosos y los correos que podrían ser papeleo van a una lista de revisión: aceptar, cambiar o ignorar. Tu edición de cualquier campo siempre gana al releer.
+- El primer escaneo del correo y los archivos antiguos se archivan sin avisos y sus plazos pasados se crean como hechos, de modo que solo oyes hablar de lo que aún está por venir.
+
+**Plazos y recordatorios**
+- Vencimientos de pago, renovaciones, último día para cancelar una renovación, fin de la garantía legal de 3 años, fin de un periodo de permanencia, los 20 días naturales para pagar una multa de tráfico con descuento o presentar alegaciones, plazos de respuesta a la administración en días hábiles, caducidad del DNI y próxima ITV. «¿Por qué esta fecha?» muestra la regla, la fecha base, los días contados y la cita; véase [docs/RULES.md](docs/RULES.md).
+- Días de antelación por tipo de plazo que puedes cambiar. Un aviso por plazo y pasada, los vencidos una vez, nada por la noche (23:00-07:00 por defecto; los urgentes pueden pasar).
+- Canales: aviso de Windows, el hub de la familia Hoard, ntfy, Telegram y correo. Los plazos recurrentes pasan a la siguiente ocurrencia al marcarlos como hechos.
+- Los calendarios de días hábiles cubren los festivos nacionales y las comunidades de Madrid, Cataluña, Andalucía, Valencia, Galicia y País Vasco, más los festivos extra que añadas.
+- Otras apps de la familia (por ejemplo, mantenimiento del hogar) envían sus plazos con un origen y una clave externa; reenviar actualiza en lugar de duplicar, y lo que cambias o descartas aquí prevalece.
+
+**Series, garantías y búsqueda**
+- Facturas, seguros y suscripciones del mismo emisor y referencia forman una serie con historial de precios; un cambio de precio del 5 % o más (configurable) genera un aviso.
+- La búsqueda de texto completo (SQLite FTS5, sin acentos) en todas las páginas devuelve fragmentos con documento y página, opcionalmente limitada a ciertos documentos. `warranty_check` dice si una compra sigue en garantía y hasta cuándo.
+- Los manuales de instrucciones se guardan y se pueden buscar, y nunca crean un plazo.
+- Comparar dos versiones archivadas de un documento con citas a ambos ([docs/DOCUMENT_COMPARE.md](docs/DOCUMENT_COMPARE.md)).
+- Dosieres: para una pregunta y un conjunto de documentos archivados, pasajes con citas `[d_id · p. N · l. M]` más fechas, importes, duraciones y obligaciones leídos con reglas fijas; las contradicciones se listan lado a lado y nunca se resuelven por ti. Un dosier se marca como caducado cuando cambia una fuente, y una comparación de requisitos alinea las cláusulas de dos versiones ([docs/DOSSIER.md](docs/DOSSIER.md)).
+
+**Enlaces con otras apps**
+- Las facturas y recibos con importe y fecha se cotejan con el libro de cuentas; cuando exactamente un movimiento puntúa 0,8 o más se enlaza, y puedes elegir uno a mano si ninguno está claro.
+- Las tareas con fecha de actas de reuniones que son tuyas se convierten en plazos; las compras entregadas del seguimiento de envíos crean sus plazos de garantía.
+- Una carpeta de la declaración de la renta del año natural: el papeleo habitual, un índice, un CSV, el resumen anual del libro de cuentas y la lista de certificados que faltan.
+
+**Taller**
+- Unir PDF, dividir por página, rangos o cada N páginas, extraer, borrar, girar o reordenar páginas, comprimir (Ghostscript si está instalado, si no un compresor propio; opcionalmente hasta un tamaño objetivo), poner o quitar contraseña (AES-256), estampar una marca de agua de texto, editar título, autor, asunto y palabras clave, convertir fotos o Word, ODT y RTF a PDF, convertir páginas de PDF en imágenes, exportar Markdown estructurado y tablas a XLSX o CSV.
+- Kafka incluye su propio motor PDF nativo (`native/pdf`, se compila con `python scripts/build_pdf_engine.py` y necesita Rust). Sin él, solo las operaciones PDF no están disponibles.
+- Los resultados traen tamaños antes y después y botón de descarga; los resultados PDF pueden archivarse en Kafka. El taller nunca edita un archivo en el sitio.
+
+**Lectura de documentos para la familia**
+- Otras apps llaman a Kafka por el hub para extraer texto y hacer OCR y pasan rutas, nunca bytes: `doc_extract` (PDF, imágenes, `.docx`, `.eml`, HTML, texto, hojas de cálculo, archivos comprimidos), `ocr_image`, `ocr_file`, `ocr_pdf`, `ocr_engine`, `ocr_status` y `doc_structure`.
+- Motores de OCR: `indra`, `winocr`, `rapidocr`, `light-ocr` y `tesseract`, elegidos con el ajuste «Motor de OCR» (`auto`, `indra` o `current`); si el motor elegido falla en una imagen, la lee otro. Sin paquete de OCR, las páginas escaneadas se guardan y se marcan para revisión.
+
+**Privacidad**
+- Los números de DNI, IBAN, tarjeta y teléfono se enmascaran en lo que devuelve MCP salvo que pidas expresamente ese número. La interfaz local lo muestra todo.
 
 ## Pantallas
 
-En castellano por defecto, inglés con un clic, oscura.
+En español por defecto, en inglés con un clic, tema oscuro.
 
-- **Plazos** — vencidos, esta semana, próximos 30 días y más adelante; marcar hecho, aplazar, editar, descartar, añadir a mano; novedades desde la última visita; documentos esperando tu decisión.
-- **Documentos** — subida arrastrando archivos a cualquier parte, lista con filtros por tipo y estado, búsqueda de texto completo con fragmentos.
-- **Detalle** — vista previa de la página con el original, datos extraídos con su evidencia, plazos con «¿por qué esta fecha?», series e historial de precios, el movimiento de Ledger enlazado en facturas y recibos, edición de cualquier campo (tu edición siempre gana al releer).
-- **Revisión** — documentos de los que las reglas no estaban seguras y correos que pueden ser papeleo: aceptar, cambiar, ignorar.
-- **Taller** — una rejilla con las operaciones anteriores; cada una tiene su zona para soltar ficheros o un campo de ruta, sus opciones y una tarjeta de resultado con el tamaño antes y después, botón de descarga y «Archivar en Kafka» para los PDF. Detalle tiene un botón «Abrir en el taller» para los documentos PDF. Abajo, la tarjeta de la carpeta de la renta (año, ZIP opcional).
-- **Ajustes** — carpeta del taller, carpetas vigiladas, correo (hub o Faustus), región del calendario y festivos extra, días de antelación, ruta de avisos (hub o propia) y canales con botón de prueba, estado del OCR y del modelo, idioma, actividad reciente.
+- **Plazos**: vencidos, esta semana, próximos 30 días y más adelante; marcar como hecho, posponer, editar, descartar, añadir a mano; novedades desde la última visita.
+- **Documentos**: subida arrastrando archivos a cualquier parte, lista con filtros por tipo y estado, búsqueda de texto completo con fragmentos.
+- **Detalle**: vista previa de la página, datos extraídos con evidencia, plazos con «¿por qué esta fecha?», series e historial de precios, movimiento enlazado del libro de cuentas.
+- **Revisión**: documentos y correos de los que las reglas no estaban seguras.
+- **Taller**: las operaciones del taller, cada una con zona de arrastre, opciones y tarjeta de resultado; más la tarjeta de la carpeta de la renta.
+- **Dosieres**: crear, refrescar y comparar dosieres.
+- **Ajustes**: carpetas del taller y vigiladas, origen del correo, comunidad del calendario, días de antelación, ruta de avisos y canales con botón de prueba, estado del OCR y del modelo, idioma, actividad reciente.
 
-## Ponerla en marcha
+## Cómo se ejecuta
 
-Requisitos: Python 3.11+ (probada en 3.11 y 3.13), Node 22 solo para reconstruir la interfaz, Faustus con una cuenta de correo para leer el correo automáticamente.
+Requiere Python 3.11+, Node 22 solo para recompilar la interfaz y Faustus con una cuenta de correo para la lectura automática del correo.
 
 ```bash
 python -m venv venv
@@ -45,111 +72,67 @@ venv/Scripts/python -m pip install -r requirements.txt      # Windows; venv/bin/
 venv/Scripts/python -m kafka_hoard                            # http://127.0.0.1:5200
 ```
 
-La interfaz viene compilada en `kafka_hoard/static`. Para reconstruirla: `npm install && npx vite build`. `python scripts/launch.py` arranca la app en un puerto libre y abre el navegador.
+La interfaz ya está compilada en `kafka_hoard/static`; para recompilarla ejecuta `npm install && npx vite build`. `python scripts/launch.py` arranca la app en un puerto libre y abre el navegador. El OCR es opcional: `pip install ".[ocr]"`.
 
-El OCR es opcional: `pip install ".[ocr]"` (rapidocr, indra-ocr y onnxruntime). Sin él, las páginas escaneadas y las fotos se guardan y se marcan para revisión, y todo lo demás sigue funcionando.
+| Variable | Para qué sirve |
+| --- | --- |
+| `KAFKA_PORT` | Puerto (por defecto `5200`). |
+| `PORT_STRICT=1` | No pasar a otro puerto. |
+| `KAFKA_DATA_DIR` | Carpeta de datos (por defecto `./data`). |
+| `KAFKA_ALLOWED_HOSTS` | Nombres de host extra aceptados tras un túnel. |
+| `KAFKA_SCHEDULER=0` | Sin trabajo en segundo plano. |
+| `KAFKA_OFFLINE=1` | Sin red. |
+| `KAFKA_OCR=0`, `KAFKA_OCR_BACKEND` | Desactivar el OCR o elegir el motor. |
+| `KAFKA_TELEGRAM_TOKEN`, `KAFKA_TELEGRAM_CHAT_ID`, `KAFKA_NTFY_TOPIC`, `KAFKA_SMTP_*`, `KAFKA_FAUSTUS_DIR` | Secretos de avisos y correo; pueden ir en `.env` (véase `.env.example`) o en Ajustes. |
 
-Entorno: `KAFKA_PORT` (5200), `KAFKA_DATA_DIR`, `PORT_STRICT=1`, `KAFKA_SCHEDULER=0` (sin trabajo en segundo plano), `KAFKA_OFFLINE=1` (sin red), `KAFKA_OCR=0`, `KAFKA_ALLOWED_HOSTS`, `KAFKA_HTTP_TIMEOUT_S`. Los secretos (`KAFKA_TELEGRAM_TOKEN`, `KAFKA_TELEGRAM_CHAT_ID`, `KAFKA_NTFY_TOPIC`, `KAFKA_SMTP_*`, `KAFKA_FAUSTUS_DIR`) pueden ir en `.env` (ver `.env.example`) o en Ajustes. Lo demás son ajustes guardados en `data/kafka.db`.
+Todo lo demás es un ajuste guardado en `data/kafka.db`. Los Hoards se ejecutan bajo demanda: el hub de la familia puede listar, arrancar y parar este.
 
-## Hoard independiente
+## Conexión con Faustus y la familia Hoard
 
-Kafka's Hoard vuelve a ser un Hoard propio (desde el 28 de octubre de 2026). Durante unos días estuvo integrada en otra aplicación de escritorio; eso se acabó. Tiene su servidor en el puerto 5200, sus datos en `data/` y su `faustus-plugin.json`, de modo que el Hub de la familia puede listarla, arrancarla y pararla, y Faustus se conecta por MCP (los mismos 319 nombres de herramienta de antes). El Hub la encuentra porque la carpeta del repositorio es una de las raíces de su `hub.json`; arráncala desde el Hub o con `python -m kafka_hoard`. Los Hoards se arrancan bajo demanda: nada la inicia solo porque arranque Faustus. Ledger, Hermes/Phileas, HomeHoard, Funes, CookHoard y People llegan a ella por el Hub (`POST /api/apps/kafka/call`), y Writer's Hoard la usa por referencia desde el 4 de noviembre de 2026: su módulo **Documentos y trámites** reenvía a esta app (localizada por el Hub) sus vistas, subidas, archivos y llamadas de herramientas, y ya no lleva una copia. Writer añade un `reason` con su nombre a las escrituras de agentes que llegan sin él. Mantén estables `/api/ui/call`, `/api/agent/call`, `/api/dashboard` y `/api/documents/*`: la vista de Writer los usa.
+- **MCP**: `mcp_server.py` es un puente MCP por stdio llamado `kafka-hoard`. Nunca abre la base de datos: reenvía cada llamada a la app en marcha con el token de `data/mcp-token` y arranca la app si no responde. `faustus-plugin.json` describe la app, su comprobación de salud y el puente. El catálogo completo, con argumentos, está en [docs/API.md](docs/API.md) y en `GET /api/agent/tools`.
+- **Grupos de herramientas**:
 
-Primera instalación en otro equipo: crea el venv e instala `requirements.txt`, y construye una vez el motor PDF con `python scripts/build_pdf_engine.py` (requiere Rust; el resultado es `native/bin/kafka-pdf-worker`, que git no sigue). Sin él solo fallan las operaciones del motor PDF.
+| Área | Herramientas |
+| --- | --- |
+| Resumen | `kafka_overview`, `kafka_status` |
+| Plazos | `deadlines_list`, `deadline_get`, `deadline_add`, `deadlines_from_minutes`, `deadline_update`, `deadline_update_by_key`, `deadline_explain`, `deadline_delete` |
+| Documentos | `docs_list`, `doc_get`, `doc_search`, `doc_add_file`, `doc_add_text`, `doc_update`, `doc_reprocess`, `doc_delete`, `doc_compare`, `extract_preview`, `document_link_tx` |
+| Dosieres | `kafka_dossier`, `kafka_dossier_status`, `kafka_dossier_refresh`, `kafka_dossier_delete`, `kafka_requirements_diff` |
+| Series y garantías | `series_list`, `price_history`, `warranty_check`, `phileas_sync` |
+| Correo y carpetas | `mail_scan`, `mail_list`, `mail_accept`, `mail_ignore`, `mail_status`, `folders_list`, `folder_add`, `folder_remove`, `folder_scan` |
+| Avisos y ajustes | `notifications_list`, `notify_status`, `notify_test`, `telegram_find_chat_id`, `settings_set`, `secret_set`, `scheduler_status`, `runs_list`, `housekeeping_run` |
+| Taller | operaciones `pdf_*` (más de un centenar), `images_compress`, `tax_pack` |
+| Lectura y OCR | `doc_extract`, `ocr_image`, `ocr_file`, `ocr_engine`, `ocr_pdf`, `ocr_status`, `doc_structure` |
 
-## Asistente de Faustus
+- **Responsabilidad de los agentes**: toda escritura que un asistente hace por MCP necesita un `reason` de 3 a 300 caracteres y queda registrada en `data/agent_journal.jsonl` con agente, sesión y lo necesario para deshacerla. `POST /api/agent/undo` puede revertir una sesión entera (primero en simulación); algunas herramientas no se pueden deshacer y se indican como tales, y los cambios que haya hecho otra persona después se notifican como conflictos, no se pisan. Los tokens con perfil (`read_only`, `drafts`, `all`) se generan con `python -m hoard_link.tokens mint`.
+- **Hub**: avisos (con respaldo en los canales propios de la app), pasarela de correo, agenda familiar (`GET /api/family/agenda`: renovaciones, mantenimiento y plazos de otras apps) y los eventos `kafka.document.archived`, `kafka.warranty.created`, `kafka.deadline.created`, `kafka.deadline.soon` y `kafka.deadline.overdue`. Otras apps llegan a Kafka por el hub (`POST /api/apps/kafka/call`) y usan `/api/ui/call`, `/api/agent/call`, `/api/dashboard` y `/api/documents/*`.
+- **Copiloto**: un botón flotante de Faustus abre el asistente en un panel lateral. Se le informa del documento o plazo abierto (solo campos de resumen, nunca el texto del documento), de la página en que estás y de los campos de formulario sin guardar; la vista se recarga en el sitio tras cada turno y los formularios envían solo los campos que cambiaste.
+- **App Dock**: junto a un chat de Faustus, la página registra `kafka_open`, `kafka_filter` y `kafka_view` para que el asistente abra documentos, aplique filtros y cambie de sección.
+- **Skills**: `paperwork-intake-and-deadlines` y `hoard-daily-digest` se ofrecen a los agentes que se conectan.
 
-Con el lanzador compartido de Hoard Link instalado, la app muestra el panel de Faustus de la familia (un botón flotante). La conversación, el modelo y las herramientas viven en Faustus; esta app solo le dice al panel qué hay abierto.
+## Estructura del proyecto
 
-- **Contexto por vista.** Un documento abierto en Documentos (`#/documentos/<id>`) o en el taller (`#/taller?doc=<id>`) se envía como `document` (título, tipo, emisor, referencia, importe, moneda, fecha de emisión, estado) más todos sus plazos asociados como `deadline` (fecha, estado, recurrencia, días restantes). Un plazo en edición se añade con su id real. La vista indica la página (`deadlines`, `documents`, `review`, `workshop`, `settings`). Crear (`new`) no da objeto. El texto de los documentos nunca se envía, solo estos campos de resumen.
-- **Campos sin guardar.** El panel los pide con el evento de ventana `kafka:context-request`. Los formularios `deadline-form`, `deadline-new` (aún sin id) y `document-form` responden con lo escrito y una marca `dirty`.
-- **Refresco.** Cuando el asistente termina un turno, la vista abierta se recarga en el sitio (`hoard:copilot-turn-end` / `window.hoardCopilot.onTurnEnd`, unidos en una sola recarga). Los formularios abiertos conservan lo que escribías; lo que no has tocado sigue a los datos nuevos.
-- **Guardado.** Los formularios envían solo los campos cambiados a `doc_update` y `deadline_update` (incluido `remind`), que fusionan solo esos campos; un valor vacío explícito borra uno. Sin argumentos nuevos.
-- **Pruebas.** `node --test client/copilot-context.test.mjs` y `python -m pytest tests/test_partial_updates.py`.
+| Ruta | Contenido |
+| --- | --- |
+| `kafka_hoard/` | App FastAPI, almacén SQLite, reglas de extracción, calendario de días hábiles, planificador, avisos, correo, OCR, taller, herramientas del agente |
+| `kafka_hoard/static/` | Interfaz React 19 + Vite + Tailwind ya compilada (código en `client/`) |
+| `native/pdf/` | Código del motor PDF nativo |
+| `mcp_server.py` | Puente MCP por stdio |
+| `docs/` | Referencia de la API, arquitectura, reglas de plazos, dosieres, comparación de documentos, prueba comparativa de OCR |
+| `tests/` | Suite de pytest |
 
-## Asistentes (MCP)
+```bash
+python -m pytest -q    # sin red; los documentos y PDF se generan con datos inventados
+```
 
-`mcp_server.py` es un puente MCP por stdio llamado `kafka-hoard`. No abre nunca la base de datos: reenvía cada llamada a la app en marcha con el token de `data/mcp-token` y arranca la app si no responde. `faustus-plugin.json` describe la app, su comprobación de salud y el puente para Faustus y el Hoard Hub.
-
-Herramientas (67): `kafka_overview`, `kafka_status`, `deadlines_list`, `deadline_get`, `deadline_add`, `deadlines_from_minutes`, `deadline_update_by_key`, `deadline_update`, `deadline_explain`, `deadline_delete`, `docs_list`, `doc_get`, `doc_compare`, `kafka_dossier`, `kafka_dossier_status`, `kafka_dossier_refresh`, `kafka_dossier_delete`, `kafka_requirements_diff`, `doc_search`, `doc_add_file`, `doc_add_text`, `doc_update`, `doc_reprocess`, `doc_delete`, `document_link_tx`, `extract_preview`, `warranty_check`, `series_list`, `price_history`, `mail_scan`, `mail_list`, `mail_accept`, `mail_ignore`, `mail_status`, `folders_list`, `folder_add`, `folder_remove`, `folder_scan`, `phileas_sync`, `notifications_list`, `notify_status`, `notify_test`, `telegram_find_chat_id`, `settings_set`, `secret_set`, `scheduler_status`, `runs_list`, `housekeeping_run`, `pdf_merge`, `pdf_split`, `pdf_pages`, `pdf_compress`, `pdf_protect`, `pdf_watermark`, `pdf_info`, `pdf_metadata_set`, `pdf_from_images`, `pdf_from_office`, `pdf_to_images`, `images_compress`, `tax_pack`, `doc_extract`, `ocr_image`, `ocr_file`, `ocr_engine`, `ocr_pdf`, `ocr_status`. Argumentos en [docs/API.md](docs/API.md).
-
-Eventos en el bus de la familia: `kafka.document.added`, `kafka.price.change`, `kafka.deadline.soon` y `kafka.deadline.overdue`. `phileas_sync` pide a Phileas's Hoard (por el enlace de la familia) las compras entregadas y crea sus plazos de garantía.
-
-### Sesiones de agente, motivos y deshacer
-
-Toda escritura que un asistente hace por el puente MCP (o `POST /api/agent/call`) deja rastro. La interfaz web no es un agente y queda al margen de todo esto.
-
-- **Quién.** El puente envía el nombre del agente y la sesión que lee de `HOARD_AGENT_ID` / `HOARD_AGENT_SESSION` (cabeceras `X-Agent-Id` / `X-Agent-Session`; también sirven `caller` / `_session` en el cuerpo). Un token con alcance fija el nombre del agente digan lo que digan las cabeceras.
-- **Por qué.** Toda herramienta que no sea de solo lectura exige un argumento `reason` de 3 a 300 caracteres (si falta, `400 reason_required` con una pista). Las de lectura no lo necesitan.
-- **Qué.** Cada escritura es una línea de `data/agent_journal.jsonl` (herramienta, agente, sesión, motivo, huella y resumen enmascarado de los argumentos, ids devueltos, hora, ok o error, y lo necesario para deshacerla); el archivo rota hacia los 5 MB. `GET /api/agent/journal?session=&agent=&limit=` (con token) lo lee, y el evento `agent.write` llega a la familia. Nunca se copia un secreto: `secret_set` anota `***` en lugar del valor.
-- **Deshacer una sesión entera.** `POST /api/agent/undo {"session": "...", "dry_run": true}` dice qué se deshará; con `{"confirm": true, "reason": "..."}` lo hace, de la última escritura a la primera.
-  - Se deshacen (13 herramientas): `doc_add_file` y `doc_add_text` (el documento archivado, sus plazos y el original guardado desaparecen; un tipo o un artículo aplicado a un documento que ya estaba archivado vuelve a como estaba), `doc_update` y `doc_reprocess` (los campos del documento y todos los plazos que la corrección recalculó vuelven tal cual estaban), `deadline_add` (un plazo nuevo se borra; si actualizó un plazo que mantiene otra app, vuelve a su versión anterior), `deadline_update`, `deadline_update_by_key`, `deadline_delete` (el plazo reaparece con el mismo id), `deadlines_from_minutes` (los plazos que añadió), `mail_ignore`, `folder_add`, `folder_remove` (con los ficheros que ya había visto) y `settings_set`.
-  - No se deshacen, y se informa de ello: `doc_delete` (el original guardado se va con el documento y Kafka no tiene papelera), `mail_accept`, `mail_scan`, `folder_scan` y `phileas_sync` (leen de fuera), `document_link_tx` (escribe en Ledger), `tax_pack`, todas las `pdf_*`, `images_compress` y las de PrintCraft que escriben (solo crean ficheros nuevos y nunca tocan un original; borrarlos es cosa de la persona), `notify_test`, `telegram_find_chat_id`, `secret_set` y `housekeeping_run`. Los avisos ya enviados y los enlaces ya hechos en otras apps no se retiran.
-  - Nunca toca lo que hizo otro: si otra sesión, o la persona en la interfaz, cambió después el mismo documento o plazo (un documento cuenta junto con sus plazos), esa escritura se señala como conflicto y se deja como está. Un recordatorio que salta solo entre medias no cuenta como cambio.
-- **Perfiles.** `python -m hoard_link.tokens mint --app-data-dir data --agent borrador --profile drafts` imprime un token (se muestra una vez; `data/agent_tokens.json` solo guarda huellas). Perfiles: `read_only` (herramientas de lectura), `drafts` (además las que crean o editan y nunca borran, envían ni leen de fuera: `doc_add_file`, `doc_add_text`, `doc_update`, `doc_reprocess`, `deadline_add`, `deadline_update`, `deadline_update_by_key`, `deadlines_from_minutes`, `mail_ignore` y las del taller que escriben ficheros nuevos: `pdf_merge`, `pdf_split`, `pdf_pages`, `pdf_compress`, `pdf_watermark`, `pdf_metadata_set`, `pdf_from_images`, `pdf_from_office`, `pdf_to_images`, `images_compress`) y `all`. Una llamada bloqueada responde `403 profile_forbidden`; solo el perfil `all` puede deshacer. La pestaña «Sesiones de agente» del Hub muestra las sesiones de todas las apps, las deshace y crea o revoca tokens.
-
-## Lectura de documentos para la familia
-
-Kafka es el dueño de la lectura de documentos y del OCR de la familia (contrato: `HoardLink/docs/commons/services.md`, sección 5). Las demás apps lo llaman a través del hub y pasan rutas, nunca bytes:
-
-- `doc_extract(path, mode?, max_pages?, lang?, wait_s?)`: texto por página de PDF, imágenes, `.docx`, `.eml`, HTML, texto, hojas de cálculo y archivos comprimidos, con OCR en las páginas sin capa de texto. Devuelve `{kind, title, text, units, needs_ocr, notes, mime, pages_ocr}` o la vista de un trabajo si tarda más de `wait_s`.
-- `ocr_image(path, lang?, blocks?, markdown?, engine?)` devuelve `{text, backend, seconds}` y, si se pide, `blocks` (líneas con caja y confianza) y `markdown` con `layout` (el Markdown y los bloques de maquetación propios de Indra; los demás motores dan el texto como Markdown). `fallback` aparece cuando el motor elegido falló con esa imagen y la leyó otro. `ocr_file(path, engine?, ...)` es lo mismo con bloques y Markdown activados y el motor indicado solo para esa llamada, para comparar motores. `ocr_engine(engine?)` elige `auto`, `indra` o `current` (el ajuste «Motor de OCR» de Ajustes, también `GET /api/ocr` y `POST /api/ocr/engine`) e informa de los motores instalados. La firma antigua sigue valiendo:
-- `ocr_image(path, lang?, wait_s?)` y `ocr_pdf(path, pages?, dpi?, lang?, mode?, wait_s?)`: texto con bloques (caja y confianza) por página; `ocr_pdf` aplica OCR a las páginas elegidas aunque tengan capa de texto.
-- `ocr_status(job_id?, wait_s?)`: el informe del motor (cuál de `indra`, `winocr`, `rapidocr`, `light-ocr` y `tesseract` está instalado y elegido) o la vista de un trabajo; `wait_s` se limita a 150 s.
-- `doc_structure` recupera el Markdown, los bloques de maquetación y las tablas de un escaneo archivado. En el Taller, `pdf_to_markdown` exporta Markdown estructurado y `pdf_tables` exporta tablas a XLSX o CSV.
-
-El idioma por defecto es el español. El motor se elige con el ajuste «Motor de OCR»: `auto` (Indra si `indra-ocr` está instalado y, si falla con una imagen, la lee el motor actual; el resultado lleva entonces `fallback`), `indra`, o `current` (`winocr`, `rapidocr`, `light-ocr`, `tesseract`, como antes de Indra). El código de Indra es Apache-2.0; sus modelos (unos 76 MB, licencia de uso personal) se descargan de Hugging Face la primera vez que se usa, y corre en CPU con ONNX Runtime (comprobado en Windows 11 con Python 3.13). `KAFKA_OCR_BACKEND` (`auto`, `indra`, `current`, `winocr`, `rapidocr`, `light-ocr`, `tesseract`) fija el motor inicial hasta que se guarde el ajuste y fuerza un motor y `KAFKA_OCR_LANG` cambia el idioma por defecto. Se rechazan los ficheros de más de 200 MB.
-
-El motor nativo opcional `light-ocr` se instala con `npm install --include=optional` en esta carpeta y necesita Node.js 22 o posterior. Usa la CPU y lee las imágenes localmente, con cajas y confianza por línea; no descarga modelos al leer. Para seleccionarlo: `KAFKA_OCR_BACKEND=light-ocr`. En automático sigue después de winocr y rapidocr, antes de tesseract. Si no está instalado o no puede cargar, se prueba el siguiente motor disponible. Los plazos siguen usando las mismas reglas y evidencias.
-
-La extracción compartida conserva los encabezados y filas de tablas repetidos
-en cada página del PDF, también cuando cambian los importes. Las comparaciones
-reproducibles con escaneos inventados están en [el banco de OCR](docs/OCR_BENCHMARK.md).
-
-## El taller
-
-Las herramientas del taller (`pdf_*` e `images_compress`) aceptan una ruta absoluta o el id de un documento archivado (`d_…`) y devuelven las rutas y los detalles de lo que han escrito. Dónde va el resultado:
-
-- Un fichero subido en la página Taller: `data/workshop/out/<trabajo>/`. Lo subido vive en `data/workshop/in/<trabajo>/`; las carpetas de trabajo de más de 7 días las borra la limpieza horaria.
-- Un documento archivado indicado por su id: la carpeta del ajuste `workshop.dir` (por defecto `Documentos\Kafka's Hoard\Taller`).
-- Una ruta: junto al original, con un sufijo (`_unido`, `_paginas`, `_rotado`, `_comprimido`, `_protegido`, `_sin_clave`, `_marca`, `_dividido`, `_imagenes`, `_comprimida`). `output` u `out_dir` eligen otro sitio. Se rechazan las carpetas del sistema, las ocultas y la de datos de Kafka.
-
-Con `file_result: true` cada PDF resultante se archiva también en Kafka y se devuelven sus `doc_ids`. REST de la página: `POST /api/workshop/upload` (multipart, campo `files`, `job` opcional), `GET /api/workshop/file?path=` (solo ficheros que ha producido el taller o que están en `data/workshop/`, mismo origen, cabeceras de descarga) y `GET /api/workshop/status` (cuáles de Ghostscript, Word y LibreOffice se han encontrado).
-
-Kafka incluye su propio motor PDF, construido desde la fuente incorporada en `native/pdf`, con 123 operaciones `pdf_*` y los alias históricos `printcraft_*` en el mismo API/MCP (319 herramientas en total). Se construye con `python scripts/build_pdf_engine.py`; el producto ejecuta únicamente `native/bin/kafka-pdf-worker`, sin buscar el editor externo. Los valores antiguos de `printcraft.cli` y los recibos `pc_…` se conservan como datos. `pdf_engine_status` compara el catálogo real con sus esquemas; `pdf_workflow` edita un PDF archivado o una revisión anterior y guarda otro archivo con su recibo; `pdf_artifacts` consulta el historial. Párrafos, páginas, formularios, anotaciones, firmas, exportación y las demás operaciones comparten el motor propio. El renderizado crea un PNG real con recibo. La edición de texto mantiene sus límites de fuentes y estructura del PDF; revisa las escrituras que el motor no admita. [Procedencia y compilación](native/pdf/README.md) recoge la revisión incorporada, dependencias locales y avisos conservados.
-
-## Cómo está hecha
-
-FastAPI + SQLite (WAL, FTS5) + un planificador de dos carriles (el `LaneScheduler` de la familia, con las últimas ejecuciones en `data/scheduler.json`); interfaz React 19 + Vite + Tailwind; la extracción en `kafka_hoard/extract/` (funciones puras); los días hábiles en `kafka_hoard/bizdays.py`; el trabajo en `kafka_hoard/engine.py`. Ver [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
-
-Pruebas: `python -m pytest -q` (sin red; los documentos y PDF los generan las propias pruebas con datos inventados).
+Véase [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Límites
 
-- El taller nunca edita un fichero en su sitio y no lee páginas escaneadas (no hay OCR en el taller). Sin Ghostscript la compresión solo reduce las imágenes, así que un PDF de texto y dibujo vectorial apenas encoge; los PDF con contraseña necesitan indicarla; las fotos HEIC necesitan el paquete opcional `pillow-heif`; la conversión de Word necesita Word o LibreOffice instalado; la marca de agua es texto latino plano en Helvetica.
-- Las fechas se leen con reglas para texto en español e inglés. Un formato inusual puede acabar en Revisión en vez de convertirse en plazo.
-- Sin el paquete OCR opcional, los documentos escaneados se guardan pero no se lee su texto.
-- Los calendarios de días hábiles cubren los festivos nacionales y las regiones de Madrid, Cataluña, Andalucía, Comunidad Valenciana, Galicia y País Vasco; añade otros festivos locales en Ajustes.
-- El paso opcional con modelo (por el enlace Hoard) solo propone datos; se descarta todo lo que no tenga la fecha escrita en el documento. Los plazos calculados por reglas no son asesoramiento jurídico: comprueba la notificación original en lo importante.
+- El taller no lee páginas escaneadas (eso es `doc_extract` y `ocr_pdf`). Comprimir sin Ghostscript solo reduce imágenes; los archivos cifrados necesitan su contraseña; HEIC necesita el opcional `pillow-heif`; la conversión de Word y LibreOffice necesita tener uno de los dos instalado; la marca de agua es texto latino sencillo.
+- Las fechas se leen con reglas para texto en español e inglés; un formato poco habitual puede acabar en la lista de revisión en lugar de convertirse en plazo.
+- La pasada opcional del modelo solo propone datos, y se descarta todo aquello cuya fecha no esté escrita en el documento. Los plazos calculados por reglas no son asesoramiento legal: comprueba el aviso original en cualquier asunto importante.
 
 ## Licencia
 
 MIT
-
-## Comparar versiones archivadas
-
-`doc_compare(before, after)` muestra los cambios de texto con citas a ambos documentos y sus páginas físicas. Alinea líneas a través de saltos de página, conserva filas repetidas y números e ignora únicamente líneas vacías y espacios dentro de una línea. Admite selección de páginas y paginación con `offset`/`next_offset`. Muestra las advertencias de extracción y páginas sin texto; la igualdad se refiere al texto archivado seleccionado, no a los archivos originales. No cambia originales, ediciones del usuario ni plazos. [Referencia y límites](docs/DOCUMENT_COMPARE.md).
-
-## Expedientes
-
-`kafka_dossier(question, doc_ids)` construye un expediente de una pregunta con fuentes ya archivadas (PDF, correos y textos, tablas CSV y texto leído por OCR). Para cada fuente da los pasajes relevantes con cita `[d_id · p. N · l. M]` y los datos que lee con reglas fijas, sin modelo: fechas, importes, duraciones, porcentajes y obligaciones (también celdas de tabla, con su fila y columna). La síntesis agrupa los datos del mismo asunto entre fuentes y lista las contradicciones (fechas, importes o requisitos incompatibles) una al lado de la otra con sus fuentes; Kafka nunca elige cuál vale. La conclusión separa lo que todas las fuentes dicen igual, lo que choca y las preguntas abiertas.
-
-El expediente guarda el hash del texto de cada fuente. `kafka_dossier_status` marca como desactualizado el que usa una fuente cambiada o borrada, y `kafka_dossier_refresh` recalcula solo la sección de esa fuente más la síntesis y la conclusión; las demás secciones se conservan. `kafka_requirements_diff(before, after)` alinea cláusulas por número (o por parecido) y devuelve las añadidas, quitadas y modificadas, con ambas citas, las palabras que cambian y los datos afectados. En la interfaz está en Expedientes; por REST, en `/api/dossiers` y `/api/requirements-diff`. Límites: reglas en castellano e inglés, sin interpretación jurídica; las tablas se detectan con `;` `|` tabulador o dos espacios (y coma en CSV), y el OCR no reconstruye tablas por sí mismo. [Detalle](docs/DOSSIER.md).
-
-## Skills para los agentes que se conectan
-
-Esta app lleva procedimientos de la biblioteca de skills del espacio de trabajo de la familia para los agentes que se conectan: `paperwork-intake-and-deadlines`, `hoard-daily-digest`. Aparecen en lo que el agente lee al conectarse, se leen con `skills_list` y `skill_read`, se buscan y asignan con `skills_library` y `skills_assign`, y se ofrecen como prompts. Se eligen en la página de skills (`/api/agent/skills/page`) o en la pestaña Skills del hub; el bloque `skills` de `faustus-plugin.json` guarda lo que la app pide por defecto.
-
-## App Dock
-
-Al abrir Kafka junto al chat de Faustus, `window.HoardApp` registra `kafka_open` (documento por id o título único), `kafka_filter` (texto, tipo, año y estado) y `kafka_view` (sección). El contexto incluye la vista, el documento abierto y los filtros visibles. Los nombres ambiguos devuelven candidatos. Las notificaciones `dock/changed` actualizan las vistas montadas sin recargar la página y conservan los campos pendientes de los formularios. Las herramientas del panel se usan mediante `app_view` y `app_act` del host; el catálogo de herramientas del servidor no cambia.
