@@ -667,22 +667,22 @@ def minutes_call(result, ok=True):
     return call_
 
 
-MINUTES = {"title": "Reunión de vecinos", "date": "2026-09-30", "attendees": ["Ana", "Luis"], "summary": "…",
+MINUTES = {"title": "Reunión de vecinos", "date": "2026-09-30", "attendees": ["Participante", "Responsable"], "summary": "…",
            "action_items": [{"text": "Pagar la derrama", "owner": "yo", "due": "2026-10-15"},
                             {"text": "Pedir presupuesto del portal", "due": "2026-10-20"},
-                            {"text": "Redactar el acta", "owner": "Marta", "due": "2026-10-10"},
+                            {"text": "Redactar el acta", "owner": "Secretaría", "due": "2026-10-10"},
                             {"text": "Pensar en lo del garaje"},
-                            {"text": "Llamar al administrador", "owner": "Ana y Luis", "due": "2026-10-12"}]}
+                            {"text": "Llamar al administrador", "owner": "Participante y Responsable", "due": "2026-10-12"}]}
 
 
 def test_deadlines_from_minutes_adds_my_dated_items_and_skips_the_rest(config, clock):
     s = build(config, clock, FakeMail(), family_call=minutes_call(MINUTES))
     try:
-        s.set_settings({"minutes.me": "Luis"})
+        s.set_settings({"minutes.me": "Responsable"})
         out = call(s, "deadlines_from_minutes", minutes_id="mn1")
         assert out["ok"] and [a["title"] for a in out["added"]] == ["Pagar la derrama", "Pedir presupuesto del portal", "Llamar al administrador"]
         reasons = {x["text"]: x["reason"] for x in out["skipped"]}
-        assert reasons["Redactar el acta"] == "belongs to Marta" and reasons["Pensar en lo del garaje"] == "no date"
+        assert reasons["Redactar el acta"] == "belongs to Secretaría" and reasons["Pensar en lo del garaje"] == "no date"
         rows = s.store.deadlines(states=["open"], source="funes")
         row = next(r for r in rows if r["title"] == "Pagar la derrama")
         assert row["source_ref"] == "hoard://funes/minutes/mn1" and "Reunión de vecinos" in row["basis"] and row["date"] == "2026-10-15"
