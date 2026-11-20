@@ -208,7 +208,7 @@ def test_a_filed_file_is_removed_by_undo_with_its_stored_original(client, tmp_pa
 
 def test_deadlines_from_minutes_are_removed_by_undo(client):
     client.svc.engine.family_call = minutes_call(MINUTES)
-    client.svc.set_settings({"minutes.me": "Luis"})
+    client.svc.set_settings({"minutes.me": "Responsable"})
     out = ok(agent_call(client, "deadlines_from_minutes", {"minutes_id": "mn1"}))
     assert len(out["added"]) == 3 and len(client.svc.store.deadlines(source="funes")) == 3
     done = ok(undo(client, "s1", confirm=True))
