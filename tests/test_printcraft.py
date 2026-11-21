@@ -14,15 +14,16 @@ from kafka_hoard.agent_tools import TOOLS_BY_NAME, call_tool
 from kafka_hoard.workshop.printcraft import load_manifest, printcraft_catalog_rows
 
 
-def test_printcraft_catalogue_has_all_123_json_schemas_and_dispatch_entries():
+def test_printcraft_catalogue_matches_manifest_and_dispatch_entries():
     rows = printcraft_catalog_rows()
-    assert len(rows) == 123
-    assert len({row["native_name"] for row in rows}) == 123
+    expected = sorted(row["name"] for row in load_manifest()["tools"])
+    assert sorted(row["native_name"] for row in rows) == expected
+    assert len(expected) == len(set(expected))
+    assert all(TOOLS_BY_NAME[row["name"]].input_model == row["input_schema"] for row in rows)
     for name in ("printcraft_text_paragraphs", "printcraft_text_edit", "printcraft_page_insert_file", "printcraft_page_rotate"):
         assert name in TOOLS_BY_NAME
         assert TOOLS_BY_NAME[name].input_model["type"] == "object"
     assert "printcraft_workflow" in TOOLS_BY_NAME
-    assert len(load_manifest()["tools"]) == 123
 
 
 def test_historical_cli_configuration_is_preserved_without_selecting_it(svc, tmp_path, monkeypatch):
@@ -53,7 +54,7 @@ def test_owned_engine_edits_a_filed_pdf_and_returns_a_receipt(svc, tmp_path, mon
     monkeypatch.setenv("KAFKA_PRINTCRAFT_CLI", str(tmp_path / "absent-old-cli.exe"))
     svc.printcraft.env.environ = os.environ
     status = svc.printcraft.status(discover=True)
-    assert status["runtime_tool_count"] == 123 and status["schema_matches"] is True
+    assert status["runtime_tool_count"] == len(load_manifest()["tools"]) and status["schema_matches"] is True
     svc.db.set_setting("workshop.dir", str(tmp_path / "outputs"))
 
     def make_pdf(folder: Path, text: str, filename: str) -> Path:

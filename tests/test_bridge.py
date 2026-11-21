@@ -13,6 +13,8 @@ from pathlib import Path
 import httpx
 import pytest
 
+from kafka_hoard.agent_tools import TOOLS
+
 ROOT = Path(__file__).resolve().parent.parent
 
 
@@ -68,7 +70,7 @@ def test_bridge_roundtrip(server):
         tools = rpc(proc, {"jsonrpc": "2.0", "id": 2, "method": "tools/list"})["result"]["tools"]
         names = {t["name"] for t in tools}
         assert {"kafka_overview", "doc_add_text", "deadlines_list", "deadline_explain", "doc_search", "warranty_check"} <= names
-        assert len(names) >= 39
+        assert sorted(t["name"] for t in tools) == sorted(t.name for t in TOOLS)
         text = "AGENCIA TRIBUTARIA\nRequerimiento\nExpediente: 2026/EXP/1\nFecha de notificación: 28/09/2026\n" \
                "Dispone de un plazo de diez (10) días hábiles contados desde el día siguiente al de la notificación para presentar alegaciones.\n"
         ok = rpc(proc, {"jsonrpc": "2.0", "id": 3, "method": "tools/call", "params": {"name": "doc_add_text", "arguments": {"title": "Requerimiento", "text": text}}})

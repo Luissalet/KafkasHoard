@@ -10,15 +10,16 @@ from kafka_hoard.workshop.printcraft import load_manifest
 
 
 def test_all_own_names_and_historical_aliases_share_schemas(svc):
-    for row in load_manifest()["tools"]:
+    manifest = load_manifest()["tools"]
+    for row in manifest:
         name = row["name"]
         own = TOOLS_BY_NAME["pdf_" + name]
         old = TOOLS_BY_NAME["printcraft_" + name]
         assert own.input_model == old.input_model
         assert own.annotations == old.annotations
     own_catalog = call_tool(svc, "pdf_catalog", {})
-    assert own_catalog["engine"] == "Kafka PDF" and own_catalog["count"] == 123
-    assert all(row["name"].startswith("pdf_") for row in own_catalog["tools"])
+    assert own_catalog["engine"] == "Kafka PDF" and own_catalog["count"] == len(manifest)
+    assert sorted(row["name"] for row in own_catalog["tools"]) == sorted("pdf_" + row["name"] for row in manifest)
 
 
 def test_worker_is_selected_even_with_missing_obsolete_paths(svc, tmp_path, monkeypatch):
@@ -27,7 +28,7 @@ def test_worker_is_selected_even_with_missing_obsolete_paths(svc, tmp_path, monk
     monkeypatch.setenv("KAFKA_PRINTCRAFT_CLI", missing)
     monkeypatch.setattr(svc.printcraft.env, "find", lambda *args: pytest.fail("External executable search"))
     result = call_tool(svc, "pdf_engine_status", {"discover": True})
-    assert result["available"] and result["runtime_tool_count"] == 123
+    assert result["available"] and result["runtime_tool_count"] == len(load_manifest()["tools"])
     assert result["schema_matches"] and result["source"] == "incorporated local source"
     assert Path(result["path"]).name.startswith("kafka-pdf-worker")
 
