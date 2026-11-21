@@ -4,6 +4,7 @@ from __future__ import annotations
 
 
 import docs
+from kafka_hoard.agent_tools import TOOLS
 from kafka_hoard.model import FINE
 from pdfmaker import make_pdf
 from pptxmaker import RENEWAL
@@ -105,7 +106,8 @@ def test_agent_needs_the_token(client):
     r = client.post("/api/agent/call", json={"name": "kafka_overview"}, headers=client.bearer)
     assert r.status_code == 200 and "overdue" in r.json()
     tools = client.get("/api/agent/tools").json()["tools"]
-    assert len(tools) >= 39 and all(len(t["description"].splitlines()[0]) <= 110 for t in tools)
+    assert sorted(t["name"] for t in tools) == sorted(t.name for t in TOOLS)
+    assert all(len(t["description"].splitlines()[0]) <= 110 for t in tools)
 
 
 def test_agent_unknown_tool_and_bad_arguments(client):

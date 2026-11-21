@@ -3,13 +3,16 @@
 from __future__ import annotations
 
 import json
+import re
+from pathlib import Path
 
 import pytest
 
 import docs
 from conftest import tool
 from kafka_hoard import model as M
-from kafka_hoard.agent_tools import TOOLS, uncapped
+from kafka_hoard.agent_tools import TOOLS, tool_catalog, uncapped
+from kafka_hoard.workshop.printcraft import load_manifest
 from kafka_hoard.hoard_link.agentkit import AppError
 
 
@@ -21,7 +24,8 @@ def seed(svc):
 
 def test_the_catalogue_has_unique_names_and_valid_schemas():
     names = [t.name for t in TOOLS]
-    assert len(names) == len(set(names)) >= 51
+    assert len(names) == len(set(names))
+    assert sorted(t["name"] for t in tool_catalog()) == sorted(names)
     for t in TOOLS:
         schema = t.input_model if isinstance(t.input_model, dict) else t.input_model.model_json_schema()
         assert schema["type"] == "object"
@@ -279,12 +283,13 @@ def test_the_workshop_tools_are_in_the_catalogue_and_documented():
     wanted = {"pdf_merge", "pdf_split", "pdf_pages", "pdf_compress", "pdf_protect", "pdf_watermark", "pdf_info", "pdf_metadata_set", "pdf_from_images",
               "pdf_from_office", "pdf_to_images", "images_compress", "pdf_to_markdown", "pdf_tables"}
     names = {t.name for t in TOOLS}
-    assert wanted <= names and len(names) == 325
-    assert sum(name.startswith("printcraft_") and name not in {"printcraft_workflow", "printcraft_status", "printcraft_artifacts", "printcraft_catalog"} for name in names) == 123
-    from pathlib import Path
+    assert wanted <= names
+    controls = {"printcraft_workflow", "printcraft_status", "printcraft_artifacts", "printcraft_catalog"}
+    expected = {"printcraft_" + row["name"] for row in load_manifest()["tools"]}
+    assert {name for name in names if name.startswith("printcraft_")} == expected | controls
     api = (Path(__file__).resolve().parent.parent / "docs" / "API.md").read_text(encoding="utf-8")
-    for name in wanted:
-        assert f"## `{name}`" in api
+    documented = re.findall(r"^## `([^`]+)`\s*$", api, re.MULTILINE)
+    assert sorted(documented) == sorted(names)
     assert "/api/workshop/upload" in api and "/api/workshop/file" in api
 
 
