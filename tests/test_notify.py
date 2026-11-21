@@ -120,10 +120,17 @@ def test_email_over_smtp_uses_the_given_factory(tmp_path):
         def send_message(self, msg):
             sent.append(("msg", msg["To"], msg["Subject"]))
 
-    secrets = {"KAFKA_SMTP_USER": "yo@example.org", "KAFKA_SMTP_PASSWORD": "pw", "KAFKA_SMTP_TO": "yo@example.org"}
+    secrets = {"KAFKA_SMTP_HOST": "smtp.example.org", "KAFKA_SMTP_USER": "yo@example.org",
+               "KAFKA_SMTP_PASSWORD": "pw", "KAFKA_SMTP_TO": "yo@example.org"}
     n, _ = make(tmp_path, {"notify.email.enabled": "1", "notify.email.backend": "smtp"}, secrets, smtp_factory=lambda *a, **k: Smtp())
     assert n.send(EVENT, ["email"])[0]["ok"]
-    assert ("login", "yo@example.org") in sent and ("msg", "yo@example.org", EVENT["title"]) in sent
+    login, message = sent
+    assert login == ("login", "yo@example.org")
+    action, recipient, subject = message
+    assert (action, recipient) == ("msg", "yo@example.org")
+    tag, _, title = subject.partition(" ")
+    assert tag.startswith("[") and tag.endswith("]") and len(tag) > 2
+    assert title == EVENT["title"]
 
 
 def test_toast_xml_is_escaped():
