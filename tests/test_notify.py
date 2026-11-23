@@ -178,6 +178,7 @@ def test_email_through_faustus_runs_the_helper_and_keeps_kafkas_secrets_out_of_i
     (faustus / "venv" / "bin").mkdir(parents=True)
     (faustus / "venv" / "bin" / "python").write_text("", encoding="utf-8")
     monkeypatch.setenv("KAFKA_SMTP_PASSWORD", "never-in-the-child")
+    monkeypatch.setattr("kafka_hoard.hoard_link.fam_mail.isolation", lambda: "")      # this one is about the child's environment; test_mail_isolation.py covers the guard
     seen = {}
 
     def runner(cmd, **kw):

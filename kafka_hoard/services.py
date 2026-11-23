@@ -427,7 +427,7 @@ class Services:
                 "counts": self.counts(), "scheduler": self.scheduler.status(), "channels": self.notifier.channels_status(),
                 "folders": self.folders_view(), "last_folder_scan_ts": float(self.setting("folders.last_scan_ts") or 0) or None,
                 "notify": self._notify_via(),
-                "mail": {"source": self._mail_source(), "mode": self.setting("mail.source"), "faustus_dir": str(self.mail.faustus_dir() or ""), "last_scan_ts": float(self.setting("mail.last_scan_ts") or 0) or None,
+                "mail": {"source": self._mail_source(), "mode": self.setting("mail.source"), "faustus_dir": str(self.mail.faustus_dir() or ""), "isolated": self._mail_isolated(), "last_scan_ts": float(self.setting("mail.last_scan_ts") or 0) or None,
                          "last_error": self.setting("mail.last_error"), "first_scan_done": self.setting("mail.first_scan_done") == "1"},
                 "ocr": {"available": ocr_ok, "detail": ocr_note, "backend": ocr_note if ocr_ok else "", "backends": ocr_status["backends"],
                         "engine": ocr_status.get("engine", "auto"), "engines": ocr_status.get("engines", list(OCR_ENGINES)),
@@ -445,6 +445,13 @@ class Services:
             return fn() if fn else {"setting": self.setting("notify.via"), "hub_available": False, "effective": "own"}
         except Exception:  # noqa: BLE001
             return {"setting": self.setting("notify.via"), "hub_available": False, "effective": "own"}
+
+    def _mail_isolated(self) -> str:
+        fn = getattr(self.mail, "isolated", None)
+        try:
+            return fn() if fn else ""
+        except Exception:  # noqa: BLE001
+            return ""
 
     def _mail_source(self) -> str:
         fn = getattr(self.mail, "source_now", None)
