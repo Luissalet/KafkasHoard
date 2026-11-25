@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import subprocess
 from pathlib import Path
 
@@ -41,7 +42,8 @@ def faustus(tmp_path):
 @pytest.fixture
 def configure(monkeypatch):
     saved = dict(family._state)
-    for key in ("HOARD_HUB_URL", "HOARD_TOKEN_FILE", "HOARD_HUB_DATA_DIR"):
+    for key in ("HOARD_HUB_URL", "HOARD_TOKEN_FILE", "HOARD_HUB_DATA_DIR",
+                "HOARD_MAIL_REAL_HUB_URLS", "HOARD_MAIL_REAL_DATA_DIRS"):
         monkeypatch.delenv(key, raising=False)
     fam_mail.forget_availability()
     yield lambda hub, token: family.configure("kafka", None, token_file=token, hub=hub)
@@ -74,3 +76,18 @@ def test_the_real_install_still_runs_the_helper(configure, faustus):
     source = source_for(faustus, runner)
     assert source.scan(since_days=30, limit=10, skip=[])["ok"] is True and runner.calls == 1
     assert source.status(refresh=True)["isolated"] == "" and source.isolated() == ""
+
+
+def test_a_declared_install_uses_the_same_guard(configure, faustus, tmp_path, monkeypatch):
+    hub = "https://hub.example.test"
+    roots = [tmp_path / "other", tmp_path / "install"]
+    monkeypatch.setenv("HOARD_MAIL_REAL_HUB_URLS", hub)
+    monkeypatch.setenv("HOARD_MAIL_REAL_DATA_DIRS", os.pathsep.join(map(str, roots)))
+    runner = CountingRunner()
+    source = source_for(faustus, runner)
+
+    configure(hub, str(roots[1] / "mcp-token"))
+    assert source.scan(since_days=30, limit=10, skip=[])["ok"] and runner.calls == 1
+    configure(hub, str(tmp_path / "scratch" / "mcp-token"))
+    assert source.status()["isolated"] == "data"
+    assert not source.status()["ok"] and runner.calls == 1
