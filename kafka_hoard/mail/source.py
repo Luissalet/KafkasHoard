@@ -57,6 +57,10 @@ class MailSource:
     def faustus_dir(self):
         return self.helper.faustus_dir()
 
+    def isolated(self) -> str:
+        """``hub`` or ``data`` when this is a test hub or test data (no Faustus helper, no mail without a gateway), else empty."""
+        return fam_mail.isolation()
+
     def forget_interest(self) -> None:
         self.router.forget_interest()
 
@@ -74,7 +78,7 @@ class MailSource:
                 base["error"] = "the hub's mail gateway is not on (or the hub is not running)"
         else:
             base = self.helper.status(refresh)
-        return {**base, "source": now, "mode": mode}
+        return {**base, "source": now, "mode": mode, "isolated": fam_mail.isolation()}
 
     # ------------------------------------------------------------------ scanning
     def scan(self, *, since_days: int, limit: int, skip: list[str], query: str = "", attachments_dir: str = "") -> dict[str, Any]:
